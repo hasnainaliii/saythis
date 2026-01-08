@@ -1,5 +1,6 @@
 import { Text, View } from "react-native";
-import { FONTS } from "../constants/Theme";
+import { StyleSheet } from 'react-native-unistyles';
+import { FONTS } from "../theme/Theme";
 
 export default function Index() {
   return (
@@ -11,7 +12,14 @@ export default function Index() {
         
       }}
     >
-      <Text style={{fontFamily:FONTS.primaryBlack}}>Edit app/index.tsx to edit thisawdad screenssssss.</Text>
+      <Text style={styles.container}>Edit app/index.tsx to edit thisawdad screenssssss.</Text>
     </View>
   );
 }
+const styles = StyleSheet.create({
+   container: {
+     backgroundColor: 'red',
+     padding:50,
+     fontFamily:FONTS.primaryBlack
+   }
+})

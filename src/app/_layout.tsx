@@ -54,6 +54,7 @@ export default function RootLayout() {
               headerShown: false,
               contentStyle: { backgroundColor: colors.primary },
               animation: "fade",
+              statusBarStyle: "dark",
             }}
           />
           <Toast />

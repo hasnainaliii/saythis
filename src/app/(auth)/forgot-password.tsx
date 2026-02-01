@@ -27,7 +27,6 @@ import {
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-// Forgot Password Screen
 export default function ForgotPasswordScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");

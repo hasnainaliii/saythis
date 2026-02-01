@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -15,6 +16,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../components";
+import authService from "../../services/authService";
+import { useAuthStore } from "../../store/authStore";
 import {
   colors,
   dynamicSpacingY,
@@ -23,18 +26,66 @@ import {
   spacingX,
   spacingY,
 } from "../../theme/Theme";
+import type { ApiError } from "../../types/auth";
+import { showError, showSuccess } from "../../utils/toast";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function LoginScreen() {
   const router = useRouter();
+  const login = useAuthStore((state) => state.login);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+
+  const loginMutation = useMutation({
+    mutationFn: authService.login,
+    onSuccess: async (data) => {
+      await login(data.user, data.access_token, data.refresh_token);
+      showSuccess("Welcome Back!", `Logged in as ${data.user.full_name}`);
+      router.replace("/");
+    },
+    onError: (err: any) => {
+      console.log("[Login] Error details:", err);
+
+      let message = "Login failed. Please try again.";
+
+      // Check for network errors first
+      if (err.code === "ERR_NETWORK" || err.message === "Network Error") {
+        message =
+          "Cannot connect to server. Please check your internet connection.";
+      } else if (err.code === "ECONNABORTED") {
+        message = "Request timed out. Please try again.";
+      } else if (err.response?.data) {
+        // Server responded with an error
+        const apiError = err.response.data as ApiError;
+        if (apiError?.error?.message) {
+          message = apiError.error.message;
+        } else if (typeof err.response.data === "string") {
+          message = err.response.data;
+        } else if (err.response.data.message) {
+          message = err.response.data.message;
+        }
+      } else if (err.message) {
+        message = err.message;
+      }
+
+      setError(message);
+      showError("Login Failed", message);
+    },
+  });
 
   const handleLogin = () => {
-    // Implement login logic
-    console.log("Login:", { email, password });
+    setError("");
+    if (!email || !password) {
+      const msg = "Please enter email and password";
+      setError(msg);
+      showError("Missing Fields", msg);
+      return;
+    }
+    loginMutation.mutate({ email, password });
   };
 
   const handleSignUp = () => {

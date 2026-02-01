@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -15,6 +16,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../components";
+import authService from "../../services/authService";
 import {
   colors,
   dynamicSpacingY,
@@ -23,6 +25,8 @@ import {
   spacingX,
   spacingY,
 } from "../../theme/Theme";
+import type { ApiError } from "../../types/auth";
+import { showError, showSuccess } from "../../utils/toast";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -34,10 +38,76 @@ export default function SignupScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
+
+  const registerMutation = useMutation({
+    mutationFn: authService.register,
+    onSuccess: () => {
+      showSuccess(
+        "Account Created",
+        "Your account has been created successfully. Please log in.",
+      );
+      router.push("/(auth)/login");
+    },
+    onError: (err: any) => {
+      console.log("[Signup] Error details:", err);
+
+      let message = "Registration failed. Please try again.";
+
+      // Check for network errors first
+      if (err.code === "ERR_NETWORK" || err.message === "Network Error") {
+        message =
+          "Cannot connect to server. Please check your internet connection.";
+      } else if (err.code === "ECONNABORTED") {
+        message = "Request timed out. Please try again.";
+      } else if (err.response?.data) {
+        // Server responded with an error
+        const apiError = err.response.data as ApiError;
+        if (apiError?.error?.message) {
+          message = apiError.error.message;
+        } else if (typeof err.response.data === "string") {
+          message = err.response.data;
+        } else if (err.response.data.message) {
+          message = err.response.data.message;
+        }
+      } else if (err.message) {
+        message = err.message;
+      }
+
+      setError(message);
+      showError("Registration Failed", message);
+    },
+  });
 
   const handleSignUp = () => {
-    // Implement sign up logic
-    console.log("Sign Up:", { name, email, password });
+    setError("");
+
+    if (!name || !email || !password || !confirmPassword) {
+      const msg = "Please fill in all fields";
+      setError(msg);
+      showError("Missing Fields", msg);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      const msg = "Passwords do not match";
+      setError(msg);
+      showError("Password Mismatch", msg);
+      return;
+    }
+
+    if (password.length < 8) {
+      const msg = "Password must be at least 8 characters";
+      setError(msg);
+      showError("Weak Password", msg);
+      return;
+    }
+
+    registerMutation.mutate({
+      email,
+      full_name: name,
+      password,
+    });
   };
 
   const handleSignIn = () => {

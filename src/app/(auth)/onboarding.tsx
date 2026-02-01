@@ -21,6 +21,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../components";
+import { useAuthStore } from "../../store/authStore";
 import {
   colors,
   dynamicSpacingX,
@@ -34,12 +35,10 @@ import {
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const TOTAL_PAGES = 4;
 
-// Animated Dot - stable when stationary, animates on change
 const AnimatedDot = ({ isActive }: { isActive: boolean }) => {
   const width = useSharedValue(isActive ? 10 : 8);
   const opacity = useSharedValue(isActive ? 1 : 0.5);
 
-  // Only animate when isActive changes
   React.useEffect(() => {
     width.value = withSpring(isActive ? 10 : 8, {
       damping: 20,
@@ -60,7 +59,6 @@ const AnimatedDot = ({ isActive }: { isActive: boolean }) => {
   return <Animated.View style={[styles.dot, animatedStyle]} />;
 };
 
-// Animated Page wrapper for fade/scale effects
 const AnimatedPage = ({
   index,
   scrollX,
@@ -125,6 +123,20 @@ export default function OnboardingScreen() {
 
   const handleSkip = () => {
     router.push("/(auth)/login");
+  };
+
+  const handleContinue = () => {
+    if (currentPage < TOTAL_PAGES - 1) {
+      scrollViewRef.current?.scrollTo({
+        x: (currentPage + 1) * SCREEN_WIDTH,
+        animated: true,
+      });
+    } else {
+      // Mark onboarding as completed
+      useAuthStore.getState().setOnboardingCompleted();
+      // Navigation will be handled by the layout ref redirect
+      router.replace("/(auth)/login");
+    }
   };
 
   const handleGetStarted = () => {
@@ -272,11 +284,7 @@ export default function OnboardingScreen() {
                 <Text style={styles.scoreLabel}>CONFIDENCE SCORE</Text>
                 <View style={styles.scoreRow}>
                   <Text style={styles.scoreValue}>92%</Text>
-                  <Ionicons
-                    name="trending-up"
-                    size={24}
-                    color={colors.secondary}
-                  />
+                  <Ionicons name="trending-up" size={24} color={colors.white} />
                 </View>
               </View>
               <View style={styles.weekBadge}>
@@ -303,11 +311,7 @@ export default function OnboardingScreen() {
                   { backgroundColor: colors.secondary_20 },
                 ]}
               >
-                <Ionicons
-                  name="mic-outline"
-                  size={24}
-                  color={colors.secondary}
-                />
+                <Ionicons name="mic-outline" size={24} color={colors.white} />
               </View>
               <Text style={styles.featureText}>Record</Text>
             </View>
@@ -316,10 +320,10 @@ export default function OnboardingScreen() {
               <View
                 style={[
                   styles.featureIcon,
-                  { backgroundColor: colors.primary10 },
+                  { backgroundColor: colors.secondary_20 },
                 ]}
               >
-                <Ionicons name="stats-chart" size={24} color={colors.black} />
+                <Ionicons name="stats-chart" size={24} color={colors.white} />
               </View>
               <Text style={styles.featureText}>Track</Text>
             </View>
@@ -334,7 +338,7 @@ export default function OnboardingScreen() {
                 <MaterialCommunityIcons
                   name="yoga"
                   size={24}
-                  color={colors.secondary}
+                  color={colors.white}
                 />
               </View>
               <Text style={styles.featureText}>Grow</Text>
@@ -429,7 +433,6 @@ export default function OnboardingScreen() {
         </AnimatedPage>
       </Animated.ScrollView>
 
-      {/* Fixed Pagination - Outside ScrollView */}
       <View style={styles.fixedPaginationContainer}>
         <View style={styles.pagination}>
           {Array.from({ length: TOTAL_PAGES }).map((_, index) => (
@@ -451,7 +454,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: dynamicSpacingY(4), // Reduced from 10
+    paddingBottom: dynamicSpacingY(4),
   },
   page: {
     flex: 1,
@@ -702,7 +705,7 @@ const styles = StyleSheet.create({
   // Fixed Pagination Container
   fixedPaginationContainer: {
     position: "absolute",
-    bottom: dynamicSpacingY(2), // Moved much lower
+    bottom: dynamicSpacingY(4), // Moved much lower
     left: 0,
     right: 0,
     alignItems: "center",
@@ -715,7 +718,7 @@ const styles = StyleSheet.create({
   },
   dot: {
     height: 8,
-    borderRadius: 4, // Fully rounded
+    borderRadius: 4,
     backgroundColor: colors.primary10,
   },
   activeDot: {
@@ -794,7 +797,7 @@ const styles = StyleSheet.create({
   },
   testimonialCard: {
     marginHorizontal: spacingX.lg,
-    marginTop: dynamicSpacingY(3),
+    marginTop: dynamicSpacingY(6),
     backgroundColor: colors.white,
     borderRadius: 24,
     padding: dynamicSpacingX(5),

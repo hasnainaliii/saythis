@@ -1,25 +1,6 @@
-import { Text, View } from "react-native";
-import { StyleSheet } from 'react-native-unistyles';
-import { FONTS } from "../theme/Theme";
+import { Redirect } from "expo-router";
 
 export default function Index() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        
-      }}
-    >
-      <Text style={styles.container}>Edit app/index.tsx to edit thisawdad screenssssss.</Text>
-    </View>
-  );
+  // Redirect to onboarding screen on app start
+  return <Redirect href="/(auth)/onboarding" />;
 }
-const styles = StyleSheet.create({
-   container: {
-     backgroundColor: 'red',
-     padding:50,
-     fontFamily:FONTS.primaryBlack
-   }
-})

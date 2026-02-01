@@ -34,16 +34,27 @@ import {
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const TOTAL_PAGES = 4;
 
-// Animated Dot - only shows active state, bouncy transition
+// Animated Dot - stable when stationary, animates on change
 const AnimatedDot = ({ isActive }: { isActive: boolean }) => {
+  const width = useSharedValue(isActive ? 10 : 8);
+  const opacity = useSharedValue(isActive ? 1 : 0.5);
+
+  // Only animate when isActive changes
+  React.useEffect(() => {
+    width.value = withSpring(isActive ? 10 : 8, {
+      damping: 20,
+      stiffness: 200,
+    });
+    opacity.value = withSpring(isActive ? 1 : 0.5, {
+      damping: 20,
+      stiffness: 200,
+    });
+  }, [isActive]);
+
   const animatedStyle = useAnimatedStyle(() => ({
-    width: withSpring(isActive ? 24 : 8, {
-      damping: 15,
-      stiffness: 300,
-      mass: 0.8,
-    }),
+    width: width.value,
+    opacity: opacity.value,
     backgroundColor: isActive ? colors.secondary : colors.primary10,
-    opacity: withSpring(isActive ? 1 : 0.5),
   }));
 
   return <Animated.View style={[styles.dot, animatedStyle]} />;
@@ -129,14 +140,6 @@ export default function OnboardingScreen() {
       setCurrentPage(page);
     }
   };
-
-  const renderPagination = () => (
-    <View style={styles.pagination}>
-      {Array.from({ length: TOTAL_PAGES }).map((_, index) => (
-        <AnimatedDot key={index} isActive={currentPage === index} />
-      ))}
-    </View>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -241,7 +244,6 @@ export default function OnboardingScreen() {
             <Text style={styles.bottomSubtitle}>
               Backed by speech pathology research.
             </Text>
-            {renderPagination()}
           </View>
         </AnimatedPage>
 
@@ -338,9 +340,6 @@ export default function OnboardingScreen() {
               <Text style={styles.featureText}>Grow</Text>
             </View>
           </View>
-
-          {/* Pagination */}
-          <View style={styles.paginationContainer}>{renderPagination()}</View>
         </AnimatedPage>
 
         {/* Page 4: Community */}
@@ -417,9 +416,6 @@ export default function OnboardingScreen() {
           {/* Spacer */}
           <View style={{ flex: 1 }} />
 
-          {/* Pagination */}
-          <View style={styles.paginationContainer}>{renderPagination()}</View>
-
           {/* Next Button */}
           <View style={styles.bottomContainer}>
             <Button
@@ -432,6 +428,15 @@ export default function OnboardingScreen() {
           </View>
         </AnimatedPage>
       </Animated.ScrollView>
+
+      {/* Fixed Pagination - Outside ScrollView */}
+      <View style={styles.fixedPaginationContainer}>
+        <View style={styles.pagination}>
+          {Array.from({ length: TOTAL_PAGES }).map((_, index) => (
+            <AnimatedDot key={index} isActive={currentPage === index} />
+          ))}
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -446,6 +451,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: dynamicSpacingY(4), // Reduced from 10
   },
   page: {
     flex: 1,
@@ -469,7 +475,7 @@ const styles = StyleSheet.create({
   // Page 1 Styles
   logoContainer: {
     alignItems: "center",
-    marginTop: dynamicSpacingY(4),
+    marginTop: dynamicSpacingY(2), // Reduced from 4
   },
   logoCircle: {
     width: 56,
@@ -507,7 +513,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: dynamicSpacingY(2),
+    marginVertical: dynamicSpacingY(1), // Reduced from 2
     paddingHorizontal: spacingX.lg,
   },
   imageBackground: {
@@ -529,7 +535,7 @@ const styles = StyleSheet.create({
     height: "85%",
   },
   bottomContainer: {
-    paddingBottom: dynamicSpacingY(4),
+    paddingBottom: dynamicSpacingY(2), // Reduced from 4
     paddingHorizontal: spacingX.lg,
   },
   button: {
@@ -693,23 +699,27 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.small,
     color: colors.black,
   },
-  // Pagination
-  paginationContainer: {
+  // Fixed Pagination Container
+  fixedPaginationContainer: {
+    position: "absolute",
+    bottom: dynamicSpacingY(2), // Moved much lower
+    left: 0,
+    right: 0,
     alignItems: "center",
-    paddingBottom: dynamicSpacingY(3),
+    zIndex: 10,
   },
   pagination: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacingX.xs,
+    gap: spacingX.sm, // Increased gap slightly
   },
   dot: {
     height: 8,
-    borderRadius: 8,
+    borderRadius: 4, // Fully rounded
     backgroundColor: colors.primary10,
   },
   activeDot: {
-    width: 24,
+    width: 10, // Small circle/dot (just slightly larger than 8)
     backgroundColor: colors.secondary,
   },
   // Page 4 Styles

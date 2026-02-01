@@ -320,6 +320,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     alignItems: "center",
+    paddingTop: spacingY.sm,
     paddingBottom: dynamicSpacingY(4),
     gap: spacingY.sm,
   },

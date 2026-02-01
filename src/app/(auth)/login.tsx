@@ -42,7 +42,7 @@ export default function LoginScreen() {
   };
 
   const handleForgotPassword = () => {
-    // Navigate to forgot password
+    router.push("/(auth)/forgot-password");
   };
 
   const handleSocialLogin = (provider: "facebook" | "google" | "instagram") => {

@@ -12,9 +12,10 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Button, Input } from "../../components";
 import AuthHeader from "../../components/auth/AuthHeader";
 import SocialLoginButtons from "../../components/auth/SocialLoginButtons";
-import { Button, Input } from "../../components";
+import { DEV_CREDENTIALS, DEV_MODE_ENABLED } from "../../config/devCredentials";
 import { parseApiError } from "../../hooks/useApiError";
 import authService from "../../services/authService";
 import { useAuthStore } from "../../store/authStore";
@@ -47,6 +48,11 @@ export default function LoginScreen() {
       return;
     }
     loginMutation.mutate({ email, password });
+  };
+
+  const handleDevLogin = () => {
+    setEmail(DEV_CREDENTIALS.email);
+    setPassword(DEV_CREDENTIALS.password);
   };
 
   return (
@@ -94,6 +100,13 @@ export default function LoginScreen() {
                 style={styles.signInButton}
               />
             </View>
+
+            {DEV_MODE_ENABLED && (
+              <Pressable style={styles.devModeContainer} onPress={handleDevLogin}>
+                <Ionicons name="construct" size={14} color={colors.secondary} />
+                <Text style={styles.devModeText}>Use Dev Access</Text>
+              </Pressable>
+            )}
 
             <SocialLoginButtons
               onPress={(p) => console.log("Social login:", p)}
@@ -149,6 +162,19 @@ const styles = StyleSheet.create({
   },
   signInButton: {
     marginTop: spacingY.md,
+  },
+  devModeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacingX.xs,
+    marginTop: dynamicSpacingY(2),
+    paddingVertical: spacingY.sm,
+  },
+  devModeText: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.small,
+    color: colors.secondary,
   },
   footerContainer: {
     flex: 1,

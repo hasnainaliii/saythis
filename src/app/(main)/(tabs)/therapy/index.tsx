@@ -2,14 +2,14 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ChapterCard from "../../../components/ChapterCard";
+import ChapterCard from "../../../../components/ChapterCard";
 import {
-  colors,
-  FONTS,
-  fontSizes,
-  spacingX,
-  spacingY,
-} from "../../../theme/Theme";
+    colors,
+    FONTS,
+    fontSizes,
+    spacingX,
+    spacingY,
+} from "../../../../theme/Theme";
 
 const MOCK_CHAPTERS = [
   {
@@ -69,7 +69,7 @@ export default function TherapyScreen() {
 
   const handlePressChapter = (id: number) => {
     router.push({
-      pathname: "/(main)/therapy/[id]",
+      pathname: "/(main)/(tabs)/therapy/[id]",
       params: { id },
     });
   };

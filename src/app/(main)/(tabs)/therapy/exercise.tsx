@@ -3,10 +3,10 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import { FlatList, StyleSheet, Text, View, ViewToken } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Button from "../../../components/Button";
-import ExerciseSlide, { Slide } from "../../../components/exercise/ExerciseSlide";
-import { Exercise } from "../../../data/chapter1Data";
-import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../../theme/Theme";
+import Button from "../../../../components/Button";
+import ExerciseSlide, { Slide } from "../../../../components/exercise/ExerciseSlide";
+import { Exercise } from "../../../../data/chapter1Data";
+import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../../../theme/Theme";
 
 export default function ExercisePlayerScreen() {
   const { exerciseData } = useLocalSearchParams<{ exerciseData: string }>();

@@ -1,11 +1,11 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { colors, FONTS, fontSizes } from "../../../theme/Theme";
+import { colors, FONTS, fontSizes } from "../../../../theme/Theme";
 
-export default function LibraryScreen() {
+export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Library - Coming Soon</Text>
+      <Text style={styles.text}>Home - Coming Soon</Text>
     </View>
   );
 }

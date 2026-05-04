@@ -1,27 +1,46 @@
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 import { Download, FileText, Settings, User, Zap } from "lucide-react-native";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, ProfileMenuItem } from "../../../components";
-import { useAuthStore } from "../../../store/authStore";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Button, ProfileMenuItem } from "../../../../components";
+import { useAuthStore } from "../../../../store/authStore";
 import {
-  colors,
-  FONTS,
-  fontSizes,
-  spacingX,
-  spacingY,
-} from "../../../theme/Theme";
+    colors,
+    dynamicSpacingY,
+    FONTS,
+    fontSizes,
+    spacingX,
+    spacingY,
+} from "../../../../theme/Theme";
+
+const avatarUrl =
+  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1760&q=80";
+
+const avatarSize = dynamicSpacingY(14);
+const headerRadius = dynamicSpacingY(5);
+const headerTopPadding = dynamicSpacingY(7);
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
 
   const handlePress = (item: string) => {
+    if (item === "Edit Profile") {
+      router.push("/(main)/(tabs)/profile/edit-profile");
+      return;
+    }
+    if (item === "Subscription") {
+      router.push("/(main)/(tabs)/profile/subscription");
+      return;
+    }
     console.log(`Pressed ${item}`);
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -30,7 +49,7 @@ export default function ProfileScreen() {
           <View style={styles.headerContent}>
             <View style={styles.avatarContainer}>
               <Image
-                source="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1760&q=80"
+                source={avatarUrl}
                 style={styles.avatar}
                 contentFit="cover"
                 transition={1000}
@@ -84,7 +103,7 @@ export default function ProfileScreen() {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -94,23 +113,23 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: spacingY.xxl,
   },
   headerContainer: {
     backgroundColor: colors.secondary_20,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
-    paddingTop: spacingY.xl + 40,
+    borderBottomLeftRadius: headerRadius,
+    borderBottomRightRadius: headerRadius,
+    paddingTop: headerTopPadding,
     paddingBottom: spacingY.xl,
     alignItems: "center",
     marginBottom: spacingY.md,
     shadowColor: colors.black,
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: spacingY.xs,
     },
     shadowOpacity: 0.05,
-    shadowRadius: 10,
+    shadowRadius: spacingY.md,
     elevation: 2,
   },
   headerContent: {
@@ -120,17 +139,17 @@ const styles = StyleSheet.create({
     padding: spacingX.lg,
   },
   avatarContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 4,
+    width: avatarSize,
+    height: avatarSize,
+    borderRadius: avatarSize / 2,
+    borderWidth: spacingX.xxs,
     borderColor: colors.primary,
     marginBottom: spacingY.sm,
   },
   avatar: {
     width: "100%",
     height: "100%",
-    borderRadius: 50,
+    borderRadius: avatarSize / 2,
   },
   name: {
     fontFamily: FONTS.primaryBold,
@@ -148,7 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingHorizontal: spacingX.md,
     paddingVertical: spacingX.xs,
-    borderRadius: 20,
+    borderRadius: spacingY.lg,
   },
   badgeText: {
     fontFamily: FONTS.primaryBold,

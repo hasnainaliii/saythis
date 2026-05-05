@@ -2,20 +2,20 @@ import { useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import React from "react";
 import {
-    Pressable,
-    StyleSheet,
-    Text,
-    TextStyle,
-    View,
-    ViewStyle,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextStyle,
+  View,
+  ViewStyle,
 } from "react-native";
 import {
-    colors,
-    dynamicSpacingY,
-    FONTS,
-    fontSizes,
-    spacingX,
-    spacingY,
+  colors,
+  dynamicSpacingY,
+  FONTS,
+  fontSizes,
+  spacingX,
+  spacingY,
 } from "../theme/Theme";
 
 interface BackButtonProps {
@@ -23,6 +23,7 @@ interface BackButtonProps {
   onPress?: () => void;
   style?: ViewStyle;
   textStyle?: TextStyle;
+  variant?: "light" | "dark";
 }
 
 const iconSize = fontSizes.large;
@@ -33,9 +34,16 @@ export const BackButton: React.FC<BackButtonProps> = ({
   onPress,
   style,
   textStyle,
+  variant = "light",
 }) => {
   const router = useRouter();
   const showLabel = !!label?.trim();
+
+  const isDark = variant === "dark";
+  const iconColor = isDark ? colors.libraryText : colors.black;
+  const iconBg = isDark ? colors.libraryCard : colors.white;
+  const iconBorder = isDark ? colors.libraryBorder : colors.primary10;
+  const labelColor = isDark ? colors.libraryText : colors.black;
 
   const handlePress = () => {
     if (onPress) {
@@ -48,13 +56,26 @@ export const BackButton: React.FC<BackButtonProps> = ({
   return (
     <Pressable
       onPress={handlePress}
-      style={({ pressed }) => [styles.container, pressed && styles.pressed, style]}
+      style={({ pressed }) => [
+        styles.container,
+        pressed && styles.pressed,
+        style,
+      ]}
       hitSlop={spacingX.md}
     >
-      <View style={styles.iconContainer}>
-        <ChevronLeft size={iconSize} color={colors.black} />
+      <View
+        style={[
+          styles.iconContainer,
+          { backgroundColor: iconBg, borderColor: iconBorder },
+        ]}
+      >
+        <ChevronLeft size={iconSize} color={iconColor} />
       </View>
-      {showLabel && <Text style={[styles.label, textStyle]}>{label}</Text>}
+      {showLabel ? (
+        <Text style={[styles.label, { color: labelColor }, textStyle]}>
+          {label}
+        </Text>
+      ) : null}
     </Pressable>
   );
 };
@@ -74,15 +95,12 @@ const styles = StyleSheet.create({
     width: iconBoxSize,
     height: iconBoxSize,
     borderRadius: iconBoxSize / 2,
-    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: colors.primary10,
     alignItems: "center",
     justifyContent: "center",
   },
   label: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.medium,
-    color: colors.black,
   },
 });

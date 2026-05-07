@@ -1,12 +1,11 @@
 import { useRouter } from "expo-router";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ChapterCard from "../../../../components/ChapterCard";
+import PageHeader from "../../../../components/PageHeader";
 import {
     colors,
-    FONTS,
-    fontSizes,
     spacingX,
     spacingY,
 } from "../../../../theme/Theme";
@@ -80,10 +79,11 @@ export default function TherapyScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>Your Roadmap</Text>
-          <Text style={styles.subtitle}>Step-by-step to confident speech.</Text>
-        </View>
+        <PageHeader
+          title="Therapy"
+          headline="Your Roadmap"
+          subtitle="Step-by-step to confident speech."
+        />
 
         <View style={styles.timelineContainer}>
           {MOCK_CHAPTERS.map((chapter, index) => {
@@ -122,21 +122,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: spacingX.lg,
     paddingBottom: spacingY.xxl,
-  },
-  header: {
-    marginBottom: spacingY.xl,
-    marginTop: spacingY.md,
-  },
-  title: {
-    fontFamily: FONTS.primaryBold,
-    fontSize: fontSizes.xxl,
-    color: colors.textDark,
-    marginBottom: spacingY.xs,
-  },
-  subtitle: {
-    fontFamily: FONTS.primary,
-    fontSize: fontSizes.medium,
-    color: colors.textMuted,
   },
   timelineContainer: {},
   chapterWrapper: {

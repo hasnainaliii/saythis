@@ -1,4 +1,5 @@
 export type LibraryCategory =
+  | "all"
   | "speech_fluency"
   | "breathing"
   | "drills"

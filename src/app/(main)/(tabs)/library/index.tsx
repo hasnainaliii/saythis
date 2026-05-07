@@ -2,65 +2,45 @@ import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import { StatusBar, StyleSheet, Text, View } from "react-native";
 import Animated, {
-  useAnimatedScrollHandler,
-  useSharedValue,
+    useAnimatedScrollHandler,
+    useSharedValue,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LibraryHeader from "../../../../components/library/LibraryHeader";
 import QuickStartFab from "../../../../components/library/QuickStartFab";
 import ToolCard from "../../../../components/library/ToolCard";
 import {
-  getToolById,
-  LAST_USED_TOOL_ID,
-  LIBRARY_CATEGORIES,
-  LIBRARY_TOOLS,
+    getToolById,
+    LAST_USED_TOOL_ID,
+    LIBRARY_CATEGORIES,
+    LIBRARY_TOOLS,
 } from "../../../../data/libraryTools";
 import {
-  colors,
-  FONTS,
-  fontSizes,
-  spacingX,
-  spacingY,
+    colors,
+    FONTS,
+    fontSizes,
+    spacingX,
+    spacingY,
 } from "../../../../theme/Theme";
 import { LibraryCategory, LibraryTool } from "../../../../types/library";
 
 export default function LibraryScreen() {
   const router = useRouter();
-  const [query, setQuery] = useState("");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<LibraryCategory>(
-    "speech_fluency",
+    "all",
   );
   const scrollY = useSharedValue(0);
 
-  const normalizedQuery = query.trim().toLowerCase();
-
   const toolsToShow = useMemo(() => {
-    if (isSearchOpen) {
-      if (!normalizedQuery) {
-        return [] as LibraryTool[];
-      }
-      return LIBRARY_TOOLS.filter((tool) =>
-        tool.name.toLowerCase().includes(normalizedQuery),
-      );
+    if (activeCategory === "all") {
+      return LIBRARY_TOOLS;
     }
-
-    return LIBRARY_TOOLS.filter((tool) => {
-      const matchesCategory = tool.category === activeCategory;
-      const matchesQuery = normalizedQuery
-        ? tool.name.toLowerCase().includes(normalizedQuery)
-        : true;
-      return matchesCategory && matchesQuery;
-    });
-  }, [activeCategory, isSearchOpen, normalizedQuery]);
+    return LIBRARY_TOOLS.filter((tool) => tool.category === activeCategory);
+  }, [activeCategory]);
 
   const recommendedTools = useMemo(() => {
-    return LIBRARY_TOOLS.filter((tool) => tool.isRecommended).filter((tool) =>
-      normalizedQuery
-        ? tool.name.toLowerCase().includes(normalizedQuery)
-        : true,
-    );
-  }, [normalizedQuery]);
+    return LIBRARY_TOOLS.filter((tool) => tool.isRecommended);
+  }, []);
 
   const lastUsedTool = useMemo(() => {
     return getToolById(LAST_USED_TOOL_ID) ?? LIBRARY_TOOLS[0];
@@ -71,15 +51,6 @@ export default function LibraryScreen() {
       pathname: "/(main)/(tabs)/library/[id]",
       params: { id: tool.id },
     });
-  };
-
-  const handleOpenSearch = () => {
-    setIsSearchOpen(true);
-  };
-
-  const handleCloseSearch = () => {
-    setIsSearchOpen(false);
-    setQuery("");
   };
 
   const scrollHandler = useAnimatedScrollHandler({
@@ -109,35 +80,19 @@ export default function LibraryScreen() {
         ListHeaderComponent={
           <LibraryHeader
             title="Library"
-            subtitle="Your full catalog of fluency tools"
-            query={query}
-            onQueryChange={setQuery}
             categories={LIBRARY_CATEGORIES}
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
             recommendedTools={recommendedTools}
             onPressTool={handlePressTool}
             scrollY={scrollY}
-            isSearchOpen={isSearchOpen}
-            onOpenSearch={handleOpenSearch}
-            onCloseSearch={handleCloseSearch}
           />
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Text style={styles.emptyTitle}>
-              {isSearchOpen
-                ? normalizedQuery
-                  ? "No results"
-                  : "Search the library"
-                : "No tools found"}
-            </Text>
+            <Text style={styles.emptyTitle}>No tools found</Text>
             <Text style={styles.emptySubtitle}>
-              {isSearchOpen
-                ? normalizedQuery
-                  ? "Try another keyword."
-                  : "Type a tool name to begin."
-                : "Try a different search or category."}
+              Try a different category.
             </Text>
           </View>
         }
@@ -147,7 +102,7 @@ export default function LibraryScreen() {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
       />
-      {lastUsedTool && !isSearchOpen ? (
+      {lastUsedTool ? (
         <QuickStartFab onPress={() => handlePressTool(lastUsedTool)} />
       ) : null}
     </SafeAreaView>

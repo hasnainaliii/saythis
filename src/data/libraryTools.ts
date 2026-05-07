@@ -2,6 +2,7 @@ import { colors } from "../theme/Theme";
 import { LibraryCategory, LibraryTool } from "../types/library";
 
 export const LIBRARY_CATEGORIES: { key: LibraryCategory; label: string }[] = [
+  { key: "all", label: "All" },
   { key: "speech_fluency", label: "Speech Fluency" },
   { key: "breathing", label: "Breathing" },
   { key: "drills", label: "Drills" },
@@ -17,6 +18,12 @@ export const LIBRARY_CATEGORY_STYLES: Record<
   LibraryCategory,
   { label: string; tagBg: string; tagText: string; gradient: [string, string] }
 > = {
+  all: {
+    label: "All",
+    tagBg: colors.libraryCard,
+    tagText: colors.libraryText,
+    gradient: [colors.libraryCard, colors.libraryCardAlt],
+  },
   speech_fluency: {
     label: "Speech Fluency",
     tagBg: colors.tagSpeechBg,

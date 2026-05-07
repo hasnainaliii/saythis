@@ -92,20 +92,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacingX.md,
     paddingVertical: spacingY.xs,
     borderRadius: radii.pill,
-    backgroundColor: colors.primary_20,
+    backgroundColor: colors.libraryCard,
     borderWidth: 1,
     borderColor: colors.libraryBorder,
     alignItems: "center",
     justifyContent: "center",
   },
   tabActive: {
-    backgroundColor: colors.primary10,
+    backgroundColor: colors.primary_10,
     borderColor: colors.primary10,
   },
   tabText: {
     fontFamily: FONTS.primary,
     fontSize: fontSizes.small,
-    color: colors.libraryMuted,
+    color: colors.textMuted,
   },
   activeText: {
     fontFamily: FONTS.primaryBold,

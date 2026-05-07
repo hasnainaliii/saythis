@@ -4,6 +4,7 @@ export { default as ChapterCard } from "./ChapterCard";
 export { default as ExerciseCard } from "./ExerciseCard";
 export { FeatureListItem } from "./FeatureListItem";
 export { Input } from "./Input";
+export { default as PageHeader } from "./PageHeader";
 export { ProfileMenuItem } from "./ProfileMenuItem";
 export { ScreenHeader } from "./ScreenHeader";
 

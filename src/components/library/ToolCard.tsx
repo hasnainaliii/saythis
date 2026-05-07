@@ -1,4 +1,4 @@
-import { CheckCircle2, Lock } from "lucide-react-native";
+import { ArrowRight, CheckCircle2, Clock, Lock } from "lucide-react-native";
 import React from "react";
 import {
     Image,
@@ -26,8 +26,6 @@ import {
     spacingY,
 } from "../../theme/Theme";
 import { LibraryTool } from "../../types/library";
-import ToolTag from "./ToolTag";
-import { TOOL_ICON_MAP } from "./toolIcons";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -48,7 +46,6 @@ const ToolCard: React.FC<ToolCardProps> = ({
 }) => {
   const pressed = useSharedValue(0);
   const cardStyle = LIBRARY_CATEGORY_STYLES[tool.category];
-  const Icon = TOOL_ICON_MAP[tool.iconKey];
   const isCompact = variant === "compact";
   const showStatusIcon = tool.isLocked || tool.completedToday;
   const imageSource = tool.heroImage;
@@ -89,22 +86,17 @@ const ToolCard: React.FC<ToolCardProps> = ({
             resizeMode="cover"
           />
         </View>
-        <View style={[styles.content, isCompact && styles.contentCompact]}>
-          <View style={styles.headerRow}>
-            <View style={[styles.iconWrap, isCompact && styles.iconWrapCompact]}>
-              <Icon size={isCompact ? 18 : 22} color={colors.libraryText} />
-            </View>
-            {showStatus && showStatusIcon ? (
-              <View style={styles.statusBadge}>
-                {tool.isLocked ? (
-                  <Lock size={14} color={colors.librarySoft} />
-                ) : tool.completedToday ? (
-                  <CheckCircle2 size={14} color={colors.libraryAccent} />
-                ) : null}
-              </View>
+        {showStatus && showStatusIcon ? (
+          <View style={styles.statusBadge}>
+            {tool.isLocked ? (
+              <Lock size={14} color={colors.librarySoft} />
+            ) : tool.completedToday ? (
+              <CheckCircle2 size={14} color={colors.libraryAccent} />
             ) : null}
           </View>
+        ) : null}
 
+        <View style={[styles.content, isCompact && styles.contentCompact]}>
           <Text
             style={[styles.title, isCompact && styles.titleCompact]}
             numberOfLines={2}
@@ -119,8 +111,14 @@ const ToolCard: React.FC<ToolCardProps> = ({
           </Text>
 
           <View style={styles.footer}>
-            <ToolTag category={tool.category} />
-            <Text style={styles.duration}>{tool.durationMinutes} min</Text>
+            <View style={styles.metaRow}>
+              <Clock size={14} color={colors.libraryMuted} />
+              <Text style={styles.metaText}>{tool.durationMinutes} min</Text>
+            </View>
+            <View style={styles.startRow}>
+              <Text style={styles.startText}>Start</Text>
+              <ArrowRight size={14} color={colors.libraryText} />
+            </View>
           </View>
         </View>
       </View>
@@ -162,28 +160,16 @@ const styles = StyleSheet.create({
   contentCompact: {
     padding: spacingX.sm,
   },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-  },
-  iconWrap: {
-    width: dynamicSpacingY(4.5),
-    height: dynamicSpacingY(4.5),
-    borderRadius: radii.pill,
-    backgroundColor: colors.libraryCardAlt,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  iconWrapCompact: {
-    width: dynamicSpacingY(3.6),
-    height: dynamicSpacingY(3.6),
-  },
   statusBadge: {
+    position: "absolute",
+    right: spacingX.sm,
+    top: spacingY.sm,
     minHeight: dynamicSpacingY(3),
     minWidth: dynamicSpacingY(3),
     borderRadius: radii.pill,
-    backgroundColor: colors.libraryCardAlt,
+    backgroundColor: colors.libraryCard,
+    borderWidth: 1,
+    borderColor: colors.libraryBorder,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -212,10 +198,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  duration: {
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacingX.xxs,
+  },
+  metaText: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.tiny,
+    color: colors.libraryMuted,
+  },
+  startRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacingX.xxs,
+  },
+  startText: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.tiny,
-    color: colors.librarySoft,
+    color: colors.libraryText,
   },
 });
 

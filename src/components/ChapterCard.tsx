@@ -13,6 +13,19 @@ interface ChapterCardProps {
   onPress: () => void;
 }
 
+const CHAPTER_THEMES: Record<
+  number,
+  { accent: string; icon: keyof typeof Ionicons.glyphMap; bg: string }
+> = {
+  1: { accent: "#ff9b85", icon: "leaf-outline", bg: "#FFF5F2" },
+  2: { accent: "#7B68EE", icon: "water-outline", bg: "#F3F0FF" },
+  3: { accent: "#50C878", icon: "musical-notes-outline", bg: "#EEFAF2" },
+  4: { accent: "#FFB347", icon: "shield-checkmark-outline", bg: "#FFF8EE" },
+  5: { accent: "#4A90D9", icon: "rocket-outline", bg: "#EEF4FF" },
+};
+
+const DEFAULT_THEME = { accent: colors.secondary, icon: "book-outline" as const, bg: colors.primary_20 };
+
 const ChapterCard: React.FC<ChapterCardProps> = ({
   chapterNumber,
   title,
@@ -22,6 +35,7 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
   onPress,
 }) => {
   const formattedNumber = chapterNumber.toString().padStart(2, "0");
+  const theme = CHAPTER_THEMES[chapterNumber] || DEFAULT_THEME;
 
   return (
     <Pressable
@@ -29,29 +43,38 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
       disabled={isLocked}
       style={({ pressed }) => [
         styles.container,
-        isLocked ? styles.lockedContainer : styles.activeContainer,
+        { backgroundColor: isLocked ? colors.white : theme.bg },
+        isLocked && styles.lockedContainer,
         pressed && !isLocked && styles.pressed,
       ]}
     >
+      {!isLocked && (
+        <View style={[styles.accentBar, { backgroundColor: theme.accent }]} />
+      )}
+
       <View style={styles.headerRow}>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>Chapter {formattedNumber}</Text>
+        <View style={styles.leftHeader}>
+          <View
+            style={[
+              styles.iconCircle,
+              { backgroundColor: isLocked ? colors.primary10 : theme.accent + "20" },
+            ]}
+          >
+            {isLocked ? (
+              <Ionicons name="lock-closed" size={18} color={colors.textDisabled} />
+            ) : (
+              <Ionicons name={theme.icon} size={18} color={theme.accent} />
+            )}
+          </View>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>Chapter {formattedNumber}</Text>
+          </View>
         </View>
-        <View style={styles.iconContainer}>
-          {isLocked ? (
-            <Ionicons
-              name="lock-closed-outline"
-              size={20}
-              color={colors.black_text}
-            />
-          ) : (
-            <Ionicons
-              name="play-circle-outline"
-              size={24}
-              color={colors.secondary}
-            />
-          )}
-        </View>
+        {!isLocked && (
+          <View style={[styles.playButton, { backgroundColor: theme.accent }]}>
+            <Ionicons name="play" size={14} color={colors.white} />
+          </View>
+        )}
       </View>
 
       <Text style={[styles.title, isLocked && styles.lockedText]}>{title}</Text>
@@ -70,7 +93,7 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
                   key={step}
                   style={[
                     styles.progressSegment,
-                    isActive ? styles.progressActive : styles.progressInactive,
+                    { backgroundColor: isActive ? theme.accent : theme.accent + "25" },
                   ]}
                 />
               );
@@ -80,37 +103,59 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
         </View>
       )}
 
-      {!isLocked && <View style={styles.decorativeCircle} />}
+      {isLocked && (
+        <View style={styles.lockedHint}>
+          <Ionicons name="arrow-up-circle-outline" size={14} color={colors.textDisabled} />
+          <Text style={styles.lockedHintText}>Complete previous chapter</Text>
+        </View>
+      )}
+
+      {!isLocked && (
+        <>
+          <View
+            style={[styles.decorativeCircle, { backgroundColor: theme.accent + "10" }]}
+          />
+          <View
+            style={[styles.decorativeCircleSmall, { backgroundColor: theme.accent + "08" }]}
+          />
+        </>
+      )}
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 24,
+    borderRadius: 16,
     padding: spacingX.lg,
+    paddingLeft: spacingX.lg + 6,
     width: "100%",
-
+    backgroundColor: colors.white,
     shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
     marginBottom: spacingY.lg,
     position: "relative",
     overflow: "hidden",
-  },
-  activeContainer: {
-    backgroundColor: colors.primary_20,
+    borderWidth: 1,
+    borderColor: colors.border + "40",
   },
   lockedContainer: {
-    backgroundColor: colors.white,
-    opacity: 0.8,
+    opacity: 0.7,
   },
   pressed: {
     opacity: 0.9,
-    transform: [{ scale: 0.99 }],
+    transform: [{ scale: 0.98 }],
+  },
+  accentBar: {
+    position: "absolute",
+    left: 0,
+    top: 16,
+    bottom: 16,
+    width: 4,
+    borderRadius: 2,
   },
   headerRow: {
     flexDirection: "row",
@@ -118,73 +163,100 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: spacingY.sm,
   },
+  leftHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacingX.sm,
+  },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   badge: {
     backgroundColor: colors.white,
-    paddingHorizontal: spacingX.md,
-    paddingVertical: spacingY.xs,
-    borderRadius: 12,
+    paddingHorizontal: spacingX.sm,
+    paddingVertical: spacingY.xxs,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border + "40",
   },
   badgeText: {
     fontFamily: FONTS.primaryBold,
-    fontSize: fontSizes.small,
-    color: colors.black,
+    fontSize: fontSizes.tiny,
+    color: colors.textDark,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
-  iconContainer: {
+  playButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: colors.white,
     justifyContent: "center",
     alignItems: "center",
   },
   title: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.xl,
-    color: colors.black,
-    marginBottom: spacingY.xs,
+    color: colors.textDark,
+    marginBottom: spacingY.xxs,
   },
   description: {
     fontFamily: FONTS.primary,
     fontSize: fontSizes.medium,
-    color: colors.black_text,
+    color: colors.textMuted,
     marginBottom: spacingY.md,
+    lineHeight: 22,
   },
   lockedText: {
     color: colors.textDisabled,
   },
   progressContainer: {
-    marginTop: spacingY.sm,
+    marginTop: spacingY.xs,
   },
   progressBarRow: {
     flexDirection: "row",
     gap: 4,
     marginBottom: spacingY.xs,
-    width: "50%",
+    width: "55%",
   },
   progressSegment: {
-    height: 6,
+    height: 5,
     flex: 1,
     borderRadius: 3,
-  },
-  progressActive: {
-    backgroundColor: colors.secondary,
-  },
-  progressInactive: {
-    backgroundColor: colors.primary20,
   },
   progressText: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.tiny,
-    color: colors.black_text,
+    color: colors.textMuted,
+  },
+  lockedHint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  lockedHintText: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.tiny,
+    color: colors.textDisabled,
   },
   decorativeCircle: {
     position: "absolute",
-    bottom: -20,
-    right: -20,
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.overlay,
+    bottom: -30,
+    right: -30,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+  },
+  decorativeCircleSmall: {
+    position: "absolute",
+    top: -15,
+    right: 40,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
 });
 

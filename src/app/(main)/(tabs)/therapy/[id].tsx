@@ -14,11 +14,29 @@ import {
     spacingY,
 } from "../../../../theme/Theme";
 
+const CHAPTER_ACCENT: Record<string, string> = {
+  "1": "#ff9b85",
+  "2": "#7B68EE",
+  "3": "#50C878",
+  "4": "#FFB347",
+  "5": "#4A90D9",
+};
+
+const CHAPTER_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
+  "1": "leaf-outline",
+  "2": "water-outline",
+  "3": "musical-notes-outline",
+  "4": "shield-checkmark-outline",
+  "5": "rocket-outline",
+};
+
 export default function ChapterDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
 
   const chapter = id === "1" ? CHAPTER_1_DATA : null;
+  const accent = CHAPTER_ACCENT[id || "1"] || colors.secondary;
+  const chapterIcon = CHAPTER_ICON[id || "1"] || "book-outline";
 
   const handleExercisePress = (exercise: Exercise) => {
     router.push({
@@ -43,11 +61,9 @@ export default function ChapterDetailScreen() {
           />
         </View>
         <View style={styles.emptyState}>
-          <Ionicons
-            name="lock-closed-outline"
-            size={64}
-            color={colors.black_text}
-          />
+          <View style={styles.emptyIcon}>
+            <Ionicons name="lock-closed" size={40} color={colors.textDisabled} />
+          </View>
           <Text style={styles.emptyTitle}>Chapter Locked</Text>
           <Text style={styles.emptySubtitle}>
             Complete the previous chapter to unlock this one.
@@ -76,35 +92,56 @@ export default function ChapterDetailScreen() {
           />
         </View>
 
-        <View style={styles.chapterInfo}>
-          <View style={styles.levelBadge}>
-            <Text style={styles.levelText}>{chapter.level}</Text>
-          </View>
-          <Text style={styles.chapterTitle}>{chapter.title}</Text>
-          <Text style={styles.chapterDescription}>{chapter.description}</Text>
-          <View style={styles.metaRow}>
-            <View style={styles.metaItem}>
-              <Ionicons name="time-outline" size={16} color={colors.black_text} />
-              <Text style={styles.metaText}>
-                {chapter.duration_weeks} weeks
-              </Text>
+        {/* Hero banner */}
+        <View style={[styles.heroBanner, { backgroundColor: accent }]}>
+          <View style={styles.heroBannerContent}>
+            <View style={styles.heroBadgeRow}>
+              <View style={styles.heroBadge}>
+                <Text style={styles.heroBadgeText}>{chapter.level}</Text>
+              </View>
+              <View style={styles.heroTimeBadge}>
+                <Ionicons name="time-outline" size={12} color={colors.white} />
+                <Text style={styles.heroTimeText}>
+                  {chapter.duration_weeks} weeks
+                </Text>
+              </View>
             </View>
-            <View style={styles.metaItem}>
-              <Ionicons name="list-outline" size={16} color={colors.black_text} />
-              <Text style={styles.metaText}>
-                {chapter.exercises.length} exercises
-              </Text>
+            <Text style={styles.heroTitle}>{chapter.title}</Text>
+            <Text style={styles.heroDescription}>{chapter.description}</Text>
+            <View style={styles.heroMeta}>
+              <View style={styles.heroMetaItem}>
+                <Ionicons name="list-outline" size={14} color="rgba(255,255,255,0.8)" />
+                <Text style={styles.heroMetaText}>
+                  {chapter.exercises.length} exercises
+                </Text>
+              </View>
             </View>
           </View>
+
+          {/* Decorative icon */}
+          <View style={styles.heroIconContainer}>
+            <Ionicons name={chapterIcon} size={56} color="rgba(255,255,255,0.15)" />
+          </View>
+
+          <View style={styles.heroBlob1} />
+          <View style={styles.heroBlob2} />
         </View>
 
+        {/* Learning objectives */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Learning Objectives</Text>
+          <View style={styles.sectionHeader}>
+            <View style={[styles.sectionIcon, { backgroundColor: accent + "15" }]}>
+              <Ionicons name="bulb-outline" size={18} color={accent} />
+            </View>
+            <Text style={styles.sectionTitle}>Learning Objectives</Text>
+          </View>
           <View style={styles.objectivesContainer}>
             {chapter.learning_objectives.map((objective, index) => (
               <View key={index} style={styles.objectiveItem}>
-                <View style={styles.objectiveBullet}>
-                  <Ionicons name="checkmark" size={12} color={colors.white} />
+                <View style={[styles.objectiveNumber, { backgroundColor: accent + "15" }]}>
+                  <Text style={[styles.objectiveNumberText, { color: accent }]}>
+                    {index + 1}
+                  </Text>
                 </View>
                 <Text style={styles.objectiveText}>{objective}</Text>
               </View>
@@ -112,8 +149,14 @@ export default function ChapterDetailScreen() {
           </View>
         </View>
 
+        {/* Exercises */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Exercises</Text>
+          <View style={styles.sectionHeader}>
+            <View style={[styles.sectionIcon, { backgroundColor: accent + "15" }]}>
+              <Ionicons name="fitness-outline" size={18} color={accent} />
+            </View>
+            <Text style={styles.sectionTitle}>Exercises</Text>
+          </View>
           {chapter.exercises.map((exercise) => (
             <ExerciseCard
               key={exercise.id}
@@ -145,62 +188,136 @@ const styles = StyleSheet.create({
     marginBottom: spacingY.md,
     alignItems: "flex-start",
   },
-  chapterInfo: {
+
+  // Hero banner
+  heroBanner: {
+    borderRadius: 24,
+    padding: spacingX.lg,
+    paddingVertical: spacingY.lg,
     marginBottom: spacingY.xl,
+    overflow: "hidden",
+    position: "relative",
   },
-  levelBadge: {
-    backgroundColor: colors.secondary_20,
-    paddingHorizontal: spacingX.md,
-    paddingVertical: spacingY.xs,
-    borderRadius: 8,
-    alignSelf: "flex-start",
+  heroBannerContent: {
+    zIndex: 1,
+  },
+  heroBadgeRow: {
+    flexDirection: "row",
+    gap: spacingX.sm,
     marginBottom: spacingY.sm,
   },
-  levelText: {
-    fontFamily: FONTS.primaryBold,
-    fontSize: fontSizes.small,
-    color: colors.secondary,
+  heroBadge: {
+    backgroundColor: "rgba(255,255,255,0.25)",
+    paddingHorizontal: spacingX.sm,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
-  chapterTitle: {
+  heroBadgeText: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.tiny,
+    color: colors.white,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  heroTimeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    paddingHorizontal: spacingX.sm,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  heroTimeText: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.tiny,
+    color: colors.white,
+  },
+  heroTitle: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.xxl,
-    color: colors.black,
-    marginBottom: spacingY.xs,
+    color: colors.white,
+    marginBottom: spacingY.xxs,
   },
-  chapterDescription: {
+  heroDescription: {
     fontFamily: FONTS.primary,
     fontSize: fontSizes.medium,
-    color: colors.black_text,
+    color: "rgba(255,255,255,0.85)",
     lineHeight: 24,
     marginBottom: spacingY.md,
   },
-  metaRow: {
+  heroMeta: {
     flexDirection: "row",
     gap: spacingX.lg,
   },
-  metaItem: {
+  heroMetaItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
   },
-  metaText: {
+  heroMetaText: {
     fontFamily: FONTS.primary,
     fontSize: fontSizes.small,
-    color: colors.black_text,
+    color: "rgba(255,255,255,0.85)",
   },
+  heroIconContainer: {
+    position: "absolute",
+    right: spacingX.md,
+    bottom: spacingY.md,
+    opacity: 1,
+  },
+  heroBlob1: {
+    position: "absolute",
+    top: -25,
+    right: -25,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: "rgba(255,255,255,0.08)",
+  },
+  heroBlob2: {
+    position: "absolute",
+    bottom: -15,
+    left: 40,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "rgba(255,255,255,0.06)",
+  },
+
+  // Sections
   section: {
     marginBottom: spacingY.lg,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacingX.sm,
+    marginBottom: spacingY.md,
+  },
+  sectionIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
   },
   sectionTitle: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.large,
-    color: colors.black,
-    marginBottom: spacingY.md,
+    color: colors.textDark,
   },
+
+  // Objectives
   objectivesContainer: {
     backgroundColor: colors.white,
-    borderRadius: 16,
+    borderRadius: 20,
     padding: spacingX.md,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   objectiveItem: {
     flexDirection: "row",
@@ -208,38 +325,52 @@ const styles = StyleSheet.create({
     marginBottom: spacingY.sm,
     gap: spacingX.sm,
   },
-  objectiveBullet: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: colors.secondary,
+  objectiveNumber: {
+    width: 24,
+    height: 24,
+    borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 2,
+    marginTop: 1,
+  },
+  objectiveNumberText: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.tiny,
   },
   objectiveText: {
     flex: 1,
     fontFamily: FONTS.primary,
     fontSize: fontSizes.small,
-    color: colors.black,
+    color: colors.textDark,
     lineHeight: 22,
   },
+
+  // Empty
   emptyState: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: spacingX.xl,
   },
+  emptyIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.primary10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: spacingY.md,
+  },
   emptyTitle: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.large,
-    color: colors.black,
+    color: colors.textDark,
     marginBottom: spacingY.xs,
   },
   emptySubtitle: {
     fontFamily: FONTS.primary,
     fontSize: fontSizes.small,
-    color: colors.black_text,
+    color: colors.textMuted,
     textAlign: "center",
   },
 });

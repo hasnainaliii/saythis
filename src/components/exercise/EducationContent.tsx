@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
-import { contentStyles } from "./contentStyles";
 
 interface EducationContentProps {
   content: Record<string, unknown>;
@@ -16,62 +15,136 @@ const EducationContent: React.FC<EducationContentProps> = ({ content }) => {
   const stats = content.statistics as Record<string, string> | undefined;
   const famous = content.famous_people_who_stutter as string[] | undefined;
 
+  const TYPE_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+    Repetitions: "repeat-outline",
+    Prolongations: "resize-outline",
+    Blocks: "pause-circle-outline",
+  };
+
+  const TYPE_COLORS: Record<string, string> = {
+    Repetitions: "#4A90D9",
+    Prolongations: "#7B68EE",
+    Blocks: "#FF8C42",
+  };
+
   return (
     <ScrollView
-      style={contentStyles.contentScroll}
+      style={styles.scroll}
       showsVerticalScrollIndicator={false}
     >
       {!!content.what_is_stuttering && (
-        <View style={contentStyles.infoCard}>
-          <Text style={contentStyles.infoTitle}>What is Stuttering?</Text>
-          <Text style={contentStyles.infoText}>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: "#4A90D915" }]}>
+              <Ionicons name="information-circle-outline" size={18} color="#4A90D9" />
+            </View>
+            <Text style={styles.cardTitle}>What is Stuttering?</Text>
+          </View>
+          <Text style={styles.cardBody}>
             {String(content.what_is_stuttering)}
           </Text>
         </View>
       )}
 
       {types && (
-        <View style={contentStyles.infoCard}>
-          <Text style={contentStyles.infoTitle}>Types of Stuttering</Text>
-          {types.map((item, index) => (
-            <View key={index} style={styles.typeItem}>
-              <Text style={styles.typeTitle}>{item.type}</Text>
-              <Text style={styles.typeDesc}>{item.description}</Text>
-              <View style={styles.examplesRow}>
-                {item.examples.map((ex, i) => (
-                  <View key={i} style={styles.exampleBadge}>
-                    <Text style={styles.exampleText}>{ex}</Text>
-                  </View>
-                ))}
-              </View>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: "#7B68EE15" }]}>
+              <Ionicons name="layers-outline" size={18} color="#7B68EE" />
             </View>
-          ))}
+            <Text style={styles.cardTitle}>Types of Stuttering</Text>
+          </View>
+          {types.map((item, index) => {
+            const typeColor = TYPE_COLORS[item.type] || colors.secondary;
+            const typeIcon = TYPE_ICONS[item.type] || "ellipse-outline";
+            return (
+              <View
+                key={index}
+                style={[
+                  styles.typeCard,
+                  { borderLeftColor: typeColor },
+                  index === types.length - 1 && { marginBottom: 0 },
+                ]}
+              >
+                <View style={styles.typeHeader}>
+                  <Ionicons name={typeIcon} size={16} color={typeColor} />
+                  <Text style={[styles.typeTitle, { color: typeColor }]}>
+                    {item.type}
+                  </Text>
+                </View>
+                <Text style={styles.typeDesc}>{item.description}</Text>
+                <View style={styles.examplesRow}>
+                  {item.examples.map((ex, i) => (
+                    <View
+                      key={i}
+                      style={[styles.exampleChip, { backgroundColor: typeColor + "10" }]}
+                    >
+                      <Text style={[styles.exampleText, { color: typeColor }]}>
+                        {ex}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            );
+          })}
         </View>
       )}
 
       {stats && (
-        <View style={contentStyles.infoCard}>
-          <Text style={contentStyles.infoTitle}>Statistics</Text>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: "#50C87815" }]}>
+              <Ionicons name="stats-chart-outline" size={18} color="#50C878" />
+            </View>
+            <Text style={styles.cardTitle}>Statistics</Text>
+          </View>
           <View style={styles.statsGrid}>
-            {Object.entries(stats).map(([key, value]) => (
-              <View key={key} style={styles.statItem}>
-                <Text style={styles.statValue}>{value}</Text>
-                <Text style={styles.statLabel}>{key.replace(/_/g, " ")}</Text>
-              </View>
-            ))}
+            {Object.entries(stats).map(([key, value], index) => {
+              const statColors = ["#ff9b85", "#7B68EE", "#50C878", "#FFB347"];
+              const c = statColors[index % statColors.length];
+              return (
+                <View key={key} style={[styles.statCard, { borderTopColor: c }]}>
+                  <Text style={[styles.statValue, { color: c }]}>{value}</Text>
+                  <Text style={styles.statLabel}>
+                    {key.replace(/_/g, " ")}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
         </View>
       )}
 
       {famous && (
-        <View style={contentStyles.infoCard}>
-          <Text style={contentStyles.infoTitle}>Famous People Who Stutter</Text>
-          {famous.slice(0, 5).map((person, index) => (
-            <View key={index} style={styles.personItem}>
-              <Ionicons name="star" size={14} color={colors.secondary} />
-              <Text style={styles.personText}>{person}</Text>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: "#FFB34715" }]}>
+              <Ionicons name="star-outline" size={18} color="#FFB347" />
             </View>
-          ))}
+            <Text style={styles.cardTitle}>You're in Great Company</Text>
+          </View>
+          <Text style={styles.inspireText}>
+            These incredible people stutter too — and they changed the world.
+          </Text>
+          {famous.slice(0, 5).map((person, index) => {
+            const parts = person.split(" - ");
+            return (
+              <View key={index} style={styles.personRow}>
+                <View style={styles.personAvatar}>
+                  <Text style={styles.personInitial}>
+                    {parts[0]?.charAt(0) || "?"}
+                  </Text>
+                </View>
+                <View style={styles.personInfo}>
+                  <Text style={styles.personName}>{parts[0]}</Text>
+                  {parts[1] && (
+                    <Text style={styles.personRole}>{parts[1]}</Text>
+                  )}
+                </View>
+              </View>
+            );
+          })}
         </View>
       )}
     </ScrollView>
@@ -79,74 +152,151 @@ const EducationContent: React.FC<EducationContentProps> = ({ content }) => {
 };
 
 const styles = StyleSheet.create({
-  typeItem: {
+  scroll: {
+    flex: 1,
+  },
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    padding: spacingX.md,
     marginBottom: spacingY.md,
-    paddingBottom: spacingY.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.gray,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacingX.sm,
+    marginBottom: spacingY.sm,
+  },
+  cardIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cardTitle: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.medium,
+    color: colors.textDark,
+  },
+  cardBody: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.small,
+    color: colors.textMuted,
+    lineHeight: 22,
+  },
+
+  // Types
+  typeCard: {
+    backgroundColor: colors.primary_10,
+    borderRadius: 14,
+    padding: spacingX.sm,
+    marginBottom: spacingY.sm,
+    borderLeftWidth: 3,
+  },
+  typeHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 4,
   },
   typeTitle: {
     fontFamily: FONTS.primaryBold,
-    fontSize: fontSizes.medium,
-    color: colors.secondary,
-    marginBottom: 4,
+    fontSize: fontSizes.small,
   },
   typeDesc: {
     fontFamily: FONTS.primary,
-    fontSize: fontSizes.small,
-    color: colors.black_text,
+    fontSize: fontSizes.tiny,
+    color: colors.textMuted,
     marginBottom: spacingY.xs,
+    lineHeight: 18,
   },
   examplesRow: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 6,
   },
-  exampleBadge: {
-    backgroundColor: colors.primary10,
-    paddingHorizontal: spacingX.sm,
+  exampleChip: {
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 8,
   },
   exampleText: {
-    fontFamily: FONTS.primary,
+    fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.tiny,
-    color: colors.black,
   },
+
+  // Stats
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacingX.sm,
+    gap: 8,
   },
-  statItem: {
+  statCard: {
     width: "47%",
     backgroundColor: colors.primary_10,
     padding: spacingX.sm,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: "center",
+    borderTopWidth: 3,
   },
   statValue: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.xl,
-    color: colors.secondary,
+    marginBottom: 2,
   },
   statLabel: {
     fontFamily: FONTS.primary,
     fontSize: fontSizes.tiny,
-    color: colors.black_text,
+    color: colors.textMuted,
     textAlign: "center",
     textTransform: "capitalize",
   },
-  personItem: {
+
+  // Famous people
+  inspireText: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.small,
+    color: colors.textMuted,
+    marginBottom: spacingY.md,
+    lineHeight: 20,
+  },
+  personRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacingX.sm,
-    marginBottom: spacingY.xs,
+    marginBottom: spacingY.sm,
   },
-  personText: {
-    fontFamily: FONTS.primary,
+  personAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: colors.secondary + "18",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  personInitial: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.medium,
+    color: colors.secondary,
+  },
+  personInfo: {
+    flex: 1,
+  },
+  personName: {
+    fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.small,
-    color: colors.black,
+    color: colors.textDark,
+  },
+  personRole: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.tiny,
+    color: colors.textMuted,
   },
 });
 

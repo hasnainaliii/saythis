@@ -44,6 +44,16 @@ export const colors = {
   categoryCBT: "#50C878",
   categorySelfAdvocacy: "#FF8C42",
 
+  // Home header
+  headerDark: "#3E3529",
+  headerMuted: "#A89E8F",
+
+  // Metric cards
+  metricGreen: "#6B8E5A",
+  metricGreenLight: "#8AAF74",
+  metricOrange: "#D4845A",
+  metricOrangeLight: "#E8A87C",
+
   // Borders & decorative
   border: "#D0D0D0",
   overlay: "rgba(255,255,255,0.3)",

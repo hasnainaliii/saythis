@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
-import { contentStyles } from "./contentStyles";
 
 interface CBTContentProps {
   content: Record<string, unknown>;
@@ -19,44 +18,54 @@ const CBTContent: React.FC<CBTContentProps> = ({ content }) => {
 
   return (
     <ScrollView
-      style={contentStyles.contentScroll}
+      style={styles.scroll}
       showsVerticalScrollIndicator={false}
     >
       {!!content.why_self_talk_matters && (
-        <View style={contentStyles.infoCard}>
-          <Text style={contentStyles.infoTitle}>Why Self-Talk Matters</Text>
-          <Text style={contentStyles.infoText}>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: "#50C87815" }]}>
+              <Ionicons name="chatbubbles-outline" size={18} color="#50C878" />
+            </View>
+            <Text style={styles.cardTitle}>Why Self-Talk Matters</Text>
+          </View>
+          <Text style={styles.cardBody}>
             {String(content.why_self_talk_matters)}
           </Text>
         </View>
       )}
 
       {!!content.the_cycle && (
-        <View
-          style={[contentStyles.infoCard, { backgroundColor: colors.secondary + "10" }]}
-        >
+        <View style={[styles.card, styles.cycleCard]}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: colors.secondary + "15" }]}>
+              <Ionicons name="sync-outline" size={18} color={colors.secondary} />
+            </View>
+            <Text style={styles.cardTitle}>The Cycle</Text>
+          </View>
           <Text style={styles.cycleText}>{String(content.the_cycle)}</Text>
         </View>
       )}
 
       {reframes && (
-        <View style={contentStyles.infoCard}>
-          <Text style={contentStyles.infoTitle}>Reframe Your Thoughts</Text>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: "#4A90D915" }]}>
+              <Ionicons name="swap-horizontal-outline" size={18} color="#4A90D9" />
+            </View>
+            <Text style={styles.cardTitle}>Reframe Your Thoughts</Text>
+          </View>
           {reframes.map((item, index) => (
             <View key={index} style={styles.reframeCard}>
               <View style={styles.thoughtRow}>
-                <View style={[styles.thoughtBadge, { backgroundColor: colors.errorLight + "20" }]}>
-                  <Ionicons name="close-circle" size={14} color={colors.errorLight} />
-                </View>
+                <View style={styles.negativeIndicator} />
                 <Text style={styles.negativeText}>{item.negative}</Text>
               </View>
-              <View style={styles.arrowContainer}>
-                <Ionicons name="arrow-down" size={20} color={colors.secondary} />
+              <View style={styles.arrowRow}>
+                <Ionicons name="arrow-down" size={16} color={colors.success} />
               </View>
               <View style={styles.thoughtRow}>
-                <View style={[styles.thoughtBadge, { backgroundColor: colors.success + "20" }]}>
-                  <Ionicons name="checkmark-circle" size={14} color={colors.success} />
-                </View>
+                <View style={styles.positiveIndicator} />
                 <Text style={styles.balancedText}>{item.balanced}</Text>
               </View>
             </View>
@@ -65,10 +74,21 @@ const CBTContent: React.FC<CBTContentProps> = ({ content }) => {
       )}
 
       {distortions && (
-        <View style={contentStyles.infoCard}>
-          <Text style={contentStyles.infoTitle}>Cognitive Distortions</Text>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: "#FF8C4215" }]}>
+              <Ionicons name="warning-outline" size={18} color="#FF8C42" />
+            </View>
+            <Text style={styles.cardTitle}>Cognitive Distortions</Text>
+          </View>
           {distortions.map((item, index) => (
-            <View key={index} style={styles.distortionItem}>
+            <View
+              key={index}
+              style={[
+                styles.distortionCard,
+                index === distortions.length - 1 && { marginBottom: 0 },
+              ]}
+            >
               <Text style={styles.distortionName}>{item.name}</Text>
               <Text style={styles.distortionExample}>"{item.example}"</Text>
             </View>
@@ -80,26 +100,86 @@ const CBTContent: React.FC<CBTContentProps> = ({ content }) => {
 };
 
 const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+  },
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    padding: spacingX.md,
+    marginBottom: spacingY.md,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacingX.sm,
+    marginBottom: spacingY.sm,
+  },
+  cardIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cardTitle: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.medium,
+    color: colors.textDark,
+  },
+  cardBody: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.small,
+    color: colors.textMuted,
+    lineHeight: 22,
+  },
+
+  // Cycle
+  cycleCard: {
+    borderWidth: 1,
+    borderColor: colors.secondary + "20",
+    borderStyle: "dashed",
+  },
   cycleText: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.small,
     color: colors.secondary,
     textAlign: "center",
+    lineHeight: 22,
   },
+
+  // Reframes
   reframeCard: {
     backgroundColor: colors.primary_10,
-    borderRadius: 12,
+    borderRadius: 14,
     padding: spacingX.md,
-    marginBottom: spacingY.md,
+    marginBottom: spacingY.sm,
   },
   thoughtRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: spacingX.sm,
   },
-  thoughtBadge: {
-    padding: 4,
-    borderRadius: 12,
+  negativeIndicator: {
+    width: 4,
+    height: "100%",
+    minHeight: 18,
+    borderRadius: 2,
+    backgroundColor: colors.errorLight,
+    marginTop: 2,
+  },
+  positiveIndicator: {
+    width: 4,
+    height: "100%",
+    minHeight: 18,
+    borderRadius: 2,
+    backgroundColor: colors.success,
+    marginTop: 2,
   },
   negativeText: {
     flex: 1,
@@ -107,34 +187,39 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.small,
     color: colors.errorLight,
     fontStyle: "italic",
+    lineHeight: 20,
   },
-  arrowContainer: {
+  arrowRow: {
     alignItems: "center",
-    paddingVertical: spacingY.xs,
+    paddingVertical: 6,
   },
   balancedText: {
     flex: 1,
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.small,
     color: colors.success,
+    lineHeight: 20,
   },
-  distortionItem: {
+
+  // Distortions
+  distortionCard: {
+    backgroundColor: colors.primary_10,
+    borderRadius: 12,
+    padding: spacingX.sm,
     marginBottom: spacingY.sm,
-    paddingBottom: spacingY.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.gray,
   },
   distortionName: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.small,
-    color: colors.black,
+    color: colors.textDark,
     marginBottom: 4,
   },
   distortionExample: {
     fontFamily: FONTS.primary,
     fontSize: fontSizes.small,
-    color: colors.black_text,
+    color: colors.textMuted,
     fontStyle: "italic",
+    lineHeight: 20,
   },
 });
 

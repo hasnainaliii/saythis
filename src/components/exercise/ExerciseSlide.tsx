@@ -22,11 +22,6 @@ interface ExerciseSlideProps {
   exercise: Exercise;
 }
 
-const ICON_MAP: Record<string, { name: keyof typeof Ionicons.glyphMap; color: string }> = {
-  outcomes: { name: "checkmark-circle", color: colors.success },
-  safety: { name: "alert-circle", color: colors.warning },
-};
-
 const ContentByCategory: React.FC<{ exercise: Exercise }> = ({ exercise }) => {
   switch (exercise.category) {
     case "education":
@@ -43,20 +38,18 @@ const ContentByCategory: React.FC<{ exercise: Exercise }> = ({ exercise }) => {
 };
 
 const ExerciseSlide: React.FC<ExerciseSlideProps> = ({ slide, exercise }) => {
-  const iconConfig = ICON_MAP[slide.type];
-
   return (
     <View style={styles.slide}>
-      <Text style={styles.slideTitle}>{slide.title}</Text>
-
       {slide.type === "instructions" && (
-        <ScrollView style={styles.contentScroll}>
+        <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
           {(slide.data as string[]).map((instruction, index) => (
-            <View key={index} style={styles.instructionItem}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>{index + 1}</Text>
+            <View key={index} style={styles.instructionCard}>
+              <View style={styles.stepBadge}>
+                <Text style={styles.stepBadgeText}>{index + 1}</Text>
               </View>
-              <Text style={styles.itemText}>{instruction}</Text>
+              <View style={styles.instructionContent}>
+                <Text style={styles.itemText}>{instruction}</Text>
+              </View>
             </View>
           ))}
         </ScrollView>
@@ -64,14 +57,51 @@ const ExerciseSlide: React.FC<ExerciseSlideProps> = ({ slide, exercise }) => {
 
       {slide.type === "content" && <ContentByCategory exercise={exercise} />}
 
-      {iconConfig && (
-        <ScrollView style={styles.contentScroll}>
-          {(slide.data as string[]).map((text, index) => (
-            <View key={index} style={styles.listItem}>
-              <Ionicons name={iconConfig.name} size={20} color={iconConfig.color} />
-              <Text style={styles.itemText}>{text}</Text>
-            </View>
-          ))}
+      {slide.type === "outcomes" && (
+        <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
+          <View style={styles.listCard}>
+            {(slide.data as string[]).map((text, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.outcomeItem,
+                  index === (slide.data as string[]).length - 1 && { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 },
+                ]}
+              >
+                <View style={styles.outcomeIcon}>
+                  <Ionicons name="checkmark" size={14} color={colors.white} />
+                </View>
+                <Text style={styles.itemText}>{text}</Text>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      )}
+
+      {slide.type === "safety" && (
+        <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
+          <View style={styles.safetyBanner}>
+            <Ionicons name="heart-outline" size={18} color={colors.warning} />
+            <Text style={styles.safetyBannerText}>
+              Your wellbeing comes first — take it at your pace
+            </Text>
+          </View>
+          <View style={styles.listCard}>
+            {(slide.data as string[]).map((text, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.safetyItem,
+                  index === (slide.data as string[]).length - 1 && { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 },
+                ]}
+              >
+                <View style={styles.safetyIcon}>
+                  <Ionicons name="shield-checkmark" size={14} color={colors.warning} />
+                </View>
+                <Text style={styles.itemText}>{text}</Text>
+              </View>
+            ))}
+          </View>
         </ScrollView>
       )}
     </View>
@@ -83,45 +113,113 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     paddingHorizontal: spacingX.lg,
   },
-  slideTitle: {
-    fontFamily: FONTS.primaryBold,
-    fontSize: fontSizes.large,
-    color: colors.black,
-    marginBottom: spacingY.md,
-  },
   contentScroll: {
     flex: 1,
   },
-  instructionItem: {
+
+  // Instructions
+  instructionCard: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: spacingY.md,
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: spacingX.md,
+    marginBottom: spacingY.sm,
     gap: spacingX.sm,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  stepNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+  stepBadge: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
     backgroundColor: colors.secondary,
     justifyContent: "center",
     alignItems: "center",
   },
-  stepNumberText: {
+  stepBadgeText: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.small,
     color: colors.white,
   },
-  listItem: {
+  instructionContent: {
+    flex: 1,
+  },
+
+  // Outcomes
+  listCard: {
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    padding: spacingX.md,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  outcomeItem: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: spacingX.sm,
+    marginBottom: spacingY.sm,
+    paddingBottom: spacingY.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.primary_10,
+  },
+  outcomeIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.success,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 1,
+  },
+
+  // Safety
+  safetyBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: colors.warning + "12",
+    borderRadius: 14,
+    padding: spacingX.md,
     marginBottom: spacingY.md,
   },
+  safetyBannerText: {
+    flex: 1,
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.small,
+    color: colors.warning,
+    lineHeight: 20,
+  },
+  safetyItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: spacingX.sm,
+    marginBottom: spacingY.sm,
+    paddingBottom: spacingY.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.primary_10,
+  },
+  safetyIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.warning + "18",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 1,
+  },
+
   itemText: {
     flex: 1,
     fontFamily: FONTS.primary,
     fontSize: fontSizes.medium,
-    color: colors.black,
+    color: colors.textDark,
     lineHeight: 24,
   },
 });

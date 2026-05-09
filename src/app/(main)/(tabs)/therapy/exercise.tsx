@@ -8,6 +8,20 @@ import ExerciseSlide, { Slide } from "../../../../components/exercise/ExerciseSl
 import { Exercise } from "../../../../data/chapter1Data";
 import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../../../theme/Theme";
 
+const CATEGORY_COLOR: Record<string, string> = {
+  education: "#4A90D9",
+  self_awareness: "#7B68EE",
+  cognitive_behavioral: "#50C878",
+  self_advocacy: "#FF8C42",
+};
+
+const SLIDE_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  instructions: "document-text-outline",
+  content: "school-outline",
+  outcomes: "trophy-outline",
+  safety: "shield-checkmark-outline",
+};
+
 export default function ExercisePlayerScreen() {
   const { exerciseData } = useLocalSearchParams<{ exerciseData: string }>();
   const router = useRouter();
@@ -23,6 +37,7 @@ export default function ExercisePlayerScreen() {
   }
 
   const exercise: Exercise = JSON.parse(exerciseData);
+  const accent = CATEGORY_COLOR[exercise.category] || colors.secondary;
 
   const slides: Slide[] = [
     { id: "instructions", title: "Instructions", type: "instructions", data: exercise.instructions },
@@ -41,6 +56,7 @@ export default function ExercisePlayerScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
+      {/* Header */}
       <View style={styles.header}>
         <Button
           title="Close"
@@ -50,27 +66,54 @@ export default function ExercisePlayerScreen() {
           icon={<Ionicons name="close" size={16} color={colors.secondary} />}
           iconPosition="left"
         />
-        <View style={styles.progressDots}>
+        <View style={styles.progressBar}>
           {slides.map((_, index) => (
             <View
               key={index}
-              style={[styles.dot, index === currentIndex ? styles.dotActive : styles.dotInactive]}
+              style={[
+                styles.progressSegment,
+                {
+                  backgroundColor:
+                    index <= currentIndex ? accent : colors.primary20,
+                },
+              ]}
             />
           ))}
         </View>
         <View style={{ width: 70 }} />
       </View>
 
+      {/* Title area */}
       <View style={styles.titleContainer}>
         <Text style={styles.exerciseTitle} numberOfLines={2}>
           {exercise.title}
         </Text>
         <View style={styles.metaRow}>
-          <Ionicons name="time-outline" size={14} color={colors.black_text} />
-          <Text style={styles.metaText}>{exercise.duration_minutes} min</Text>
-          <Text style={styles.metaDivider}>•</Text>
-          <Text style={styles.metaText}>{exercise.frequency}</Text>
+          <View style={[styles.metaChip, { backgroundColor: accent + "15" }]}>
+            <Ionicons name="time-outline" size={12} color={accent} />
+            <Text style={[styles.metaChipText, { color: accent }]}>
+              {exercise.duration_minutes} min
+            </Text>
+          </View>
+          <View style={[styles.metaChip, { backgroundColor: accent + "15" }]}>
+            <Ionicons name="refresh-outline" size={12} color={accent} />
+            <Text style={[styles.metaChipText, { color: accent }]}>
+              {exercise.frequency}
+            </Text>
+          </View>
         </View>
+      </View>
+
+      {/* Slide label */}
+      <View style={styles.slideLabelRow}>
+        <View style={[styles.slideLabelIcon, { backgroundColor: accent + "15" }]}>
+          <Ionicons
+            name={SLIDE_ICONS[slides[currentIndex]?.type] || "document-outline"}
+            size={14}
+            color={accent}
+          />
+        </View>
+        <Text style={styles.slideLabelText}>{slides[currentIndex]?.title}</Text>
       </View>
 
       <FlatList
@@ -86,10 +129,14 @@ export default function ExercisePlayerScreen() {
         style={styles.flatList}
       />
 
+      {/* Bottom swipe hint */}
       <View style={styles.swipeHint}>
-        <Text style={styles.swipeHintText}>
-          Swipe to navigate • {currentIndex + 1} / {slides.length}
-        </Text>
+        <View style={styles.swipeHintInner}>
+          <Ionicons name="swap-horizontal-outline" size={14} color={colors.textMuted} />
+          <Text style={styles.swipeHintText}>
+            Swipe to navigate • {currentIndex + 1} / {slides.length}
+          </Text>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -107,44 +154,61 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacingX.lg,
     paddingVertical: spacingY.sm,
   },
-  progressDots: {
+  progressBar: {
     flexDirection: "row",
-    gap: 6,
+    gap: 4,
+    flex: 1,
+    marginHorizontal: spacingX.md,
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  dotActive: {
-    backgroundColor: colors.secondary,
-    width: 24,
-  },
-  dotInactive: {
-    backgroundColor: colors.primary20,
+  progressSegment: {
+    height: 4,
+    flex: 1,
+    borderRadius: 2,
   },
   titleContainer: {
     paddingHorizontal: spacingX.lg,
-    marginBottom: spacingY.md,
+    marginBottom: spacingY.sm,
   },
   exerciseTitle: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.xl,
-    color: colors.black,
+    color: colors.textDark,
     marginBottom: spacingY.xs,
   },
   metaRow: {
     flexDirection: "row",
+    gap: 8,
+  },
+  metaChip: {
+    flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
-  metaText: {
+  metaChipText: {
     fontFamily: FONTS.primary,
-    fontSize: fontSizes.small,
-    color: colors.black_text,
+    fontSize: fontSizes.tiny,
   },
-  metaDivider: {
-    color: colors.black_text,
+  slideLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: spacingX.lg,
+    marginBottom: spacingY.sm,
+  },
+  slideLabelIcon: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  slideLabelText: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.medium,
+    color: colors.textDark,
   },
   flatList: {
     flex: 1,
@@ -153,9 +217,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: spacingY.md,
   },
+  swipeHintInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: colors.white,
+    paddingHorizontal: spacingX.md,
+    paddingVertical: 8,
+    borderRadius: 20,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
   swipeHintText: {
     fontFamily: FONTS.primary,
-    fontSize: fontSizes.small,
-    color: colors.black_text,
+    fontSize: fontSizes.tiny,
+    color: colors.textMuted,
   },
 });

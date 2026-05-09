@@ -1,11 +1,12 @@
 import { useRouter } from "expo-router";
 import React from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ChapterCard from "../../../../components/ChapterCard";
-import PageHeader from "../../../../components/PageHeader";
 import {
     colors,
+    FONTS,
+    fontSizes,
     spacingX,
     spacingY,
 } from "../../../../theme/Theme";
@@ -73,22 +74,56 @@ export default function TherapyScreen() {
     });
   };
 
+  const totalChapters = MOCK_CHAPTERS.length;
+  const completedChapters = MOCK_CHAPTERS.filter((c) => c.progress === 100).length;
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <PageHeader
-          title="Therapy"
-          headline="Your Roadmap"
-          subtitle="Step-by-step to confident speech."
-        />
+        <View style={styles.titleRow}>
+          <View style={styles.titleBlock}>
+            <Text style={styles.pageTitle}>Therapy</Text>
+          </View>
+        </View>
+        <View style={styles.headerDivider} />
 
+        {/* Hero */}
+        <View style={styles.hero}>
+          <Text style={styles.heroLabel}>SPEECH THERAPY</Text>
+          <Text style={styles.heroTitle}>Your Roadmap</Text>
+          <Text style={styles.heroSubtitle}>
+            Step-by-step to confident speech
+          </Text>
+          
+          <View style={styles.heroBottomRow}>
+            <Text style={styles.statText}>{totalChapters} chapters</Text>
+            <View style={styles.progressPill}>
+              <Text style={styles.progressPillText}>
+                {completedChapters}/{totalChapters}
+              </Text>
+            </View>
+          </View>
+
+          {/* decorative blobs */}
+          <View style={styles.heroBlob1} />
+          <View style={styles.heroBlob2} />
+        </View>
+
+        {/* Currently active hint */}
+        <View style={styles.activeHint}>
+          <View style={styles.activeHintDot} />
+          <Text style={styles.activeHintText}>
+            Start with Chapter 01 — unlock more as you progress
+          </Text>
+        </View>
+
+        {/* Chapter list */}
         <View style={styles.timelineContainer}>
           {MOCK_CHAPTERS.map((chapter, index) => {
             const isLast = index === MOCK_CHAPTERS.length - 1;
-
             return (
               <View key={chapter.id} style={styles.chapterWrapper}>
                 <ChapterCard
@@ -101,8 +136,10 @@ export default function TherapyScreen() {
                   onPress={() => handlePressChapter(chapter.id)}
                 />
                 {!isLast && (
-                  <View style={styles.connectorContainer}>
-                    <View style={styles.dashedLine} />
+                  <View style={styles.connectorLine}>
+                    <View style={styles.connectorDot} />
+                    <View style={styles.connectorDash} />
+                    <View style={styles.connectorDot} />
                   </View>
                 )}
               </View>
@@ -121,32 +158,145 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: spacingX.lg,
+    paddingTop: spacingY.md,
     paddingBottom: spacingY.xxl,
   },
+
+  // Header
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacingX.md,
+  },
+  titleBlock: {
+    marginBottom: spacingY.md,
+    flex: 1,
+  },
+  pageTitle: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.xxl,
+    color: colors.libraryText,
+  },
+  headerDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.libraryBorder,
+    marginBottom: spacingY.lg,
+  },
+
+  // Hero
+  hero: {
+    backgroundColor: colors.secondary,
+    marginHorizontal: -spacingX.lg, // Negate scrollContent padding to span full width
+    paddingHorizontal: spacingX.lg,
+    paddingVertical: spacingY.xl,
+    marginBottom: spacingY.lg,
+    overflow: "hidden",
+    position: "relative",
+  },
+  heroLabel: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.tiny,
+    color: colors.white,
+    opacity: 0.85,
+    textTransform: "uppercase",
+    letterSpacing: 1.5,
+    marginBottom: spacingY.xs,
+  },
+  heroTitle: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.xxl,
+    color: colors.white,
+    marginBottom: spacingY.xxs,
+  },
+  heroSubtitle: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.medium,
+    color: "rgba(255,255,255,0.8)",
+    marginBottom: spacingY.xl,
+  },
+  heroBottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  statText: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.small,
+    color: colors.white,
+  },
+  progressPill: {
+    backgroundColor: "rgba(255,255,255,0.25)",
+    paddingHorizontal: spacingX.sm,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  progressPillText: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.tiny,
+    color: colors.white,
+  },
+  heroBlob1: {
+    position: "absolute",
+    top: -30,
+    right: -30,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "rgba(255,255,255,0.08)",
+  },
+  heroBlob2: {
+    position: "absolute",
+    bottom: -20,
+    left: -20,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: "rgba(255,255,255,0.06)",
+  },
+
+  // Active hint
+  activeHint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: spacingX.sm,
+    marginBottom: spacingY.lg,
+  },
+  activeHintDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.success,
+  },
+  activeHintText: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.small,
+    color: colors.textMuted,
+  },
+
+  // Timeline
   timelineContainer: {},
   chapterWrapper: {
     position: "relative",
   },
-  connectorContainer: {
-    position: "absolute",
-    left: spacingX.lg + 24,
+  connectorLine: {
     alignItems: "center",
     justifyContent: "center",
-    width: "100%",
-    height: spacingY.lg,
-    bottom: 0,
-    zIndex: -1,
+    height: 24,
+    marginBottom: spacingY.xs,
+    gap: 3,
   },
-  dashedLine: {
+  connectorDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.border,
+  },
+  connectorDash: {
     width: 2,
-    height: "100%",
-    borderStyle: "dashed",
-    borderWidth: 1,
-    borderColor: colors.border,
-    position: "absolute",
-    left: 36,
-    top: -12,
-    bottom: -12,
-    zIndex: -1,
+    height: 10,
+    backgroundColor: colors.border,
+    borderRadius: 1,
   },
 });

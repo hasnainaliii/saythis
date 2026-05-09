@@ -19,23 +19,31 @@ interface ExerciseCardProps {
 
 const CATEGORY_CONFIG: Record<
   ExerciseCardProps["category"],
-  { label: string; color: string; icon: keyof typeof Ionicons.glyphMap }
+  { label: string; color: string; icon: keyof typeof Ionicons.glyphMap; bg: string }
 > = {
-  education: { label: "Education", color: colors.categoryEducation, icon: "book-outline" },
+  education: {
+    label: "Education",
+    color: "#4A90D9",
+    icon: "book-outline",
+    bg: "#EEF4FF",
+  },
   self_awareness: {
     label: "Self Awareness",
-    color: colors.categorySelfAwareness,
+    color: "#7B68EE",
     icon: "eye-outline",
+    bg: "#F3F0FF",
   },
   cognitive_behavioral: {
     label: "CBT",
-    color: colors.categoryCBT,
+    color: "#50C878",
     icon: "bulb-outline",
+    bg: "#EEFAF2",
   },
   self_advocacy: {
     label: "Self Advocacy",
-    color: colors.categorySelfAdvocacy,
+    color: "#FF8C42",
     icon: "megaphone-outline",
+    bg: "#FFF5EE",
   },
 };
 
@@ -56,34 +64,25 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
   description,
   onPress,
 }) => {
-  const categoryInfo = CATEGORY_CONFIG[category];
-  const difficultyInfo = DIFFICULTY_CONFIG[difficulty];
+  const cat = CATEGORY_CONFIG[category];
+  const diff = DIFFICULTY_CONFIG[difficulty];
 
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [styles.container, pressed && styles.pressed]}
     >
+      {/* Left accent strip */}
+      <View style={[styles.accentStrip, { backgroundColor: cat.color }]} />
+
       <View style={styles.headerRow}>
-        <View
-          style={[
-            styles.categoryBadge,
-            { backgroundColor: categoryInfo.color + "20" },
-          ]}
-        >
-          <Ionicons
-            name={categoryInfo.icon}
-            size={14}
-            color={categoryInfo.color}
-          />
-          <Text style={[styles.categoryText, { color: categoryInfo.color }]}>
-            {categoryInfo.label}
+        <View style={[styles.categoryBadge, { backgroundColor: cat.bg }]}>
+          <Ionicons name={cat.icon} size={13} color={cat.color} />
+          <Text style={[styles.categoryText, { color: cat.color }]}>
+            {cat.label}
           </Text>
         </View>
-        <View style={styles.durationContainer}>
-          <Ionicons name="time-outline" size={14} color={colors.black_text} />
-          <Text style={styles.durationText}>{duration_minutes} min</Text>
-        </View>
+        <View style={[styles.difficultyDot, { backgroundColor: diff.color }]} />
       </View>
 
       <Text style={styles.title} numberOfLines={2}>
@@ -94,22 +93,25 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
       </Text>
 
       <View style={styles.footer}>
-        <View
-          style={[
-            styles.difficultyBadge,
-            { backgroundColor: difficultyInfo.color + "20" },
-          ]}
-        >
-          <Text
-            style={[styles.difficultyText, { color: difficultyInfo.color }]}
-          >
-            {difficultyInfo.label}
-          </Text>
+        <View style={styles.footerLeft}>
+          <View style={styles.metaChip}>
+            <Ionicons name="time-outline" size={12} color={colors.textMuted} />
+            <Text style={styles.metaChipText}>{duration_minutes} min</Text>
+          </View>
+          <View style={[styles.metaChip, { backgroundColor: diff.color + "12" }]}>
+            <Text style={[styles.metaChipText, { color: diff.color }]}>
+              {diff.label}
+            </Text>
+          </View>
         </View>
-        <View style={styles.startButton}>
-          <Text style={styles.startText}>Start</Text>
-          <Ionicons name="arrow-forward" size={16} color={colors.secondary} />
+        <View style={[styles.startButton, { backgroundColor: cat.color }]}>
+          <Ionicons name="arrow-forward" size={16} color={colors.white} />
         </View>
+      </View>
+
+      {/* Decorative watermark */}
+      <View style={styles.watermark}>
+        <Ionicons name={cat.icon} size={60} color={cat.color + "06"} />
       </View>
     </Pressable>
   );
@@ -118,18 +120,29 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
-    borderRadius: 16,
+    borderRadius: 20,
     padding: spacingX.md,
+    paddingLeft: spacingX.md + 6,
     marginBottom: spacingY.md,
     shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowRadius: 10,
+    elevation: 3,
+    position: "relative",
+    overflow: "hidden",
   },
   pressed: {
-    opacity: 0.9,
-    transform: [{ scale: 0.99 }],
+    opacity: 0.92,
+    transform: [{ scale: 0.985 }],
+  },
+  accentStrip: {
+    position: "absolute",
+    left: 0,
+    top: 12,
+    bottom: 12,
+    width: 3.5,
+    borderRadius: 2,
   },
   headerRow: {
     flexDirection: "row",
@@ -141,34 +154,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: spacingX.sm,
-    paddingVertical: spacingY.xxs,
-    borderRadius: 8,
-    gap: 4,
+    paddingVertical: 5,
+    borderRadius: 10,
+    gap: 5,
   },
   categoryText: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.tiny,
   },
-  durationContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  durationText: {
-    fontFamily: FONTS.primary,
-    fontSize: fontSizes.tiny,
-    color: colors.black_text,
+  difficultyDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   title: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.large,
-    color: colors.black,
-    marginBottom: spacingY.xs,
+    color: colors.textDark,
+    marginBottom: spacingY.xxs,
   },
   description: {
     fontFamily: FONTS.primary,
     fontSize: fontSizes.small,
-    color: colors.black_text,
+    color: colors.textMuted,
     marginBottom: spacingY.md,
     lineHeight: 20,
   },
@@ -177,24 +185,35 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  difficultyBadge: {
-    paddingHorizontal: spacingX.sm,
-    paddingVertical: spacingY.xxs,
-    borderRadius: 6,
+  footerLeft: {
+    flexDirection: "row",
+    gap: 6,
   },
-  difficultyText: {
-    fontFamily: FONTS.primaryBold,
-    fontSize: fontSizes.tiny,
-  },
-  startButton: {
+  metaChip: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
+    backgroundColor: colors.primary_10,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
-  startText: {
-    fontFamily: FONTS.primaryBold,
-    fontSize: fontSizes.small,
-    color: colors.secondary,
+  metaChipText: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.tiny,
+    color: colors.textMuted,
+  },
+  startButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  watermark: {
+    position: "absolute",
+    right: -8,
+    bottom: -8,
   },
 });
 

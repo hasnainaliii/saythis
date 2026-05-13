@@ -1,19 +1,31 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
-import { FlatList, StyleSheet, Text, View, ViewToken } from "react-native";
+import React, { useRef, useState, useEffect } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import PagerView from "react-native-pager-view";
+import Animated, {
+  Easing,
+  cancelAnimation,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Button from "../../../../components/Button";
-import ExerciseSlide, { Slide } from "../../../../components/exercise/ExerciseSlide";
+import { BackButton } from "../../../../components/BackButton";
+import ExerciseSlide, {
+  Slide,
+} from "../../../../components/exercise/ExerciseSlide";
 import { Exercise } from "../../../../data/chapter1Data";
-import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../../../theme/Theme";
-
-const CATEGORY_COLOR: Record<string, string> = {
-  education: "#4A90D9",
-  self_awareness: "#7B68EE",
-  cognitive_behavioral: "#50C878",
-  self_advocacy: "#FF8C42",
-};
+import { CATEGORY_ACCENT } from "../../../../data/chapterConfig";
+import {
+  colors,
+  FONTS,
+  fontSizes,
+  spacingX,
+  spacingY,
+} from "../../../../theme/Theme";
 
 const SLIDE_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   instructions: "document-text-outline",
@@ -25,8 +37,17 @@ const SLIDE_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 export default function ExercisePlayerScreen() {
   const { exerciseData } = useLocalSearchParams<{ exerciseData: string }>();
   const router = useRouter();
-  const flatListRef = useRef<FlatList>(null);
+  const pagerRef = useRef<PagerView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Animation values for Hold-to-Complete
+  const holdProgress = useSharedValue(0);
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    // Reset progress when slide changes
+    holdProgress.value = 0;
+  }, [currentIndex, holdProgress]);
 
   if (!exerciseData) {
     return (
@@ -37,35 +58,91 @@ export default function ExercisePlayerScreen() {
   }
 
   const exercise: Exercise = JSON.parse(exerciseData);
-  const accent = CATEGORY_COLOR[exercise.category] || colors.secondary;
+  const accent = CATEGORY_ACCENT[exercise.category] ?? colors.secondary;
 
   const slides: Slide[] = [
-    { id: "instructions", title: "Instructions", type: "instructions", data: exercise.instructions },
+    {
+      id: "instructions",
+      title: "Instructions",
+      type: "instructions",
+      data: exercise.instructions,
+    },
     { id: "content", title: "Learn", type: "content", data: exercise.content },
-    { id: "outcomes", title: "Expected Outcomes", type: "outcomes", data: exercise.expected_outcomes },
-    { id: "safety", title: "Safety Notes", type: "safety", data: exercise.safety_notes },
+    {
+      id: "outcomes",
+      title: "Expected Outcomes",
+      type: "outcomes",
+      data: exercise.expected_outcomes,
+    },
+    {
+      id: "safety",
+      title: "Safety Notes",
+      type: "safety",
+      data: exercise.safety_notes,
+    },
   ];
 
-  const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-        setCurrentIndex(viewableItems[0].index);
+  const isFirst = currentIndex === 0;
+  const isLast = currentIndex === slides.length - 1;
+
+  const goToPrev = () => {
+    if (!isFirst) {
+      pagerRef.current?.setPage(currentIndex - 1);
+    }
+  };
+
+  const goToNext = () => {
+    if (isLast) {
+      router.back();
+    } else {
+      pagerRef.current?.setPage(currentIndex + 1);
+    }
+  };
+
+  const handleHoldComplete = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    goToNext();
+  };
+
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    scale.value = withTiming(0.96, { duration: 150 });
+    holdProgress.value = withTiming(
+      1,
+      { duration: 700, easing: Easing.inOut(Easing.ease) },
+      (finished) => {
+        if (finished) {
+          runOnJS(handleHoldComplete)();
+        }
       }
-    },
-  ).current;
+    );
+  };
+
+  const handlePressOut = () => {
+    scale.value = withTiming(1, { duration: 150 });
+    if (holdProgress.value < 1) {
+      cancelAnimation(holdProgress);
+      holdProgress.value = withTiming(0, { duration: 250 });
+    }
+  };
+
+  const animatedFillStyle = useAnimatedStyle(() => {
+    return {
+      width: `${holdProgress.value * 100}%`,
+    };
+  });
+
+  const animatedScaleStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Header */}
       <View style={styles.header}>
-        <Button
-          title="Close"
-          onPress={() => router.back()}
-          variant="outline"
-          size="small"
-          icon={<Ionicons name="close" size={16} color={colors.secondary} />}
-          iconPosition="left"
-        />
+        <BackButton variant="light" />
         <View style={styles.progressBar}>
           {slides.map((_, index) => (
             <View
@@ -80,7 +157,7 @@ export default function ExercisePlayerScreen() {
             />
           ))}
         </View>
-        <View style={{ width: 70 }} />
+        <View style={styles.headerSpacer} />
       </View>
 
       {/* Title area */}
@@ -106,7 +183,9 @@ export default function ExercisePlayerScreen() {
 
       {/* Slide label */}
       <View style={styles.slideLabelRow}>
-        <View style={[styles.slideLabelIcon, { backgroundColor: accent + "15" }]}>
+        <View
+          style={[styles.slideLabelIcon, { backgroundColor: accent + "15" }]}
+        >
           <Ionicons
             name={SLIDE_ICONS[slides[currentIndex]?.type] || "document-outline"}
             size={14}
@@ -116,27 +195,75 @@ export default function ExercisePlayerScreen() {
         <Text style={styles.slideLabelText}>{slides[currentIndex]?.title}</Text>
       </View>
 
-      <FlatList
-        ref={flatListRef}
-        data={slides}
-        renderItem={({ item }) => <ExerciseSlide slide={item} exercise={exercise} />}
-        keyExtractor={(item) => item.id}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
-        style={styles.flatList}
-      />
+      {/* PagerView */}
+      <PagerView
+        ref={pagerRef}
+        style={styles.pager}
+        initialPage={0}
+        onPageSelected={(e) => setCurrentIndex(e.nativeEvent.position)}
+      >
+        {slides.map((slide) => (
+          <View key={slide.id} style={{ flex: 1 }}>
+            <ExerciseSlide slide={slide} exercise={exercise} />
+          </View>
+        ))}
+      </PagerView>
 
-      {/* Bottom swipe hint */}
-      <View style={styles.swipeHint}>
-        <View style={styles.swipeHintInner}>
-          <Ionicons name="swap-horizontal-outline" size={14} color={colors.textMuted} />
-          <Text style={styles.swipeHintText}>
-            Swipe to navigate • {currentIndex + 1} / {slides.length}
+      {/* Bottom navigation */}
+      <View style={styles.navRow}>
+        {/* Prev button */}
+        <Pressable
+          onPress={goToPrev}
+          disabled={isFirst}
+          style={({ pressed }) => [
+            styles.navButton,
+            { backgroundColor: accent + "15" },
+            isFirst && styles.navButtonDisabled,
+            pressed && !isFirst && { opacity: 0.75 },
+          ]}
+        >
+          <Ionicons
+            name="arrow-back"
+            size={20}
+            color={isFirst ? colors.textDisabled : accent}
+          />
+        </Pressable>
+
+        {/* Counter pill */}
+        <View style={styles.counterPill}>
+          <Text style={styles.counterText}>
+            {currentIndex + 1} / {slides.length}
           </Text>
         </View>
+
+        {/* Next / Done Hold Button */}
+        <Animated.View style={[animatedScaleStyle]}>
+          <Pressable
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            style={[styles.holdButtonContainer, { backgroundColor: accent + "33" }]}
+          >
+            {/* The filling background */}
+            <Animated.View
+              style={[
+                styles.holdButtonFill,
+                { backgroundColor: accent },
+                animatedFillStyle,
+              ]}
+            />
+            {/* The content */}
+            <View style={styles.holdButtonContent}>
+              <Text style={styles.holdButtonText}>
+                {isLast ? "Hold to Finish" : "Hold to Next"}
+              </Text>
+              {isLast ? (
+                <Ionicons name="checkmark" size={16} color={colors.white} />
+              ) : (
+                <Ionicons name="arrow-forward" size={16} color={colors.white} />
+              )}
+            </View>
+          </Pressable>
+        </Animated.View>
       </View>
     </SafeAreaView>
   );
@@ -147,6 +274,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.primary,
   },
+
+  // Header
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -165,6 +294,11 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 2,
   },
+  headerSpacer: {
+    width: 44,
+  },
+
+  // Title
   titleContainer: {
     paddingHorizontal: spacingX.lg,
     marginBottom: spacingY.sm,
@@ -191,6 +325,8 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.primary,
     fontSize: fontSizes.tiny,
   },
+
+  // Slide label
   slideLabelRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -210,30 +346,76 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.medium,
     color: colors.textDark,
   },
-  flatList: {
+
+  // Pager
+  pager: {
     flex: 1,
   },
-  swipeHint: {
-    alignItems: "center",
-    paddingVertical: spacingY.md,
-  },
-  swipeHintInner: {
+
+  // Bottom navigation
+  navRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    justifyContent: "space-between",
+    paddingHorizontal: spacingX.lg,
+    paddingTop: spacingY.sm,
+    paddingBottom: spacingY.lg,
+  },
+  navButton: {
+    height: 48,
+    minWidth: 48,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  navButtonDisabled: {
+    opacity: 0.3,
+  },
+  counterPill: {
     backgroundColor: colors.white,
     paddingHorizontal: spacingX.md,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 20,
     shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  swipeHintText: {
-    fontFamily: FONTS.primary,
-    fontSize: fontSizes.tiny,
-    color: colors.textMuted,
+  counterText: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.small,
+    color: colors.textDark,
+  },
+  holdButtonContainer: {
+    height: 48,
+    borderRadius: 14,
+    overflow: "hidden",
+    justifyContent: "center",
+    position: "relative",
+    paddingHorizontal: spacingX.md,
+    minWidth: 140,
+  },
+  holdButtonFill: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    borderRadius: 14,
+  },
+  holdButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    zIndex: 1,
+  },
+  holdButtonText: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.small,
+    color: colors.white,
+    textShadowColor: "rgba(0,0,0,0.15)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });

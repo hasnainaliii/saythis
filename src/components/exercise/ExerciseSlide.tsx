@@ -1,14 +1,18 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Exercise } from "../../data/chapter1Data";
-import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
+import {
+  colors,
+  FONTS,
+  fontSizes,
+  spacingX,
+  spacingY,
+} from "../../theme/Theme";
 import CBTContent from "./CBTContent";
 import EducationContent from "./EducationContent";
 import SelfAdvocacyContent from "./SelfAdvocacyContent";
 import SelfAwarenessContent from "./SelfAwarenessContent";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export interface Slide {
   id: string;
@@ -41,7 +45,10 @@ const ExerciseSlide: React.FC<ExerciseSlideProps> = ({ slide, exercise }) => {
   return (
     <View style={styles.slide}>
       {slide.type === "instructions" && (
-        <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.contentScroll}
+          showsVerticalScrollIndicator={false}
+        >
           {(slide.data as string[]).map((instruction, index) => (
             <View key={index} style={styles.instructionCard}>
               <View style={styles.stepBadge}>
@@ -58,14 +65,21 @@ const ExerciseSlide: React.FC<ExerciseSlideProps> = ({ slide, exercise }) => {
       {slide.type === "content" && <ContentByCategory exercise={exercise} />}
 
       {slide.type === "outcomes" && (
-        <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.contentScroll}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.listCard}>
             {(slide.data as string[]).map((text, index) => (
               <View
                 key={index}
                 style={[
                   styles.outcomeItem,
-                  index === (slide.data as string[]).length - 1 && { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 },
+                  index === (slide.data as string[]).length - 1 && {
+                    borderBottomWidth: 0,
+                    marginBottom: 0,
+                    paddingBottom: 0,
+                  },
                 ]}
               >
                 <View style={styles.outcomeIcon}>
@@ -79,7 +93,10 @@ const ExerciseSlide: React.FC<ExerciseSlideProps> = ({ slide, exercise }) => {
       )}
 
       {slide.type === "safety" && (
-        <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.contentScroll}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.safetyBanner}>
             <Ionicons name="heart-outline" size={18} color={colors.warning} />
             <Text style={styles.safetyBannerText}>
@@ -92,11 +109,19 @@ const ExerciseSlide: React.FC<ExerciseSlideProps> = ({ slide, exercise }) => {
                 key={index}
                 style={[
                   styles.safetyItem,
-                  index === (slide.data as string[]).length - 1 && { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 },
+                  index === (slide.data as string[]).length - 1 && {
+                    borderBottomWidth: 0,
+                    marginBottom: 0,
+                    paddingBottom: 0,
+                  },
                 ]}
               >
                 <View style={styles.safetyIcon}>
-                  <Ionicons name="shield-checkmark" size={14} color={colors.warning} />
+                  <Ionicons
+                    name="shield-checkmark"
+                    size={14}
+                    color={colors.warning}
+                  />
                 </View>
                 <Text style={styles.itemText}>{text}</Text>
               </View>
@@ -110,7 +135,7 @@ const ExerciseSlide: React.FC<ExerciseSlideProps> = ({ slide, exercise }) => {
 
 const styles = StyleSheet.create({
   slide: {
-    width: SCREEN_WIDTH,
+    flex: 1,
     paddingHorizontal: spacingX.lg,
   },
   contentScroll: {

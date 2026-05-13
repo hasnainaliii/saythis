@@ -1,14 +1,15 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ChapterCard from "../../../../components/ChapterCard";
 import {
-    colors,
-    FONTS,
-    fontSizes,
-    spacingX,
-    spacingY,
+  colors,
+  FONTS,
+  fontSizes,
+  spacingX,
+  spacingY,
 } from "../../../../theme/Theme";
 
 const MOCK_CHAPTERS = [
@@ -67,15 +68,25 @@ const MOCK_CHAPTERS = [
 export default function TherapyScreen() {
   const router = useRouter();
 
-  const handlePressChapter = (id: number) => {
-    router.push({
-      pathname: "/(main)/(tabs)/therapy/[id]",
-      params: { id },
-    });
+  const handlePressChapter = async (id: number) => {
+    const seen = await AsyncStorage.getItem(`chapter_${id}_objectives_seen`);
+    if (seen) {
+      router.push({
+        pathname: "/(main)/(tabs)/therapy/[id]",
+        params: { id },
+      });
+    } else {
+      router.push({
+        pathname: "/(main)/(tabs)/therapy/objectives" as any,
+        params: { id },
+      });
+    }
   };
 
   const totalChapters = MOCK_CHAPTERS.length;
-  const completedChapters = MOCK_CHAPTERS.filter((c) => c.progress === 100).length;
+  const completedChapters = MOCK_CHAPTERS.filter(
+    (c) => c.progress === 100,
+  ).length;
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -97,7 +108,7 @@ export default function TherapyScreen() {
           <Text style={styles.heroSubtitle}>
             Step-by-step to confident speech
           </Text>
-          
+
           <View style={styles.heroBottomRow}>
             <Text style={styles.statText}>{totalChapters} chapters</Text>
             <View style={styles.progressPill}>

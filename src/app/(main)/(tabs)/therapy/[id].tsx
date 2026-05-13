@@ -3,40 +3,27 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Button from "../../../../components/Button";
+import { BackButton } from "../../../../components/BackButton";
 import ExerciseCard from "../../../../components/ExerciseCard";
 import { CHAPTER_1_DATA, Exercise } from "../../../../data/chapter1Data";
+import { CHAPTER_ACCENT, CHAPTER_ICON } from "../../../../data/chapterConfig";
 import {
-    colors,
-    FONTS,
-    fontSizes,
-    spacingX,
-    spacingY,
+  colors,
+  FONTS,
+  fontSizes,
+  spacingX,
+  spacingY,
 } from "../../../../theme/Theme";
-
-const CHAPTER_ACCENT: Record<string, string> = {
-  "1": "#ff9b85",
-  "2": "#7B68EE",
-  "3": "#50C878",
-  "4": "#FFB347",
-  "5": "#4A90D9",
-};
-
-const CHAPTER_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
-  "1": "leaf-outline",
-  "2": "water-outline",
-  "3": "musical-notes-outline",
-  "4": "shield-checkmark-outline",
-  "5": "rocket-outline",
-};
 
 export default function ChapterDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
 
   const chapter = id === "1" ? CHAPTER_1_DATA : null;
-  const accent = CHAPTER_ACCENT[id || "1"] || colors.secondary;
-  const chapterIcon = CHAPTER_ICON[id || "1"] || "book-outline";
+  const accent = CHAPTER_ACCENT[id ?? "1"] ?? colors.secondary;
+  const chapterIcon =
+    CHAPTER_ICON[id ?? "1"] ??
+    ("book-outline" as keyof typeof Ionicons.glyphMap);
 
   const handleExercisePress = (exercise: Exercise) => {
     router.push({
@@ -45,24 +32,21 @@ export default function ChapterDetailScreen() {
     });
   };
 
+  // ─── Empty / locked state ────────────────────────────────────────────────────
+
   if (!chapter) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Button
-            title="Back"
-            onPress={() => router.back()}
-            variant="outline"
-            size="small"
-            icon={
-              <Ionicons name="arrow-back" size={16} color={colors.secondary} />
-            }
-            iconPosition="left"
-          />
+      <SafeAreaView style={styles.container} edges={["top"]}>
+        <View style={styles.emptyNav}>
+          <BackButton />
         </View>
         <View style={styles.emptyState}>
           <View style={styles.emptyIcon}>
-            <Ionicons name="lock-closed" size={40} color={colors.textDisabled} />
+            <Ionicons
+              name="lock-closed"
+              size={40}
+              color={colors.textDisabled}
+            />
           </View>
           <Text style={styles.emptyTitle}>Chapter Locked</Text>
           <Text style={styles.emptySubtitle}>
@@ -73,27 +57,21 @@ export default function ChapterDetailScreen() {
     );
   }
 
+  // ─── Main render ─────────────────────────────────────────────────────────────
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <Button
-            title="Back"
-            onPress={() => router.back()}
-            variant="outline"
-            size="small"
-            icon={
-              <Ionicons name="arrow-back" size={16} color={colors.secondary} />
-            }
-            iconPosition="left"
-          />
-        </View>
-
-        {/* Hero banner */}
+        {/* ── Full-bleed hero banner ──────────────────────────────────────── */}
         <View style={[styles.heroBanner, { backgroundColor: accent }]}>
+          {/* Back button floats at the top of the hero */}
+          <View style={styles.heroNav}>
+            <BackButton />
+          </View>
+
           <View style={styles.heroBannerContent}>
             <View style={styles.heroBadgeRow}>
               <View style={styles.heroBadge}>
@@ -106,11 +84,17 @@ export default function ChapterDetailScreen() {
                 </Text>
               </View>
             </View>
+
             <Text style={styles.heroTitle}>{chapter.title}</Text>
             <Text style={styles.heroDescription}>{chapter.description}</Text>
+
             <View style={styles.heroMeta}>
               <View style={styles.heroMetaItem}>
-                <Ionicons name="list-outline" size={14} color="rgba(255,255,255,0.8)" />
+                <Ionicons
+                  name="list-outline"
+                  size={14}
+                  color="rgba(255,255,255,0.8)"
+                />
                 <Text style={styles.heroMetaText}>
                   {chapter.exercises.length} exercises
                 </Text>
@@ -120,43 +104,28 @@ export default function ChapterDetailScreen() {
 
           {/* Decorative icon */}
           <View style={styles.heroIconContainer}>
-            <Ionicons name={chapterIcon} size={56} color="rgba(255,255,255,0.15)" />
+            <Ionicons
+              name={chapterIcon}
+              size={56}
+              color="rgba(255,255,255,0.15)"
+            />
           </View>
 
           <View style={styles.heroBlob1} />
           <View style={styles.heroBlob2} />
         </View>
 
-        {/* Learning objectives */}
+        {/* ── Exercises ──────────────────────────────────────────────────── */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <View style={[styles.sectionIcon, { backgroundColor: accent + "15" }]}>
-              <Ionicons name="bulb-outline" size={18} color={accent} />
-            </View>
-            <Text style={styles.sectionTitle}>Learning Objectives</Text>
-          </View>
-          <View style={styles.objectivesContainer}>
-            {chapter.learning_objectives.map((objective, index) => (
-              <View key={index} style={styles.objectiveItem}>
-                <View style={[styles.objectiveNumber, { backgroundColor: accent + "15" }]}>
-                  <Text style={[styles.objectiveNumberText, { color: accent }]}>
-                    {index + 1}
-                  </Text>
-                </View>
-                <Text style={styles.objectiveText}>{objective}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Exercises */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <View style={[styles.sectionIcon, { backgroundColor: accent + "15" }]}>
+            <View
+              style={[styles.sectionIcon, { backgroundColor: accent + "15" }]}
+            >
               <Ionicons name="fitness-outline" size={18} color={accent} />
             </View>
             <Text style={styles.sectionTitle}>Exercises</Text>
           </View>
+
           {chapter.exercises.map((exercise) => (
             <ExerciseCard
               key={exercise.id}
@@ -175,28 +144,68 @@ export default function ChapterDetailScreen() {
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primary,
   },
   scrollContent: {
-    padding: spacingX.lg,
+    paddingHorizontal: spacingX.lg,
     paddingBottom: spacingY.xxl,
-  },
-  header: {
-    marginBottom: spacingY.md,
-    alignItems: "flex-start",
+    paddingTop: 0,
   },
 
-  // Hero banner
+  // ── Empty state ──────────────────────────────────────────────────────────────
+  emptyNav: {
+    paddingHorizontal: spacingX.sm,
+    paddingVertical: spacingY.xs,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: spacingX.xl,
+  },
+  emptyIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.primary10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: spacingY.md,
+  },
+  emptyTitle: {
+    fontFamily: FONTS.primaryBold,
+    fontSize: fontSizes.large,
+    color: colors.textDark,
+    marginBottom: spacingY.xs,
+  },
+  emptySubtitle: {
+    fontFamily: FONTS.primary,
+    fontSize: fontSizes.small,
+    color: colors.textMuted,
+    textAlign: "center",
+  },
+
+  // ── Hero banner (full-bleed) ──────────────────────────────────────────────────
   heroBanner: {
-    borderRadius: 24,
-    padding: spacingX.lg,
-    paddingVertical: spacingY.lg,
+    // Negate scrollContent's horizontal padding so the banner spans edge-to-edge
+    marginHorizontal: -spacingX.lg,
+    paddingHorizontal: spacingX.lg,
+    paddingBottom: spacingY.xl,
+    paddingTop: 0,
     marginBottom: spacingY.xl,
     overflow: "hidden",
     position: "relative",
+  },
+  heroNav: {
+    // Small breathing room above the back button, generous below before content
+    paddingTop: spacingY.xs,
+    paddingBottom: spacingY.sm,
+    zIndex: 1,
   },
   heroBannerContent: {
     zIndex: 1,
@@ -264,7 +273,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: spacingX.md,
     bottom: spacingY.md,
-    opacity: 1,
   },
   heroBlob1: {
     position: "absolute",
@@ -285,7 +293,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.06)",
   },
 
-  // Sections
+  // ── Sections ─────────────────────────────────────────────────────────────────
   section: {
     marginBottom: spacingY.lg,
   },
@@ -306,71 +314,5 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.large,
     color: colors.textDark,
-  },
-
-  // Objectives
-  objectivesContainer: {
-    backgroundColor: colors.white,
-    borderRadius: 20,
-    padding: spacingX.md,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  objectiveItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: spacingY.sm,
-    gap: spacingX.sm,
-  },
-  objectiveNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 1,
-  },
-  objectiveNumberText: {
-    fontFamily: FONTS.primaryBold,
-    fontSize: fontSizes.tiny,
-  },
-  objectiveText: {
-    flex: 1,
-    fontFamily: FONTS.primary,
-    fontSize: fontSizes.small,
-    color: colors.textDark,
-    lineHeight: 22,
-  },
-
-  // Empty
-  emptyState: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: spacingX.xl,
-  },
-  emptyIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.primary10,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: spacingY.md,
-  },
-  emptyTitle: {
-    fontFamily: FONTS.primaryBold,
-    fontSize: fontSizes.large,
-    color: colors.textDark,
-    marginBottom: spacingY.xs,
-  },
-  emptySubtitle: {
-    fontFamily: FONTS.primary,
-    fontSize: fontSizes.small,
-    color: colors.textMuted,
-    textAlign: "center",
   },
 });

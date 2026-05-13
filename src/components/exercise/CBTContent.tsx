@@ -1,7 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
+import {
+  colors,
+  FONTS,
+  fontSizes,
+  spacingX,
+  spacingY,
+} from "../../theme/Theme";
 
 interface CBTContentProps {
   content: Record<string, unknown>;
@@ -9,18 +15,15 @@ interface CBTContentProps {
 
 const CBTContent: React.FC<CBTContentProps> = ({ content }) => {
   const reframes = content.common_reframes as
-    | Array<{ negative: string; balanced: string }>
+    | { negative: string; balanced: string }[]
     | undefined;
 
   const distortions = content.cognitive_distortions as
-    | Array<{ name: string; example: string }>
+    | { name: string; example: string }[]
     | undefined;
 
   return (
-    <ScrollView
-      style={styles.scroll}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
       {!!content.why_self_talk_matters && (
         <View style={styles.card}>
           <View style={styles.cardHeader}>
@@ -38,8 +41,17 @@ const CBTContent: React.FC<CBTContentProps> = ({ content }) => {
       {!!content.the_cycle && (
         <View style={[styles.card, styles.cycleCard]}>
           <View style={styles.cardHeader}>
-            <View style={[styles.cardIcon, { backgroundColor: colors.secondary + "15" }]}>
-              <Ionicons name="sync-outline" size={18} color={colors.secondary} />
+            <View
+              style={[
+                styles.cardIcon,
+                { backgroundColor: colors.secondary + "15" },
+              ]}
+            >
+              <Ionicons
+                name="sync-outline"
+                size={18}
+                color={colors.secondary}
+              />
             </View>
             <Text style={styles.cardTitle}>The Cycle</Text>
           </View>
@@ -51,7 +63,11 @@ const CBTContent: React.FC<CBTContentProps> = ({ content }) => {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={[styles.cardIcon, { backgroundColor: "#4A90D915" }]}>
-              <Ionicons name="swap-horizontal-outline" size={18} color="#4A90D9" />
+              <Ionicons
+                name="swap-horizontal-outline"
+                size={18}
+                color="#4A90D9"
+              />
             </View>
             <Text style={styles.cardTitle}>Reframe Your Thoughts</Text>
           </View>
@@ -90,7 +106,9 @@ const CBTContent: React.FC<CBTContentProps> = ({ content }) => {
               ]}
             >
               <Text style={styles.distortionName}>{item.name}</Text>
-              <Text style={styles.distortionExample}>"{item.example}"</Text>
+              <Text style={styles.distortionExample}>
+                &ldquo;{item.example}&rdquo;
+              </Text>
             </View>
           ))}
         </View>

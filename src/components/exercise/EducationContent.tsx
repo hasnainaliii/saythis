@@ -1,7 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
+import {
+  colors,
+  FONTS,
+  fontSizes,
+  spacingX,
+  spacingY,
+} from "../../theme/Theme";
 
 interface EducationContentProps {
   content: Record<string, unknown>;
@@ -9,7 +15,7 @@ interface EducationContentProps {
 
 const EducationContent: React.FC<EducationContentProps> = ({ content }) => {
   const types = content.types_of_stuttering as
-    | Array<{ type: string; description: string; examples: string[] }>
+    | { type: string; description: string; examples: string[] }[]
     | undefined;
 
   const stats = content.statistics as Record<string, string> | undefined;
@@ -28,15 +34,16 @@ const EducationContent: React.FC<EducationContentProps> = ({ content }) => {
   };
 
   return (
-    <ScrollView
-      style={styles.scroll}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
       {!!content.what_is_stuttering && (
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={[styles.cardIcon, { backgroundColor: "#4A90D915" }]}>
-              <Ionicons name="information-circle-outline" size={18} color="#4A90D9" />
+              <Ionicons
+                name="information-circle-outline"
+                size={18}
+                color="#4A90D9"
+              />
             </View>
             <Text style={styles.cardTitle}>What is Stuttering?</Text>
           </View>
@@ -77,7 +84,10 @@ const EducationContent: React.FC<EducationContentProps> = ({ content }) => {
                   {item.examples.map((ex, i) => (
                     <View
                       key={i}
-                      style={[styles.exampleChip, { backgroundColor: typeColor + "10" }]}
+                      style={[
+                        styles.exampleChip,
+                        { backgroundColor: typeColor + "10" },
+                      ]}
                     >
                       <Text style={[styles.exampleText, { color: typeColor }]}>
                         {ex}
@@ -104,11 +114,12 @@ const EducationContent: React.FC<EducationContentProps> = ({ content }) => {
               const statColors = ["#ff9b85", "#7B68EE", "#50C878", "#FFB347"];
               const c = statColors[index % statColors.length];
               return (
-                <View key={key} style={[styles.statCard, { borderTopColor: c }]}>
+                <View
+                  key={key}
+                  style={[styles.statCard, { borderTopColor: c }]}
+                >
                   <Text style={[styles.statValue, { color: c }]}>{value}</Text>
-                  <Text style={styles.statLabel}>
-                    {key.replace(/_/g, " ")}
-                  </Text>
+                  <Text style={styles.statLabel}>{key.replace(/_/g, " ")}</Text>
                 </View>
               );
             })}
@@ -122,10 +133,11 @@ const EducationContent: React.FC<EducationContentProps> = ({ content }) => {
             <View style={[styles.cardIcon, { backgroundColor: "#FFB34715" }]}>
               <Ionicons name="star-outline" size={18} color="#FFB347" />
             </View>
-            <Text style={styles.cardTitle}>You're in Great Company</Text>
+            <Text style={styles.cardTitle}>You&apos;re in Great Company</Text>
           </View>
           <Text style={styles.inspireText}>
-            These incredible people stutter too — and they changed the world.
+            These incredible people stutter too &mdash; and they changed the
+            world.
           </Text>
           {famous.slice(0, 5).map((person, index) => {
             const parts = person.split(" - ");

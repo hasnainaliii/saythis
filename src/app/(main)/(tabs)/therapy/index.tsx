@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
@@ -69,18 +68,10 @@ export default function TherapyScreen() {
   const router = useRouter();
 
   const handlePressChapter = async (id: number) => {
-    const seen = await AsyncStorage.getItem(`chapter_${id}_objectives_seen`);
-    if (seen) {
-      router.push({
-        pathname: "/(main)/(tabs)/therapy/[id]",
-        params: { id },
-      });
-    } else {
-      router.push({
-        pathname: "/(main)/(tabs)/therapy/objectives" as any,
-        params: { id },
-      });
-    }
+    router.push({
+      pathname: "/(main)/(tabs)/therapy/objectives" as any,
+      params: { id },
+    });
   };
 
   const totalChapters = MOCK_CHAPTERS.length;

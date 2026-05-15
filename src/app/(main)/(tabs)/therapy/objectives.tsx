@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Haptics from "expo-haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -9,7 +9,16 @@ import {
   Text,
   View,
 } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, {
+  FadeInDown,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  cancelAnimation,
+  runOnJS,
+  Easing,
+  interpolateColor,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BackButton } from "../../../../components/BackButton";
 import ChapterHeroIcon from "../../../../components/ChapterHeroIcon";
@@ -27,6 +36,64 @@ import {
   spacingY,
 } from "../../../../theme/Theme";
 
+const HOLD_DURATION = 1000;
+
+function HoldToContinue({
+  onComplete,
+  accent,
+}: {
+  onComplete: () => void;
+  accent: string;
+}) {
+  const progress = useSharedValue(0);
+
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    progress.value = withTiming(
+      1,
+      { duration: HOLD_DURATION, easing: Easing.linear },
+      (finished) => {
+        if (finished) {
+          runOnJS(Haptics.notificationAsync)(
+            Haptics.NotificationFeedbackType.Success,
+          );
+          runOnJS(onComplete)();
+        }
+      },
+    );
+  };
+
+  const handlePressOut = () => {
+    if (progress.value < 1) {
+      cancelAnimation(progress);
+      progress.value = withTiming(0, { duration: 300 });
+    }
+  };
+
+  const fillStyle = useAnimatedStyle(() => ({
+    width: `${progress.value * 100}%`,
+  }));
+
+  const textStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(
+      progress.value,
+      [0, 0.4],
+      ["#2E3B32", "#FFFFFF"]
+    ),
+  }));
+
+  return (
+    <Pressable
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={styles.holdBtnContainer}
+    >
+      <Animated.View style={[styles.holdBtnFill, fillStyle]} />
+      <Animated.Text style={[styles.holdBtnText, textStyle]}>Hold to Continue</Animated.Text>
+    </Pressable>
+  );
+}
+
 export default function ObjectivesScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -43,16 +110,7 @@ export default function ObjectivesScreen() {
 
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
-  const handleBegin = async () => {
-    if (dontShowAgain) {
-      try {
-        await AsyncStorage.setItem(
-          `chapter_${chapterId}_objectives_seen`,
-          "true",
-        );
-      } catch {}
-    }
-    // storage errors are non-blocking
+  const handleBegin = () => {
     router.replace({
       pathname: "/(main)/(tabs)/therapy/[id]",
       params: { id: chapterId },
@@ -105,32 +163,29 @@ export default function ObjectivesScreen() {
               <Text style={styles.objectiveText}>{obj}</Text>
             </Animated.View>
           ))}
+          <Animated.View entering={FadeInDown.delay(600).duration(500)} style={styles.inlineCta}>
+            <View style={styles.actionRow}>
+              <Pressable
+                onPress={() => setDontShowAgain(!dontShowAgain)}
+                style={[
+                  styles.squareCheckbox,
+                  dontShowAgain && { borderColor: accent, backgroundColor: accent + "1A" }
+                ]}
+              >
+                <Ionicons
+                  name={dontShowAgain ? "checkmark" : "eye-off-outline"}
+                  size={26}
+                  color={dontShowAgain ? accent : colors.textMuted}
+                />
+              </Pressable>
+
+              <View style={styles.holdBtnWrapper}>
+                <HoldToContinue onComplete={handleBegin} accent={accent} />
+              </View>
+            </View>
+          </Animated.View>
         </View>
       </ScrollView>
-
-      <Animated.View entering={FadeInDown.delay(600).duration(500)} style={styles.cta}>
-        <Pressable
-          onPress={() => setDontShowAgain(!dontShowAgain)}
-          style={styles.checkboxRow}
-        >
-          <Ionicons
-            name={dontShowAgain ? "checkbox" : "square-outline"}
-            size={22}
-            color={dontShowAgain ? "#4A5D4E" : colors.textMuted}
-          />
-          <Text style={styles.checkboxText}>Don&apos;t show again</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={handleBegin}
-          style={({ pressed }) => [
-            styles.ctaBtn,
-            pressed && { opacity: 0.85 },
-          ]}
-        >
-          <Text style={styles.ctaBtnText}>Continue</Text>
-        </Pressable>
-      </Animated.View>
     </SafeAreaView>
   );
 }
@@ -146,7 +201,7 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingHorizontal: spacingX.lg,
-    paddingBottom: spacingY.xl,
+    paddingBottom: 70,
   },
 
   // hero
@@ -231,45 +286,52 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
 
-  // bottom cta
-  cta: {
-    paddingHorizontal: spacingX.lg,
-    paddingTop: spacingY.sm,
-    paddingBottom: spacingY.md,
-    backgroundColor: colors.primary,
+  // inline cta
+  inlineCta: {
+    marginTop: spacingY.xl,
+    paddingTop: spacingY.md,
     borderTopWidth: 1,
     borderTopColor: colors.libraryBorder,
-    gap: spacingY.sm,
   },
-  checkboxRow: {
+  actionRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: spacingX.xs,
-    paddingVertical: spacingY.xs,
+    gap: spacingX.sm,
   },
-  checkboxText: {
-    fontFamily: FONTS.primary,
-    fontSize: fontSizes.medium,
-    color: colors.textMuted,
-  },
-  ctaBtn: {
-    backgroundColor: "#F2F5F3", // Soft subtle off-white/sage background
+  squareCheckbox: {
+    width: 56,
+    height: 56,
     borderRadius: 16,
-    paddingVertical: spacingY.md,
+    backgroundColor: "#F2F5F3",
+    borderWidth: 1,
+    borderColor: "#DCE5DF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  holdBtnWrapper: {
+    flex: 1,
+  },
+
+  holdBtnContainer: {
+    backgroundColor: "#F2F5F3",
+    borderRadius: 16,
+    height: 56,
+    justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#DCE5DF", // Sage tinted border
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
+    borderColor: "#DCE5DF",
+    overflow: "hidden",
   },
-  ctaBtnText: {
+  holdBtnFill: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: "#4A5D4E",
+  },
+  holdBtnText: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.large,
-    color: "#2E3B32", // Deep charcoal/sage text
     letterSpacing: 0.5,
   },
 });

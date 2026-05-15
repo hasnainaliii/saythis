@@ -126,7 +126,7 @@ export default function ChapterDetailScreen() {
             <Text style={styles.sectionTitle}>Exercises</Text>
           </View>
 
-          {chapter.exercises.map((exercise) => (
+          {chapter.exercises.map((exercise, idx) => (
             <ExerciseCard
               key={exercise.id}
               id={exercise.id}
@@ -136,6 +136,7 @@ export default function ChapterDetailScreen() {
               difficulty={exercise.difficulty}
               description={exercise.description}
               onPress={() => handleExercisePress(exercise)}
+              index={idx}
             />
           ))}
         </View>

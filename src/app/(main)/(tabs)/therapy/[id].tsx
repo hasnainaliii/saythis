@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { BackButton } from "../../../../components/BackButton";
 import ExerciseCard from "../../../../components/ExerciseCard";
 import { CHAPTER_1_DATA, Exercise } from "../../../../data/chapter1Data";
+import { CHAPTER_2_DATA } from "../../../../data/chapter2Data";
 import { CHAPTER_ACCENT, CHAPTER_ICON } from "../../../../data/chapterConfig";
 import {
   colors,
@@ -19,7 +20,11 @@ export default function ChapterDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
 
-  const chapter = id === "1" ? CHAPTER_1_DATA : null;
+  const CHAPTERS: Record<string, typeof CHAPTER_1_DATA> = {
+    '1': CHAPTER_1_DATA,
+    '2': CHAPTER_2_DATA,
+  };
+  const chapter = CHAPTERS[id ?? ''] ?? null;
   const accent = CHAPTER_ACCENT[id ?? "1"] ?? colors.secondary;
   const chapterIcon =
     CHAPTER_ICON[id ?? "1"] ??

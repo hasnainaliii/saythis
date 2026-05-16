@@ -19,7 +19,7 @@ export const CHAPTER_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
 
 export const CHAPTER_TITLE: Record<string, string> = {
   "1": "Foundation & Awareness",
-  "2": "Fluency Shaping",
+  "2": "Breathing & Relaxation",
   "3": "Rhythm & Pace",
   "4": "Confidence Building",
   "5": "Advanced Techniques",
@@ -30,4 +30,8 @@ export const CATEGORY_ACCENT: Record<string, string> = {
   self_awareness: colors.categorySelfAwareness,
   cognitive_behavioral: colors.categoryCBT,
   self_advocacy: colors.categorySelfAdvocacy,
+  breathing_technique: colors.categoryEducation,
+  tension_reduction: colors.categorySelfAwareness,
+  breath_speech_coordination: colors.categoryCBT,
+  rate_control: colors.categorySelfAdvocacy,
 };

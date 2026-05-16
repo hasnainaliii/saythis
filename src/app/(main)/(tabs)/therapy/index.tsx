@@ -25,12 +25,12 @@ const MOCK_CHAPTERS = [
   {
     id: 2,
     chapterNumber: 2,
-    title: "Fluency Shaping",
-    description: "Learn to ease into your words.",
+    title: "Breathing & Relaxation",
+    description: "Master breathing techniques and reduce physical tension.",
     level: "Beginner",
     duration_weeks: "2-3",
     progress: 0,
-    isLocked: true,
+    isLocked: false,
   },
   {
     id: 3,

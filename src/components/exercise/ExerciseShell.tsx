@@ -21,6 +21,10 @@ import EducationStep from './steps/EducationStep';
 import SelfAwarenessStep from './steps/SelfAwarenessStep';
 import CBTStep from './steps/CBTStep';
 import SelfAdvocacyStep from './steps/SelfAdvocacyStep';
+import BreathingTechniqueStep from './steps/BreathingTechniqueStep';
+import TensionReductionStep from './steps/TensionReductionStep';
+import BreathSpeechStep from './steps/BreathSpeechStep';
+import RateControlStep from './steps/RateControlStep';
 import RatingStep from './steps/RatingStep';
 
 export interface CategoryStepProps {
@@ -33,6 +37,10 @@ const STEP_REGISTRY: Record<Exercise['category'], React.ComponentType<CategorySt
   self_awareness: SelfAwarenessStep,
   cognitive_behavioral: CBTStep,
   self_advocacy: SelfAdvocacyStep,
+  breathing_technique: BreathingTechniqueStep,
+  tension_reduction: TensionReductionStep,
+  breath_speech_coordination: BreathSpeechStep,
+  rate_control: RateControlStep,
 };
 
 interface ExerciseShellProps {

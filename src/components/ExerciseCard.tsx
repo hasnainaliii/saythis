@@ -15,11 +15,7 @@ import { colors, FONTS, fontSizes, spacingX, spacingY, radii } from "../theme/Th
 interface ExerciseCardProps {
   id: string;
   title: string;
-  category:
-    | "education"
-    | "self_awareness"
-    | "cognitive_behavioral"
-    | "self_advocacy";
+  category: string;
   duration_minutes: number;
   difficulty: "beginner" | "intermediate" | "advanced";
   description: string;
@@ -29,7 +25,7 @@ interface ExerciseCardProps {
 }
 
 const CATEGORY_CONFIG: Record<
-  ExerciseCardProps["category"],
+  string,
   { label: string; color: string; icon: keyof typeof Ionicons.glyphMap; bg: string }
 > = {
   education: {
@@ -54,6 +50,30 @@ const CATEGORY_CONFIG: Record<
     label: "Self Advocacy",
     color: colors.categorySelfAdvocacy,
     icon: "megaphone-outline",
+    bg: colors.categorySelfAdvocacy + "15",
+  },
+  breathing_technique: {
+    label: "Breathing",
+    color: colors.categoryEducation,
+    icon: "water-outline",
+    bg: colors.categoryEducation + "15",
+  },
+  tension_reduction: {
+    label: "Relaxation",
+    color: colors.categorySelfAwareness,
+    icon: "body-outline",
+    bg: colors.categorySelfAwareness + "15",
+  },
+  breath_speech_coordination: {
+    label: "Breath-Speech",
+    color: colors.categoryCBT,
+    icon: "mic-outline",
+    bg: colors.categoryCBT + "15",
+  },
+  rate_control: {
+    label: "Rate Control",
+    color: colors.categorySelfAdvocacy,
+    icon: "speedometer-outline",
     bg: colors.categorySelfAdvocacy + "15",
   },
 };

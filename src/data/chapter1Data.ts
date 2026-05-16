@@ -6,7 +6,11 @@ export interface Exercise {
     | "education"
     | "self_awareness"
     | "cognitive_behavioral"
-    | "self_advocacy";
+    | "self_advocacy"
+    | "breathing_technique"
+    | "tension_reduction"
+    | "breath_speech_coordination"
+    | "rate_control";
   duration_minutes: number;
   difficulty: "beginner" | "intermediate" | "advanced";
   therapy_approach: string;

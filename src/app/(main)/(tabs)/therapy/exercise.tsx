@@ -4,6 +4,7 @@ import { Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ExerciseShell from "../../../../components/exercise/ExerciseShell";
 import { Exercise, CHAPTER_1_DATA } from "../../../../data/chapter1Data";
+import { CHAPTER_2_DATA } from "../../../../data/chapter2Data";
 import { colors, FONTS, fontSizes } from "../../../../theme/Theme";
 
 export default function ExerciseDetailScreen() {
@@ -21,7 +22,9 @@ export default function ExerciseDetailScreen() {
   const exercise: Exercise = JSON.parse(exerciseData);
 
   // find next exercise in the chapter
-  const exercises = CHAPTER_1_DATA.exercises;
+  const allChapters = [CHAPTER_1_DATA, CHAPTER_2_DATA];
+  const chapter = allChapters.find(c => c.exercises.some(e => e.id === exercise.id));
+  const exercises = chapter?.exercises ?? [];
   const currentIdx = exercises.findIndex(e => e.id === exercise.id);
   const nextExercise = currentIdx >= 0 && currentIdx < exercises.length - 1
     ? exercises[currentIdx + 1]

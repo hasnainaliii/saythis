@@ -9,6 +9,7 @@ import Animated, {
   Easing,
   runOnJS,
   interpolateColor,
+  useAnimatedReaction,
 } from 'react-native-reanimated';
 import { colors, FONTS, fontSizes } from '../../theme/Theme';
 
@@ -22,21 +23,27 @@ interface HoldToContinueProps {
 
 export function HoldToContinue({ onComplete, accent = colors.secondary, style }: HoldToContinueProps) {
   const progress = useSharedValue(0);
+  const triggered = useSharedValue(false);
+
+  const triggerComplete = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    onComplete();
+  };
+
+  useAnimatedReaction(
+    () => progress.value,
+    (current) => {
+      if (current >= 0.99 && !triggered.value) {
+        triggered.value = true;
+        runOnJS(triggerComplete)();
+      }
+    }
+  );
 
   const handlePressIn = () => {
+    triggered.value = false;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    progress.value = withTiming(
-      1,
-      { duration: HOLD_DURATION, easing: Easing.linear },
-      (finished) => {
-        if (finished) {
-          runOnJS(Haptics.notificationAsync)(
-            Haptics.NotificationFeedbackType.Success,
-          );
-          runOnJS(onComplete)();
-        }
-      },
-    );
+    progress.value = withTiming(1, { duration: HOLD_DURATION, easing: Easing.linear });
   };
 
   const handlePressOut = () => {

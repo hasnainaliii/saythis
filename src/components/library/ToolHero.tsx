@@ -50,8 +50,6 @@ const ToolHero: React.FC<ToolHeroProps> = ({ tool, scrollY }) => {
 const styles = StyleSheet.create({
   container: {
     height: dynamicSpacingY(28),
-    borderBottomLeftRadius: radii.xl,
-    borderBottomRightRadius: radii.xl,
     overflow: "hidden",
   },
   image: {

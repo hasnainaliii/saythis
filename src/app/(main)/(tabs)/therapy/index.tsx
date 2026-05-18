@@ -1,17 +1,25 @@
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ChapterCard from "../../../../components/ChapterCard";
+import { CHAPTER_1_DATA } from "../../../../data/chapter1Data";
+import { CHAPTER_2_DATA } from "../../../../data/chapter2Data";
+import { useTherapyProgress } from "../../../../hooks/useTherapyProgress";
 import {
-  colors,
-  FONTS,
-  fontSizes,
-  spacingX,
-  spacingY,
+    colors,
+    FONTS,
+    fontSizes,
+    spacingX,
+    spacingY,
 } from "../../../../theme/Theme";
+import {
+    getChapterProgressPercent,
+    isChapterComplete,
+    isIntroDismissed,
+} from "../../../../utils/therapyProgress";
 
-const MOCK_CHAPTERS = [
+const THERAPY_CHAPTERS = [
   {
     id: 1,
     chapterNumber: 1,
@@ -19,8 +27,8 @@ const MOCK_CHAPTERS = [
     description: "Mastering the airflow for speech.",
     level: "Beginner",
     duration_weeks: "2-3",
-    progress: 0,
-    isLocked: false,
+    exerciseCount: CHAPTER_1_DATA.exercises.length,
+    isComingSoon: false,
   },
   {
     id: 2,
@@ -29,8 +37,8 @@ const MOCK_CHAPTERS = [
     description: "Master breathing techniques and reduce physical tension.",
     level: "Beginner",
     duration_weeks: "2-3",
-    progress: 0,
-    isLocked: false,
+    exerciseCount: CHAPTER_2_DATA.exercises.length,
+    isComingSoon: false,
   },
   {
     id: 3,
@@ -39,8 +47,8 @@ const MOCK_CHAPTERS = [
     description: "Finding your natural speaking connection.",
     level: "Intermediate",
     duration_weeks: "3-4",
-    progress: 0,
-    isLocked: true,
+    exerciseCount: 0,
+    isComingSoon: true,
   },
   {
     id: 4,
@@ -49,8 +57,8 @@ const MOCK_CHAPTERS = [
     description: "Overcoming fear of speaking situations.",
     level: "Intermediate",
     duration_weeks: "2",
-    progress: 0,
-    isLocked: true,
+    exerciseCount: 0,
+    isComingSoon: true,
   },
   {
     id: 5,
@@ -59,25 +67,58 @@ const MOCK_CHAPTERS = [
     description: "Mastering complex speech patterns.",
     level: "Advanced",
     duration_weeks: "4",
-    progress: 0,
-    isLocked: true,
+    exerciseCount: 0,
+    isComingSoon: true,
   },
 ];
 
 export default function TherapyScreen() {
   const router = useRouter();
+  const { progress } = useTherapyProgress();
 
-  const handlePressChapter = async (id: number) => {
+  const chapter1Complete = isChapterComplete(progress.chapterSummary["1"]);
+
+  const chapters = useMemo(
+    () =>
+      THERAPY_CHAPTERS.map((chapter) => {
+        const summary = progress.chapterSummary[String(chapter.id)];
+        const progressPercent = getChapterProgressPercent(summary);
+        const isLocked =
+          chapter.id === 1
+            ? false
+            : chapter.id === 2
+              ? !chapter1Complete
+              : true;
+
+        return {
+          ...chapter,
+          progress: progressPercent,
+          isLocked,
+          segmentCount: summary?.totalCount ?? chapter.exerciseCount,
+          lockedHintText: chapter.isComingSoon
+            ? "Coming soon"
+            : "Complete previous chapter",
+        };
+      }),
+    [chapter1Complete, progress.chapterSummary],
+  );
+
+  const handlePressChapter = (id: number, isLocked: boolean) => {
+    if (isLocked) {
+      return;
+    }
+
+    const skipIntro = isIntroDismissed(progress, id);
     router.push({
-      pathname: "/(main)/(tabs)/therapy/objectives" as any,
+      pathname: skipIntro
+        ? ("/(main)/(tabs)/therapy/[id]" as const)
+        : ("/(main)/(tabs)/therapy/objectives" as const),
       params: { id },
     });
   };
 
-  const totalChapters = MOCK_CHAPTERS.length;
-  const completedChapters = MOCK_CHAPTERS.filter(
-    (c) => c.progress === 100,
-  ).length;
+  const totalChapters = THERAPY_CHAPTERS.length;
+  const completedChapters = progress.stats.totalChaptersCompleted;
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -94,6 +135,11 @@ export default function TherapyScreen() {
 
         {/* Hero */}
         <View style={styles.hero}>
+          <View style={styles.progressPillFloat}>
+            <Text style={styles.progressPillText}>
+              {completedChapters}/{totalChapters}
+            </Text>
+          </View>
           <Text style={styles.heroLabel}>SPEECH THERAPY</Text>
           <Text style={styles.heroTitle}>Your Roadmap</Text>
           <Text style={styles.heroSubtitle}>
@@ -102,11 +148,6 @@ export default function TherapyScreen() {
 
           <View style={styles.heroBottomRow}>
             <Text style={styles.statText}>{totalChapters} chapters</Text>
-            <View style={styles.progressPill}>
-              <Text style={styles.progressPillText}>
-                {completedChapters}/{totalChapters}
-              </Text>
-            </View>
           </View>
 
           {/* decorative blobs */}
@@ -124,8 +165,8 @@ export default function TherapyScreen() {
 
         {/* Chapter list */}
         <View style={styles.timelineContainer}>
-          {MOCK_CHAPTERS.map((chapter, index) => {
-            const isLast = index === MOCK_CHAPTERS.length - 1;
+          {chapters.map((chapter, index) => {
+            const isLast = index === chapters.length - 1;
             return (
               <View key={chapter.id} style={styles.chapterWrapper}>
                 <ChapterCard
@@ -135,7 +176,9 @@ export default function TherapyScreen() {
                   description={chapter.description}
                   progress={chapter.progress}
                   isLocked={chapter.isLocked}
-                  onPress={() => handlePressChapter(chapter.id)}
+                  segmentCount={chapter.segmentCount}
+                  lockedHintText={chapter.lockedHintText}
+                  onPress={() => handlePressChapter(chapter.id, chapter.isLocked)}
                 />
                 {!isLast && (
                   <View style={styles.connectorLine}>
@@ -227,16 +270,20 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.small,
     color: colors.white,
   },
-  progressPill: {
+  progressPillFloat: {
     backgroundColor: "rgba(255,255,255,0.25)",
-    paddingHorizontal: spacingX.sm,
-    paddingVertical: 4,
+    paddingHorizontal: spacingX.xs,
+    paddingVertical: 1,
     borderRadius: 12,
+    position: "absolute",
+    right: spacingX.xs,
+    top: spacingY.lg,
   },
   progressPillText: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.tiny,
     color: colors.white,
+    marginLeft: spacingX.xxs,
   },
   heroBlob1: {
     position: "absolute",

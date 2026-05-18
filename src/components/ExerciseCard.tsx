@@ -2,15 +2,16 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withDelay,
-  withTiming,
-  withRepeat,
-  withSequence,
-  Easing,
+    Easing,
+    useAnimatedStyle,
+    useSharedValue,
+    withDelay,
+    withRepeat,
+    withSequence,
+    withTiming,
 } from "react-native-reanimated";
-import { colors, FONTS, fontSizes, spacingX, spacingY, radii } from "../theme/Theme";
+import { colors, FONTS, fontSizes, radii, spacingX, spacingY } from "../theme/Theme";
+import { CATEGORY_CONFIG, DIFFICULTY_CONFIG } from "./exerciseCardConfig";
 
 interface ExerciseCardProps {
   id: string;
@@ -22,70 +23,8 @@ interface ExerciseCardProps {
   onPress: () => void;
   index?: number;
   isComplete?: boolean;
+  isLocked?: boolean;
 }
-
-const CATEGORY_CONFIG: Record<
-  string,
-  { label: string; color: string; icon: keyof typeof Ionicons.glyphMap; bg: string }
-> = {
-  education: {
-    label: "Education",
-    color: colors.categoryEducation,
-    icon: "book-outline",
-    bg: colors.categoryEducation + "15",
-  },
-  self_awareness: {
-    label: "Self Awareness",
-    color: colors.categorySelfAwareness,
-    icon: "eye-outline",
-    bg: colors.categorySelfAwareness + "15",
-  },
-  cognitive_behavioral: {
-    label: "CBT",
-    color: colors.categoryCBT,
-    icon: "bulb-outline",
-    bg: colors.categoryCBT + "15",
-  },
-  self_advocacy: {
-    label: "Self Advocacy",
-    color: colors.categorySelfAdvocacy,
-    icon: "megaphone-outline",
-    bg: colors.categorySelfAdvocacy + "15",
-  },
-  breathing_technique: {
-    label: "Breathing",
-    color: colors.categoryEducation,
-    icon: "water-outline",
-    bg: colors.categoryEducation + "15",
-  },
-  tension_reduction: {
-    label: "Relaxation",
-    color: colors.categorySelfAwareness,
-    icon: "body-outline",
-    bg: colors.categorySelfAwareness + "15",
-  },
-  breath_speech_coordination: {
-    label: "Breath-Speech",
-    color: colors.categoryCBT,
-    icon: "mic-outline",
-    bg: colors.categoryCBT + "15",
-  },
-  rate_control: {
-    label: "Rate Control",
-    color: colors.categorySelfAdvocacy,
-    icon: "speedometer-outline",
-    bg: colors.categorySelfAdvocacy + "15",
-  },
-};
-
-const DIFFICULTY_CONFIG: Record<
-  ExerciseCardProps["difficulty"],
-  { label: string; color: string }
-> = {
-  beginner: { label: "Beginner", color: colors.success },
-  intermediate: { label: "Intermediate", color: colors.warning },
-  advanced: { label: "Advanced", color: colors.errorLight },
-};
 
 const ExerciseCard: React.FC<ExerciseCardProps> = ({
   title,
@@ -96,8 +35,9 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
   onPress,
   index = 0,
   isComplete = false,
+  isLocked = false,
 }) => {
-  const cat = CATEGORY_CONFIG[category];
+  const cat = CATEGORY_CONFIG[category] ?? CATEGORY_CONFIG.education;
   const diff = DIFFICULTY_CONFIG[difficulty];
 
   const translateY = useSharedValue(16);
@@ -117,7 +57,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
   }, [index, translateY, opacity]);
 
   useEffect(() => {
-    if (isComplete) {
+    if (isComplete && !isLocked) {
       dotScale.value = withRepeat(
         withSequence(
           withTiming(1.15, { duration: 800 }),
@@ -150,9 +90,10 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
     <Animated.View style={entryStyle}>
       <Pressable
         onPress={onPress}
+        disabled={isLocked}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={styles.container}
+        style={[styles.container, isLocked && styles.lockedContainer]}
       >
         <View style={[styles.accentStrip, { backgroundColor: cat.color }]} />
 
@@ -164,7 +105,11 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
             </Text>
           </View>
 
-          {isComplete ? (
+          {isLocked ? (
+            <View style={styles.lockIndicator}>
+              <Ionicons name="lock-closed" size={12} color={colors.textDisabled} />
+            </View>
+          ) : isComplete ? (
             <Animated.View style={[styles.completeDot, dotPulseStyle]} />
           ) : (
             <View style={[styles.difficultyDot, { backgroundColor: diff.color }]} />
@@ -188,9 +133,17 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
           </View>
           <Pressable
             onPress={onPress}
-            style={[styles.startButton, { backgroundColor: colors.secondary }]}
+            disabled={isLocked}
+            style={[
+              styles.startButton,
+              { backgroundColor: isLocked ? colors.primary10 : colors.secondary },
+            ]}
           >
-            <Ionicons name="arrow-forward" size={16} color={colors.white} />
+            <Ionicons
+              name={isLocked ? "lock-closed" : "arrow-forward"}
+              size={16}
+              color={isLocked ? colors.textDisabled : colors.white}
+            />
           </Pressable>
         </View>
 
@@ -248,6 +201,14 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
   },
+  lockIndicator: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: colors.primary10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   completeDot: {
     width: 10,
     height: 10,
@@ -296,6 +257,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
+  },
+  lockedContainer: {
+    opacity: 0.6,
   },
   watermark: {
     position: "absolute",

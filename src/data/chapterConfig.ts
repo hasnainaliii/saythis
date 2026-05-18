@@ -3,7 +3,7 @@ import { colors } from "../theme/Theme";
 
 export const CHAPTER_ACCENT: Record<string, string> = {
   "1": colors.secondary,
-  "2": colors.categorySelfAwareness,
+  "2": colors.metricOrange,
   "3": colors.categoryCBT,
   "4": colors.warning,
   "5": colors.categoryEducation,
@@ -15,6 +15,14 @@ export const CHAPTER_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
   "3": "musical-notes-outline",
   "4": "shield-checkmark-outline",
   "5": "rocket-outline",
+};
+
+export const CHAPTER_BG: Record<string, string> = {
+  "1": colors.chapter1Bg,
+  "2": colors.chapter2Bg,
+  "3": colors.chapter3Bg,
+  "4": colors.chapter4Bg,
+  "5": colors.chapter5Bg,
 };
 
 export const CHAPTER_TITLE: Record<string, string> = {

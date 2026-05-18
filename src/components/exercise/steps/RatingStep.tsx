@@ -1,24 +1,24 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withDelay,
-  withTiming,
-  Easing,
+    Easing,
+    useAnimatedStyle,
+    useSharedValue,
+    withDelay,
+    withTiming,
 } from 'react-native-reanimated';
 import { Exercise } from '../../../data/chapter1Data';
-import { colors, FONTS, fontSizes, spacingX, spacingY, radii } from '../../../theme/Theme';
+import { colors, FONTS, fontSizes, radii, spacingX, spacingY } from '../../../theme/Theme';
 
 interface RatingStepProps {
   exercise: Exercise;
@@ -29,6 +29,11 @@ const RatingStep: React.FC<RatingStepProps> = ({ exercise, onComplete }) => {
   const [rating, setRating] = useState(0);
   const [notes, setNotes] = useState('');
   const { progress_tracking } = exercise;
+
+  const handleSave = () => {
+    const finalRating = rating === 0 ? 3 : rating;
+    onComplete(finalRating, notes.trim());
+  };
 
   return (
     <KeyboardAvoidingView 
@@ -83,7 +88,7 @@ const RatingStep: React.FC<RatingStepProps> = ({ exercise, onComplete }) => {
         </View>
       )}
 
-      <Pressable style={styles.saveBtn} onPress={() => onComplete(rating, notes)}>
+      <Pressable style={styles.saveBtn} onPress={handleSave}>
         <Text style={styles.saveBtnText}>Save & Complete</Text>
       </Pressable>
       </ScrollView>

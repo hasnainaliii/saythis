@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { CHAPTER_ACCENT, CHAPTER_BG, CHAPTER_ICON } from "../data/chapterConfig";
 import { colors, FONTS, fontSizes, spacingX, spacingY } from "../theme/Theme";
 
 interface ChapterCardProps {
@@ -10,21 +11,15 @@ interface ChapterCardProps {
   description: string;
   progress: number;
   isLocked: boolean;
+  segmentCount?: number;
+  lockedHintText?: string;
   onPress: () => void;
 }
-
-const CHAPTER_THEMES: Record<
-  number,
-  { accent: string; icon: keyof typeof Ionicons.glyphMap; bg: string }
-> = {
-  1: { accent: "#ff9b85", icon: "leaf-outline", bg: "#FFF5F2" },
-  2: { accent: "#7B68EE", icon: "water-outline", bg: "#F3F0FF" },
-  3: { accent: "#50C878", icon: "musical-notes-outline", bg: "#EEFAF2" },
-  4: { accent: "#FFB347", icon: "shield-checkmark-outline", bg: "#FFF8EE" },
-  5: { accent: "#4A90D9", icon: "rocket-outline", bg: "#EEF4FF" },
+const DEFAULT_THEME = {
+  accent: colors.secondary,
+  icon: "book-outline" as const,
+  bg: colors.primary_20,
 };
-
-const DEFAULT_THEME = { accent: colors.secondary, icon: "book-outline" as const, bg: colors.primary_20 };
 
 const ChapterCard: React.FC<ChapterCardProps> = ({
   chapterNumber,
@@ -32,10 +27,18 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
   description,
   progress,
   isLocked,
+  segmentCount = 5,
+  lockedHintText,
   onPress,
 }) => {
   const formattedNumber = chapterNumber.toString().padStart(2, "0");
-  const theme = CHAPTER_THEMES[chapterNumber] || DEFAULT_THEME;
+  const chapterKey = String(chapterNumber);
+  const theme = {
+    accent: CHAPTER_ACCENT[chapterKey] ?? DEFAULT_THEME.accent,
+    icon: CHAPTER_ICON[chapterKey] ?? DEFAULT_THEME.icon,
+    bg: CHAPTER_BG[chapterKey] ?? DEFAULT_THEME.bg,
+  };
+  const safeSegmentCount = Math.max(1, segmentCount);
 
   return (
     <Pressable
@@ -54,18 +57,6 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
 
       <View style={styles.headerRow}>
         <View style={styles.leftHeader}>
-          <View
-            style={[
-              styles.iconCircle,
-              { backgroundColor: isLocked ? colors.primary10 : theme.accent + "20" },
-            ]}
-          >
-            {isLocked ? (
-              <Ionicons name="lock-closed" size={18} color={colors.textDisabled} />
-            ) : (
-              <Ionicons name={theme.icon} size={18} color={theme.accent} />
-            )}
-          </View>
           <View style={styles.badge}>
             <Text style={styles.badgeText}>Chapter {formattedNumber}</Text>
           </View>
@@ -85,8 +76,8 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
       {!isLocked && (
         <View style={styles.progressContainer}>
           <View style={styles.progressBarRow}>
-            {[1, 2, 3, 4, 5].map((step) => {
-              const stepProgress = step * 20;
+            {Array.from({ length: safeSegmentCount }, (_, idx) => idx + 1).map((step) => {
+              const stepProgress = (step / safeSegmentCount) * 100;
               const isActive = progress >= stepProgress;
               return (
                 <View
@@ -106,7 +97,9 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
       {isLocked && (
         <View style={styles.lockedHint}>
           <Ionicons name="arrow-up-circle-outline" size={14} color={colors.textDisabled} />
-          <Text style={styles.lockedHintText}>Complete previous chapter</Text>
+          <Text style={styles.lockedHintText}>
+            {lockedHintText ?? "Complete previous chapter"}
+          </Text>
         </View>
       )}
 
@@ -133,9 +126,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOpacity: 0.015,
+    shadowRadius: 2,
+    elevation: 0,
     marginBottom: spacingY.lg,
     position: "relative",
     overflow: "hidden",
@@ -152,10 +145,10 @@ const styles = StyleSheet.create({
   accentBar: {
     position: "absolute",
     left: 0,
-    top: 16,
-    bottom: 16,
-    width: 4,
-    borderRadius: 2,
+    top: 0,
+    bottom: 0,
+    width: 6,
+    borderRadius: 0,
   },
   headerRow: {
     flexDirection: "row",
@@ -167,13 +160,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacingX.sm,
-  },
-  iconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: "center",
-    alignItems: "center",
   },
   badge: {
     backgroundColor: colors.white,

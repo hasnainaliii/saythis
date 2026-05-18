@@ -5,7 +5,7 @@ import Animated, {
     useAnimatedScrollHandler,
     useSharedValue,
 } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import LibraryHeader from "../../../../components/library/LibraryHeader";
 import QuickStartFab from "../../../../components/library/QuickStartFab";
 import ToolCard from "../../../../components/library/ToolCard";
@@ -30,6 +30,7 @@ export default function LibraryScreen() {
     "all",
   );
   const scrollY = useSharedValue(0);
+  const insets = useSafeAreaInsets();
 
   const toolsToShow = useMemo(() => {
     if (activeCategory === "all") {
@@ -96,7 +97,7 @@ export default function LibraryScreen() {
             </Text>
           </View>
         }
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
         columnWrapperStyle={styles.columnWrapper}
         showsVerticalScrollIndicator={false}
         onScroll={scrollHandler}
@@ -115,7 +116,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.libraryBg,
   },
   listContent: {
-    paddingBottom: spacingY.xxl,
+    paddingTop: spacingY.sm,
   },
   columnWrapper: {
     paddingHorizontal: spacingX.lg,

@@ -1,11 +1,12 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
-import { Text, StyleSheet } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ExerciseShell from "../../../../components/exercise/ExerciseShell";
-import { Exercise, CHAPTER_1_DATA } from "../../../../data/chapter1Data";
+import { CHAPTER_1_DATA, Exercise } from "../../../../data/chapter1Data";
 import { CHAPTER_2_DATA } from "../../../../data/chapter2Data";
 import { colors, FONTS, fontSizes } from "../../../../theme/Theme";
+import { recordExerciseCompletion } from "../../../../utils/therapyProgress";
 
 export default function ExerciseDetailScreen() {
   const { exerciseData } = useLocalSearchParams<{ exerciseData: string }>();
@@ -30,8 +31,17 @@ export default function ExerciseDetailScreen() {
     ? exercises[currentIdx + 1]
     : undefined;
 
-  const handleComplete = (_rating: number, _notes: string) => {
-    // will persist later when backend is ready
+  const handleComplete = (rating: number, notes: string) => {
+    if (!chapter) {
+      return;
+    }
+
+    void recordExerciseCompletion({
+      exerciseId: exercise.id,
+      chapterId: chapter.id,
+      rating,
+      notes,
+    });
   };
 
   const handleBack = () => {

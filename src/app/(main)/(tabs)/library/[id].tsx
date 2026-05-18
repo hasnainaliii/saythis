@@ -35,6 +35,23 @@ export default function LibraryDetailScreen() {
 
   const tool = useMemo(() => (id ? getToolById(id) : undefined), [id]);
 
+  const getToolColor = (t: LibraryTool) => {
+    const colorMap: Record<string, string> = {
+      'daf': colors.secondary,
+      'faf': colors.secondary,
+      'box-breathing': colors.secondary,
+      'diaphragmatic-breathing': colors.secondary,
+      'pre-speech-routine': colors.secondary,
+      'gentle-onset': colors.secondary,
+      'prolonged-speech': colors.secondary,
+      'stutter-tap-counter': colors.secondary,
+      'timed-reading-wpm': colors.secondary,
+      'virtual-coffee-order': colors.secondary,
+      'phone-call-simulator': colors.secondary,
+    };
+    return colorMap[t.id] || colors.libraryAccent;
+  };
+
   const relatedTools = useMemo(() => {
     if (!tool) {
       return [] as LibraryTool[];
@@ -69,7 +86,7 @@ export default function LibraryDetailScreen() {
       <Animated.ScrollView
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: spacingY.xxl + insets.bottom + spacingY.xl },
+          { paddingBottom: spacingY.xxl + insets.bottom + 72 + spacingY.xl },
         ]}
         showsVerticalScrollIndicator={false}
         onScroll={scrollHandler}
@@ -100,28 +117,6 @@ export default function LibraryDetailScreen() {
               </View>
             ))}
           </View>
-
-          <SectionHeader title="Related tools" containerStyle={styles.sectionGap} />
-          <Animated.ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.relatedRow}
-          >
-            {relatedTools.map((item) => (
-              <ToolCard
-                key={item.id}
-                tool={item}
-                onPress={() =>
-                  router.push({
-                    pathname: "/(main)/(tabs)/library/[id]",
-                    params: { id: item.id },
-                  })
-                }
-                variant="compact"
-                style={styles.relatedCard}
-              />
-            ))}
-          </Animated.ScrollView>
         </View>
       </Animated.ScrollView>
 
@@ -137,21 +132,45 @@ export default function LibraryDetailScreen() {
       <View
         style={[
           styles.footer,
-          { paddingBottom: insets.bottom + spacingY.md },
+          { paddingBottom: insets.bottom + spacingY.md + 56 },
         ]}
       >
         <Button
           title={tool.isLocked ? "Locked" : "Start Exercise"}
-          onPress={() =>
-            router.push({
-              pathname: "/(main)/(tabs)/library/[id]",
-              params: { id: tool.id, start: "1" },
-            })
-          }
+          onPress={() => {
+            if (tool.id === "daf") {
+              router.push("/(tools)/daf");
+            } else if (tool.id === "faf") {
+              router.push("/(tools)/faf");
+            } else if (tool.id === "box-breathing") {
+              router.push("/(tools)/box-breathing");
+            } else if (tool.id === "diaphragmatic-breathing") {
+              router.push("/(tools)/diaphragmatic-breathing");
+            } else if (tool.id === "pre-speech-routine") {
+              router.push("/(tools)/pre-speech-routine");
+            } else if (tool.id === "gentle-onset") {
+              router.push("/(tools)/gentle-onset");
+            } else if (tool.id === "prolonged-speech") {
+              router.push("/(tools)/prolonged-speech");
+            } else if (tool.id === "stutter-tap-counter") {
+              router.push("/(tools)/stutter-tap-counter");
+            } else if (tool.id === "timed-reading-wpm") {
+              router.push("/(tools)/timed-reading-wpm");
+            } else if (tool.id === "virtual-coffee-order") {
+              router.push("/(tools)/virtual-coffee-order");
+            } else if (tool.id === "phone-call-simulator") {
+              router.push("/(tools)/phone-call-simulator");
+            } else {
+              router.push({
+                pathname: "/(main)/(tabs)/library/[id]",
+                params: { id: tool.id, start: "1" },
+              });
+            }
+          }}
           size="large"
           fullWidth
           disabled={tool.isLocked}
-          style={styles.primaryButton}
+          style={[styles.primaryButton, { backgroundColor: getToolColor(tool) }]}
           textStyle={styles.primaryButtonText}
         />
       </View>

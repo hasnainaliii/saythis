@@ -3,12 +3,8 @@ export type LibraryCategory =
   | "speech_fluency"
   | "breathing"
   | "drills"
-  | "modification"
   | "biofeedback"
-  | "gamification"
-  | "simulation"
-  | "progress"
-  | "relaxation";
+  | "simulation";
 
 export type LibraryDifficulty = "beginner" | "intermediate" | "advanced";
 

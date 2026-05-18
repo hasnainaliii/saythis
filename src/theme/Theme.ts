@@ -1,6 +1,6 @@
 import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
+    heightPercentageToDP as hp,
+    widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
 
 export const colors = {
@@ -43,6 +43,13 @@ export const colors = {
   categorySelfAwareness: "#7B68EE",
   categoryCBT: "#50C878",
   categorySelfAdvocacy: "#FF8C42",
+
+  // Chapter card backgrounds
+  chapter1Bg: "#FFF5F2",
+  chapter2Bg: "#FFF1E6",
+  chapter3Bg: "#EEFAF2",
+  chapter4Bg: "#FFF8EE",
+  chapter5Bg: "#EEF4FF",
 
   // Home header
   headerDark: "#3E3529",

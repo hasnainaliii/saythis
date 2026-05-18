@@ -1,104 +1,44 @@
-import * as Haptics from "expo-haptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import Animated, {
-  FadeInDown,
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  cancelAnimation,
-  runOnJS,
-  Easing,
-  interpolateColor,
+    FadeInDown,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BackButton } from "../../../../components/BackButton";
 import ChapterHeroIcon from "../../../../components/ChapterHeroIcon";
+import { HoldToContinueButton } from "../../../../components/tools/HoldToContinueButton";
 import { CHAPTER_1_DATA } from "../../../../data/chapter1Data";
+import { CHAPTER_2_DATA } from "../../../../data/chapter2Data";
 import {
-  CHAPTER_ACCENT,
-  CHAPTER_ICON,
-  CHAPTER_TITLE,
+    CHAPTER_ACCENT,
+    CHAPTER_ICON,
+    CHAPTER_TITLE,
 } from "../../../../data/chapterConfig";
+import { useTherapyProgress } from "../../../../hooks/useTherapyProgress";
 import {
-  colors,
-  FONTS,
-  fontSizes,
-  spacingX,
-  spacingY,
+    colors,
+    FONTS,
+    fontSizes,
+    spacingX,
+    spacingY,
 } from "../../../../theme/Theme";
-
-const HOLD_DURATION = 1000;
-
-function HoldToContinue({
-  onComplete,
-  accent,
-}: {
-  onComplete: () => void;
-  accent: string;
-}) {
-  const progress = useSharedValue(0);
-
-  const handlePressIn = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    progress.value = withTiming(
-      1,
-      { duration: HOLD_DURATION, easing: Easing.linear },
-      (finished) => {
-        if (finished) {
-          runOnJS(Haptics.notificationAsync)(
-            Haptics.NotificationFeedbackType.Success,
-          );
-          runOnJS(onComplete)();
-        }
-      },
-    );
-  };
-
-  const handlePressOut = () => {
-    if (progress.value < 1) {
-      cancelAnimation(progress);
-      progress.value = withTiming(0, { duration: 300 });
-    }
-  };
-
-  const fillStyle = useAnimatedStyle(() => ({
-    width: `${progress.value * 100}%`,
-  }));
-
-  const textStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(
-      progress.value,
-      [0, 0.4],
-      ["#2E3B32", "#FFFFFF"]
-    ),
-  }));
-
-  return (
-    <Pressable
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      style={styles.holdBtnContainer}
-    >
-      <Animated.View style={[styles.holdBtnFill, fillStyle]} />
-      <Animated.Text style={[styles.holdBtnText, textStyle]}>Hold to Continue</Animated.Text>
-    </Pressable>
-  );
-}
+import { setIntroDismissed } from "../../../../utils/therapyProgress";
 
 export default function ObjectivesScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { progress } = useTherapyProgress();
 
   const chapterId = id ?? "1";
+  const chapterNumber = Number(chapterId);
   const accent = CHAPTER_ACCENT[chapterId] ?? colors.secondary;
   const icon = CHAPTER_ICON[chapterId] ?? "book-outline";
   const title = CHAPTER_TITLE[chapterId] ?? "Chapter";
@@ -106,11 +46,21 @@ export default function ObjectivesScreen() {
   const objectives =
     chapterId === "1"
       ? CHAPTER_1_DATA.learning_objectives
-      : ["Complete this chapter to unlock content"];
+      : chapterId === "2"
+        ? CHAPTER_2_DATA.learning_objectives
+        : ["Complete this chapter to unlock content"];
 
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
-  const handleBegin = () => {
+  useEffect(() => {
+    setDontShowAgain(!!progress.introDismissed[chapterId]);
+  }, [chapterId, progress.introDismissed]);
+
+  const handleBegin = async () => {
+    if (!Number.isNaN(chapterNumber)) {
+      await setIntroDismissed(chapterNumber, dontShowAgain);
+    }
+
     router.replace({
       pathname: "/(main)/(tabs)/therapy/[id]",
       params: { id: chapterId },
@@ -180,7 +130,11 @@ export default function ObjectivesScreen() {
               </Pressable>
 
               <View style={styles.holdBtnWrapper}>
-                <HoldToContinue onComplete={handleBegin} accent={accent} />
+                <HoldToContinueButton
+                  onComplete={handleBegin}
+                  accentColor={accent}
+                  label="Hold to Continue"
+                />
               </View>
             </View>
           </Animated.View>
@@ -302,36 +256,13 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 16,
-    backgroundColor: "#F2F5F3",
+    backgroundColor: colors.librarySurface,
     borderWidth: 1,
-    borderColor: "#DCE5DF",
+    borderColor: colors.libraryBorder,
     justifyContent: "center",
     alignItems: "center",
   },
   holdBtnWrapper: {
     flex: 1,
-  },
-
-  holdBtnContainer: {
-    backgroundColor: "#F2F5F3",
-    borderRadius: 16,
-    height: 56,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#DCE5DF",
-    overflow: "hidden",
-  },
-  holdBtnFill: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-    backgroundColor: "#4A5D4E",
-  },
-  holdBtnText: {
-    fontFamily: FONTS.primaryBold,
-    fontSize: fontSizes.large,
-    letterSpacing: 0.5,
   },
 });

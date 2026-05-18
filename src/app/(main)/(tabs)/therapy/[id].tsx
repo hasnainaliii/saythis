@@ -8,27 +8,38 @@ import ExerciseCard from "../../../../components/ExerciseCard";
 import { CHAPTER_1_DATA, Exercise } from "../../../../data/chapter1Data";
 import { CHAPTER_2_DATA } from "../../../../data/chapter2Data";
 import { CHAPTER_ACCENT, CHAPTER_ICON } from "../../../../data/chapterConfig";
+import { useTherapyProgress } from "../../../../hooks/useTherapyProgress";
 import {
-  colors,
-  FONTS,
-  fontSizes,
-  spacingX,
-  spacingY,
+    colors,
+    FONTS,
+    fontSizes,
+    spacingX,
+    spacingY,
 } from "../../../../theme/Theme";
+import { isChapterComplete } from "../../../../utils/therapyProgress";
 
 export default function ChapterDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { progress } = useTherapyProgress();
 
-  const CHAPTERS: Record<string, typeof CHAPTER_1_DATA> = {
-    '1': CHAPTER_1_DATA,
-    '2': CHAPTER_2_DATA,
-  };
-  const chapter = CHAPTERS[id ?? ''] ?? null;
+  const chapterId = id ?? "1";
+  const chapterIdNumber = Number(chapterId);
+  const isComingSoon = chapterIdNumber >= 3;
+  const chapter =
+    chapterId === "1"
+      ? CHAPTER_1_DATA
+      : chapterId === "2"
+        ? CHAPTER_2_DATA
+        : null;
   const accent = CHAPTER_ACCENT[id ?? "1"] ?? colors.secondary;
   const chapterIcon =
     CHAPTER_ICON[id ?? "1"] ??
     ("book-outline" as keyof typeof Ionicons.glyphMap);
+
+  const chapter1Complete = isChapterComplete(progress.chapterSummary["1"]);
+  const isLocked =
+    isComingSoon || (chapterId === "2" && !chapter1Complete);
 
   const handleExercisePress = (exercise: Exercise) => {
     router.push({
@@ -39,7 +50,7 @@ export default function ChapterDetailScreen() {
 
   // ─── Empty / locked state ────────────────────────────────────────────────────
 
-  if (!chapter) {
+  if (!chapter || isLocked) {
     return (
       <SafeAreaView style={styles.container} edges={["top"]}>
         <View style={styles.emptyNav}>
@@ -48,14 +59,18 @@ export default function ChapterDetailScreen() {
         <View style={styles.emptyState}>
           <View style={styles.emptyIcon}>
             <Ionicons
-              name="lock-closed"
+              name={isComingSoon ? "time-outline" : "lock-closed"}
               size={40}
               color={colors.textDisabled}
             />
           </View>
-          <Text style={styles.emptyTitle}>Chapter Locked</Text>
+          <Text style={styles.emptyTitle}>
+            {isComingSoon ? "Coming Soon" : "Chapter Locked"}
+          </Text>
           <Text style={styles.emptySubtitle}>
-            Complete the previous chapter to unlock this one.
+            {isComingSoon
+              ? "This chapter is in progress. Check back soon."
+              : "Complete the previous chapter to unlock this one."}
           </Text>
         </View>
       </SafeAreaView>
@@ -131,19 +146,30 @@ export default function ChapterDetailScreen() {
             <Text style={styles.sectionTitle}>Exercises</Text>
           </View>
 
-          {chapter.exercises.map((exercise, idx) => (
-            <ExerciseCard
-              key={exercise.id}
-              id={exercise.id}
-              title={exercise.title}
-              category={exercise.category}
-              duration_minutes={exercise.duration_minutes}
-              difficulty={exercise.difficulty}
-              description={exercise.description}
-              onPress={() => handleExercisePress(exercise)}
-              index={idx}
-            />
-          ))}
+          {chapter.exercises.map((exercise, idx) => {
+            const previousExercise = chapter.exercises[idx - 1];
+            const isComplete = !!progress.completedExercises[exercise.id];
+            const isUnlocked =
+              isComplete ||
+              idx === 0 ||
+              !!progress.completedExercises[previousExercise?.id ?? ""];
+
+            return (
+              <ExerciseCard
+                key={exercise.id}
+                id={exercise.id}
+                title={exercise.title}
+                category={exercise.category}
+                duration_minutes={exercise.duration_minutes}
+                difficulty={exercise.difficulty}
+                description={exercise.description}
+                onPress={() => handleExercisePress(exercise)}
+                index={idx}
+                isComplete={isComplete}
+                isLocked={!isUnlocked}
+              />
+            );
+          })}
         </View>
       </ScrollView>
     </SafeAreaView>

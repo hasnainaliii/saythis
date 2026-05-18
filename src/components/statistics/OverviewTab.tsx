@@ -5,7 +5,8 @@ import { StatsHeroCard } from "./StatsHeroCard";
 import { StatsWeeklyActivityCard, WeeklyActivityDatum } from "./StatsWeeklyActivityCard";
 import { StatsMetricRow } from "./StatsMetricRow";
 import { RecentSessionsCard } from "./RecentSessionsCard";
-import { StreakCard } from "./StreakCard";
+import { ToolDistributionChart } from "./ToolDistributionChart";
+import { ProgressLineChart } from "./ProgressLineChart";
 
 interface OverviewTabProps {
   stats: any;
@@ -20,14 +21,32 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ stats, recentSessions,
   const faf = stats?.faf || {};
   const breathing = stats?.breathing || {};
   const drills = stats?.drills || {};
+  const bio = stats?.biofeedback || {};
+  const sim = stats?.simulation || {};
 
   const lastSession = c.lastSessionAt ? new Date(c.lastSessionAt).toLocaleDateString() : "No sessions";
+  const totalSessions = c.totalSessions || (daf.totalSessions || 0) + (faf.totalSessions || 0) + (breathing.totalSessions || 0) + (drills.totalSessions || 0) + (bio.totalSessions || 0) + (sim.totalSessions || 0);
+
+  const pieSlices = [
+    { label: "DAF", value: daf.totalSessions || 0, color: colors.secondary },
+    { label: "FAF", value: faf.totalSessions || 0, color: colors.categorySelfAwareness },
+    { label: "Breathing", value: breathing.totalSessions || 0, color: colors.categoryCBT },
+    { label: "Drills", value: drills.totalSessions || 0, color: colors.categoryEducation },
+    { label: "Biofeedback", value: bio.totalSessions || 0, color: colors.categorySelfAdvocacy },
+    { label: "Simulation", value: sim.totalSessions || 0, color: colors.warning },
+  ].filter((s) => s.value > 0);
+
+  // dummy weekly trend for now
+  const weeklyTrend = [
+    { value: 10, label: "W1" }, { value: 18, label: "W2" }, { value: 14, label: "W3" },
+    { value: 22, label: "W4" }, { value: 28, label: "W5" }, { value: 24, label: "W6" },
+  ];
 
   return (
     <View>
       <StatsHeroCard
         totalMinutes={c.totalToolMinutes || 0}
-        totalSessions={c.totalSessions || (daf.totalSessions || 0) + (faf.totalSessions || 0)}
+        totalSessions={totalSessions}
         currentStreak={c.currentStreak || 0}
         bestStreak={c.bestStreak || 0}
         activeDays={c.activeDays || 0}
@@ -38,12 +57,19 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ stats, recentSessions,
         { label: "FAF", value: faf.totalSessions || 0, caption: `${faf.totalMinutes || 0} min`, color: colors.categorySelfAwareness },
         { label: "Breathing", value: breathing.totalSessions || 0, caption: `${breathing.totalMinutes || 0} min`, color: colors.categoryCBT },
       ]} />
-      <StatsMetricRow items={[
-        { label: "Drills", value: drills.totalSessions || 0, caption: `${drills.totalMinutes || 0} min`, color: colors.categoryEducation },
-        { label: "Avg Rating", value: daf.avgRating ? daf.avgRating.toFixed(1) : "—", unit: "/5", color: colors.star },
-        { label: "Active Days", value: c.activeDays || 0, color: colors.textDark },
-      ]} />
+      <ToolDistributionChart
+        title="Session distribution"
+        slices={pieSlices.length > 0 ? pieSlices : [{ label: "No data", value: 1, color: colors.libraryBorder }]}
+        centerLabel="sessions"
+        centerValue={String(totalSessions)}
+      />
       <StatsWeeklyActivityCard data={weeklyChartData} totalMinutes={weeklyTotal} />
+      <ProgressLineChart
+        title="Practice trend"
+        subtitle="Minutes per week"
+        data={weeklyTrend}
+        yAxisSuffix=" min"
+      />
       <RecentSessionsCard sessions={recentSessions} />
     </View>
   );

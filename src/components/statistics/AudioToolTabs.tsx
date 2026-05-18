@@ -5,6 +5,7 @@ import { StatsMetricRow } from "./StatsMetricRow";
 import { StatsWeeklyActivityCard } from "./StatsWeeklyActivityCard";
 import { ToolDetailCard } from "./ToolDetailCard";
 import { StreakCard } from "./StreakCard";
+import { ProgressLineChart } from "./ProgressLineChart";
 
 interface DAFTabProps { stats: any; }
 interface FAFTabProps { stats: any; }
@@ -17,6 +18,16 @@ const WEEKLY_DAF = [
 const WEEKLY_FAF = [
   { label: 'M', value: 1 }, { label: 'T', value: 0 }, { label: 'W', value: 2 },
   { label: 'T', value: 3 }, { label: 'F', value: 1 }, { label: 'S', value: 0 }, { label: 'S', value: 1 },
+];
+
+const DAF_RATING_TREND = [
+  { value: 3.5, label: "W1" }, { value: 3.8, label: "W2" }, { value: 4.0, label: "W3" },
+  { value: 3.9, label: "W4" }, { value: 4.2, label: "W5" }, { value: 4.4, label: "W6" },
+];
+
+const FAF_RATING_TREND = [
+  { value: 3.0, label: "W1" }, { value: 3.5, label: "W2" }, { value: 4.0, label: "W3" },
+  { value: 4.2, label: "W4" }, { value: 4.5, label: "W5" }, { value: 4.3, label: "W6" },
 ];
 
 export const DAFTab: React.FC<DAFTabProps> = ({ stats }) => {
@@ -39,6 +50,12 @@ export const DAFTab: React.FC<DAFTabProps> = ({ stats }) => {
         ]}
       />
       <StatsWeeklyActivityCard data={WEEKLY_DAF} totalMinutes={s.totalMinutes || 0} accentColor={colors.secondary} />
+      <ProgressLineChart
+        title="Rating trend"
+        subtitle="Average session rating over time"
+        data={DAF_RATING_TREND}
+        accentColor={colors.secondary}
+      />
       <StreakCard
         currentStreak={s.sessionsThisWeek || 0}
         bestStreak={s.bestStreak || 0}
@@ -69,6 +86,12 @@ export const FAFTab: React.FC<FAFTabProps> = ({ stats }) => {
         ]}
       />
       <StatsWeeklyActivityCard data={WEEKLY_FAF} totalMinutes={s.totalMinutes || 0} accentColor={colors.categorySelfAwareness} />
+      <ProgressLineChart
+        title="Rating trend"
+        subtitle="Average session rating over time"
+        data={FAF_RATING_TREND}
+        accentColor={colors.categorySelfAwareness}
+      />
       <StreakCard
         currentStreak={s.sessionsThisWeek || 0}
         bestStreak={s.bestStreak || 0}

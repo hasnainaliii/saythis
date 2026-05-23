@@ -46,7 +46,8 @@ export const colors = {
 
   // Chapter card backgrounds
   chapter1Bg: "#FFF5F2",
-  chapter2Bg: "#FFF1E6",
+  chapter2Bg: "#E6F4F2",
+  chapter2Accent: "#2E9A95",
   chapter3Bg: "#EEFAF2",
   chapter4Bg: "#FFF8EE",
   chapter5Bg: "#EEF4FF",

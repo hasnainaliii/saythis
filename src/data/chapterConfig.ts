@@ -3,7 +3,7 @@ import { colors } from "../theme/Theme";
 
 export const CHAPTER_ACCENT: Record<string, string> = {
   "1": colors.secondary,
-  "2": colors.metricOrange,
+  "2": colors.chapter2Accent,
   "3": colors.categoryCBT,
   "4": colors.warning,
   "5": colors.categoryEducation,

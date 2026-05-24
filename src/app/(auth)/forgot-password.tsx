@@ -1,7 +1,7 @@
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -14,22 +14,35 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import AuthHeader from "../../components/auth/AuthHeader";
 import { Button, Input } from "../../components";
+import { parseApiError } from "../../hooks/useApiError";
+import authService from "../../services/authService";
 import { colors, dynamicSpacingY, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
+import { showError, showSuccess } from "../../utils/toast";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
 
+  const forgotPasswordMutation = useMutation({
+    mutationFn: (email: string) => authService.forgotPassword(email),
+    onSuccess: () => {
+      showSuccess(
+        "Reset Link Sent",
+        "If an account with that email exists, a password reset link has been sent.",
+      );
+    },
+    onError: (err: any) => {
+      const message = parseApiError(err, "Something went wrong. Please try again.");
+      showError("Error", message);
+    },
+  });
+
   const handleResetPassword = () => {
     if (!email) {
-      Alert.alert("Error", "Please enter your email address.");
+      showError("Missing Email", "Please enter your email address.");
       return;
     }
-    Alert.alert(
-      "Reset Link Sent",
-      `We have sent a password reset link to ${email}. Check your inbox!`,
-      [{ text: "OK", onPress: () => router.back() }],
-    );
+    forgotPasswordMutation.mutate(email.toLowerCase().trim());
   };
 
   return (
@@ -70,6 +83,7 @@ export default function ForgotPasswordScreen() {
                 <Button
                   title="Send Reset Link"
                   onPress={handleResetPassword}
+                  loading={forgotPasswordMutation.isPending}
                   size="large"
                   fullWidth
                 />

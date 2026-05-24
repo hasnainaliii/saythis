@@ -55,7 +55,7 @@ const FeaturedToolCard: React.FC<FeaturedToolCardProps> = ({
       style={[styles.container, animatedStyle, style]}
     >
       <View style={styles.card}>
-        <Image source={{ uri: tool.heroImage }} style={styles.image} />
+        <Image source={tool.heroImage as any} style={styles.image} />
         <View style={styles.content}>
           <Text style={styles.title}>{tool.name}</Text>
           <Text style={styles.summary} numberOfLines={1}>

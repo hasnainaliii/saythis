@@ -1,15 +1,21 @@
-import { DEV_CREDENTIALS, DEV_MODE_ENABLED, DEV_USER } from "../config/devCredentials";
 import type {
-    LoginRequest,
-    LoginResponse,
-    RegisterRequest,
-    RegisterResponse,
+  AuthResponse,
+  ForgotPasswordRequest,
+  LoginRequest,
+  LoginResponse,
+  MessageResponse,
+  RefreshResponse,
+  RegisterRequest,
+  RegisterResponse,
+  ResetPasswordRequest,
+  VerifyEmailRequest,
 } from "../types/auth";
 import api from "./api";
 
 export const authService = {
   /**
    * Register a new user
+   * Returns user + access_token + refresh_token (auto-login)
    */
   register: async (data: RegisterRequest): Promise<RegisterResponse> => {
     const response = await api.post<RegisterResponse>("/auth/register", data);
@@ -17,32 +23,57 @@ export const authService = {
   },
 
   /**
-   * Check if credentials are dev credentials (for testing without backend)
+   * Login user with email + password
+   * Returns user + access_token + refresh_token
    */
-  isDevCredentials: (email: string, password: string): boolean => {
-    if (!DEV_MODE_ENABLED) return false;
-    return email === DEV_CREDENTIALS.email && password === DEV_CREDENTIALS.password;
+  login: async (data: LoginRequest): Promise<LoginResponse> => {
+    const response = await api.post<LoginResponse>("/auth/login", data);
+    return response.data;
   },
 
   /**
-   * Login user and get tokens
-   * First checks for dev credentials, then calls backend
+   * Refresh access token using refresh token
+   * Old refresh token is invalidated (rotation)
    */
-  login: async (data: LoginRequest): Promise<LoginResponse> => {
-    // Check if dev credentials are being used
-    if (authService.isDevCredentials(data.email, data.password)) {
-      console.log("🔧 Dev login detected - bypassing backend");
-      // Return a mock response with dev user and tokens
-      return {
-        access_token: "dev-token-" + Math.random().toString(36).substr(2, 9),
-        refresh_token: "dev-refresh-" + Math.random().toString(36).substr(2, 9),
-        expires_at: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-        user: DEV_USER,
-      };
-    }
+  refreshTokens: async (refreshToken: string): Promise<RefreshResponse> => {
+    const response = await api.post<RefreshResponse>("/auth/refresh", {
+      refresh_token: refreshToken,
+    });
+    return response.data;
+  },
 
-    // Otherwise, use backend authentication
-    const response = await api.post<LoginResponse>("/auth/login", data);
+  /**
+   * Verify email using one-time token from verification email
+   */
+  verifyEmail: async (token: string): Promise<MessageResponse> => {
+    const response = await api.post<MessageResponse>("/auth/verify-email", {
+      token,
+    });
+    return response.data;
+  },
+
+  /**
+   * Send password reset email
+   * Always returns 200 OK regardless of whether email exists (anti-enumeration)
+   */
+  forgotPassword: async (email: string): Promise<MessageResponse> => {
+    const response = await api.post<MessageResponse>("/auth/forgot-password", {
+      email,
+    });
+    return response.data;
+  },
+
+  /**
+   * Reset password using one-time token from reset email
+   */
+  resetPassword: async (
+    token: string,
+    password: string,
+  ): Promise<MessageResponse> => {
+    const response = await api.post<MessageResponse>("/auth/reset-password", {
+      token,
+      password,
+    });
     return response.data;
   },
 };

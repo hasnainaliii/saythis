@@ -16,11 +16,13 @@ import SocialLoginButtons from "../../components/auth/SocialLoginButtons";
 import { Button, Input } from "../../components";
 import { parseApiError } from "../../hooks/useApiError";
 import authService from "../../services/authService";
+import { useAuthStore } from "../../store/authStore";
 import { colors, dynamicSpacingY, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
 import { showError, showSuccess } from "../../utils/toast";
 
 export default function SignupScreen() {
   const router = useRouter();
+  const login = useAuthStore((state) => state.login);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,9 +30,11 @@ export default function SignupScreen() {
 
   const registerMutation = useMutation({
     mutationFn: authService.register,
-    onSuccess: () => {
-      showSuccess("Account Created", "Your account has been created. Please log in.");
-      router.push("/(auth)/login");
+    onSuccess: async (data) => {
+      // Auto-login: backend returns tokens on register
+      await login(data.user, data.access_token, data.refresh_token);
+      showSuccess("Welcome!", `Account created for ${data.user.full_name}`);
+      router.replace("/");
     },
     onError: (err: any) => {
       const message = parseApiError(err, "Registration failed. Please try again.");
@@ -43,6 +47,10 @@ export default function SignupScreen() {
       showError("Missing Fields", "Please fill in all fields");
       return;
     }
+    if (name.length < 3 || name.length > 100) {
+      showError("Invalid Name", "Name must be between 3 and 100 characters");
+      return;
+    }
     if (password !== confirmPassword) {
       showError("Password Mismatch", "Passwords do not match");
       return;
@@ -51,7 +59,15 @@ export default function SignupScreen() {
       showError("Weak Password", "Password must be at least 8 characters");
       return;
     }
-    registerMutation.mutate({ email, full_name: name, password });
+    if (password.length > 72) {
+      showError("Password Too Long", "Password must be at most 72 characters");
+      return;
+    }
+    registerMutation.mutate({
+      email: email.toLowerCase().trim(),
+      full_name: name.trim(),
+      password,
+    });
   };
 
   return (

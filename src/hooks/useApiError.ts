@@ -3,6 +3,8 @@ import type { ApiError } from "../types/auth";
 /**
  * Parses API/network errors into user-friendly messages.
  * Centralises error handling shared by login, signup, and other mutations.
+ *
+ * Handles both axios error shapes and the backend's simple { error: "message" } format.
  */
 
 export const parseApiError = (err: any, fallback: string): string => {
@@ -15,10 +17,19 @@ export const parseApiError = (err: any, fallback: string): string => {
   }
 
   if (err.response?.data) {
-    const apiError = err.response.data as ApiError;
-    if (apiError?.error?.message) return apiError.error.message;
-    if (typeof err.response.data === "string") return err.response.data;
-    if (err.response.data.message) return err.response.data.message;
+    const data = err.response.data;
+
+    // Backend returns { error: "message string" }
+    if (typeof data.error === "string") return data.error;
+
+    // Legacy nested format { error: { message: "..." } }
+    if (data.error?.message) return data.error.message;
+
+    // Plain string response
+    if (typeof data === "string") return data;
+
+    // Generic message field
+    if (data.message) return data.message;
   }
 
   if (err.message) return err.message;

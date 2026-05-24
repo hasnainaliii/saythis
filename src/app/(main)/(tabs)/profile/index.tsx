@@ -2,10 +2,11 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Download, FileText, Settings, User, Zap } from "lucide-react-native";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, ProfileMenuItem } from "../../../../components";
 import { useAuthStore } from "../../../../store/authStore";
+import { userService } from "../../../../services/userService";
 import {
     colors,
     dynamicSpacingY,
@@ -14,13 +15,13 @@ import {
     spacingX,
     spacingY,
 } from "../../../../theme/Theme";
-
-const avatarUrl =
-  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1760&q=80";
+import { showError, showSuccess } from "../../../../utils/toast";
 
 const avatarSize = dynamicSpacingY(14);
 const headerRadius = dynamicSpacingY(5);
 const headerTopPadding = dynamicSpacingY(7);
+
+const DEFAULT_AVATAR = require("../../../../../assets/images/icon.png");
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -39,6 +40,37 @@ export default function ProfileScreen() {
     console.log(`Pressed ${item}`);
   };
 
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await userService.deleteAccount();
+              await logout();
+              showSuccess("Account Deleted", "Your account has been deleted.");
+            } catch {
+              showError("Error", "Failed to delete account. Please try again.");
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const avatarSource = user?.avatar_url
+    ? { uri: user.avatar_url }
+    : DEFAULT_AVATAR;
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView
@@ -49,7 +81,7 @@ export default function ProfileScreen() {
           <View style={styles.headerContent}>
             <View style={styles.avatarContainer}>
               <Image
-                source={avatarUrl}
+                source={avatarSource}
                 style={styles.avatar}
                 contentFit="cover"
                 transition={1000}
@@ -59,7 +91,9 @@ export default function ProfileScreen() {
             <Text style={styles.handle}>{user?.email || "@username"}</Text>
 
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>Pro Member</Text>
+              <Text style={styles.badgeText}>
+                {user?.role === "admin" ? "Admin" : "Member"}
+              </Text>
             </View>
           </View>
         </View>
@@ -96,7 +130,7 @@ export default function ProfileScreen() {
           <View style={styles.logoutContainer}>
             <Button
               title="Logout"
-              onPress={logout}
+              onPress={handleLogout}
               variant="outline"
               style={styles.logoutButton}
             />

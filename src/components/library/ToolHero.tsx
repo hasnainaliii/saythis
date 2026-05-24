@@ -34,7 +34,7 @@ const ToolHero: React.FC<ToolHeroProps> = ({ tool, scrollY }) => {
   return (
     <View style={styles.container}>
       <Animated.Image
-        source={{ uri: tool.heroImage }}
+        source={tool.heroImage as any}
         style={[styles.image, animatedStyle]}
         resizeMode="cover"
       />

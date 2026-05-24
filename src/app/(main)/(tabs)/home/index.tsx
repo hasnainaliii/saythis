@@ -4,9 +4,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { HomeHero } from "../../../../components/home/HomeHero";
 import { MetricsSection } from "../../../../components/home/MetricsSection";
 import { MindfulTracker } from "../../../../components/home/MindfulTracker";
+import { useAuthStore } from "../../../../store/authStore";
 import { colors } from "../../../../theme/Theme";
 
 export default function HomeScreen() {
+  const user = useAuthStore((state) => state.user);
+
   const today = new Date();
   const dateStr = today.toLocaleDateString("en-US", {
     weekday: "short",
@@ -15,6 +18,9 @@ export default function HomeScreen() {
     year: "numeric",
   });
 
+  // Extract first name for greeting
+  const firstName = user?.full_name?.split(" ")[0] || "User";
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView
@@ -22,7 +28,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <HomeHero
-          userName="Shinomiya"
+          userName={firstName}
           dateString={dateStr}
           level="Pro"
           fluencyPercent={80}

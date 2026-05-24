@@ -1,10 +1,13 @@
 import { Image } from "expo-image";
+import { useMutation } from "@tanstack/react-query";
 import { Pencil } from "lucide-react-native";
 import React, { useState } from "react";
-import { Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Input, ScreenHeader } from "../../../../components";
 import { useAuthStore } from "../../../../store/authStore";
+import { userService } from "../../../../services/userService";
+import { parseApiError } from "../../../../hooks/useApiError";
 import {
     colors,
     dynamicSpacingY,
@@ -13,23 +16,70 @@ import {
     spacingX,
     spacingY
 } from "../../../../theme/Theme";
+import { showError, showSuccess } from "../../../../utils/toast";
 
 const avatarSize = dynamicSpacingY(14);
 const editBadgeSize = dynamicSpacingY(4.2);
 
-const avatarUrl =
-  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1760&q=80";
+const DEFAULT_AVATAR = require("../../../../../assets/images/icon.png");
 
 export default function EditProfileScreen() {
   const user = useAuthStore((state) => state.user);
+  const updateUser = useAuthStore((state) => state.updateUser);
   const [name, setName] = useState(user?.full_name ?? "");
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
-  const handlePhotoPress = () => {
-    console.log("Select profile photo");
+  const avatarSource = user?.avatar_url
+    ? { uri: user.avatar_url }
+    : DEFAULT_AVATAR;
+
+  const updateProfileMutation = useMutation({
+    mutationFn: (fullName: string) => userService.updateProfile(fullName),
+    onSuccess: async (updatedUser) => {
+      await updateUser(updatedUser);
+      showSuccess("Profile Updated", "Your name has been updated.");
+    },
+    onError: (err: any) => {
+      const message = parseApiError(err, "Failed to update profile.");
+      showError("Update Failed", message);
+    },
+  });
+
+  const handlePhotoPress = async () => {
+    try {
+      setIsUploadingAvatar(true);
+      const imageResult = await userService.pickImage();
+      const updatedUser = await userService.uploadAvatar(imageResult);
+      if (updatedUser) {
+        await updateUser(updatedUser);
+        showSuccess("Avatar Updated", "Your profile photo has been changed.");
+      }
+    } catch (error: any) {
+      if (error.message === "Permission to access photos was denied") {
+        showError("Permission Denied", "Please allow access to your photos in Settings.");
+      } else {
+        showError("Upload Failed", error.message || "Failed to upload avatar.");
+      }
+    } finally {
+      setIsUploadingAvatar(false);
+    }
   };
 
   const handleSave = () => {
-    console.log("Save profile changes");
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      showError("Invalid Name", "Name cannot be empty.");
+      return;
+    }
+    if (trimmedName.length < 3 || trimmedName.length > 100) {
+      showError("Invalid Name", "Name must be between 3 and 100 characters.");
+      return;
+    }
+    if (trimmedName === user?.full_name) {
+      showSuccess("No Changes", "Your name is already up to date.");
+      return;
+    }
+    updateProfileMutation.mutate(trimmedName);
   };
 
   return (
@@ -46,18 +96,25 @@ export default function EditProfileScreen() {
             style={styles.avatarWrapper}
             onPress={handlePhotoPress}
             accessibilityRole="button"
+            disabled={isUploadingAvatar}
           >
             <Image
-              source={avatarUrl}
+              source={avatarSource}
               style={styles.avatar}
               contentFit="cover"
               transition={300}
             />
             <View style={styles.pencilBadge}>
-              <Pencil size={fontSizes.medium} color={colors.white} />
+              {isUploadingAvatar ? (
+                <ActivityIndicator size="small" color={colors.white} />
+              ) : (
+                <Pencil size={fontSizes.medium} color={colors.white} />
+              )}
             </View>
           </Pressable>
-          <Text style={styles.helperText}>Tap to change photo</Text>
+          <Text style={styles.helperText}>
+            {isUploadingAvatar ? "Uploading..." : "Tap to change photo"}
+          </Text>
         </View>
 
         <View style={styles.form}>
@@ -71,6 +128,7 @@ export default function EditProfileScreen() {
           <Button
             title="Save Changes"
             onPress={handleSave}
+            loading={updateProfileMutation.isPending}
             size="large"
             fullWidth
           />

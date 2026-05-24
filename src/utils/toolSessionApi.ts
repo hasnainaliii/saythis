@@ -1,4 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { storage, StorageKeys } from './storage';
+import { API_BASE_URL } from '../config/api';
 import { addToQueue, getPendingSessions, removePendingSession, incrementAttempt } from './offlineQueue';
 
 export interface BaseSessionStats {
@@ -104,11 +105,9 @@ export type ToolSessionStats =
   | VirtualCoffeeOrderSessionStats
   | PhoneCallSimulatorSessionStats;
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080/api';
-
 export const saveSessionToBackend = async (session: ToolSessionStats) => {
   try {
-    const token = await AsyncStorage.getItem('auth_token');
+    const token = await storage.getItem(StorageKeys.USER_TOKEN);
     if (!token) throw new Error('No auth token');
 
     const response = await fetch(`${API_BASE_URL}/tool-sessions`, {
@@ -138,7 +137,7 @@ export const syncOfflineSessions = async () => {
   for (const session of sessions) {
     try {
       const payload = JSON.parse(session.payload);
-      const token = await AsyncStorage.getItem('auth_token');
+      const token = await storage.getItem(StorageKeys.USER_TOKEN);
       if (!token) continue;
 
       const response = await fetch(`${API_BASE_URL}/tool-sessions`, {
@@ -162,7 +161,7 @@ export const syncOfflineSessions = async () => {
 };
 
 export const getToolStats = async () => {
-  const token = await AsyncStorage.getItem('auth_token');
+  const token = await storage.getItem(StorageKeys.USER_TOKEN);
   if (!token) throw new Error('No auth token');
 
   const response = await fetch(`${API_BASE_URL}/tool-sessions/stats/summary`, {
@@ -176,7 +175,7 @@ export const getToolStats = async () => {
 export type ToolType = 'DAF' | 'FAF' | 'BOX_BREATHING' | 'DIAPHRAGMATIC' | 'PRE_SPEECH' | 'GENTLE_ONSET' | 'PROLONGED_SPEECH' | 'STUTTER_TAP_COUNTER' | 'TIMED_READING_WPM' | 'VIRTUAL_COFFEE_ORDER' | 'PHONE_CALL_SIMULATOR';
 
 export const getRecentSessions = async (toolType: ToolType, limit: number = 10) => {
-  const token = await AsyncStorage.getItem('auth_token');
+  const token = await storage.getItem(StorageKeys.USER_TOKEN);
   if (!token) throw new Error('No auth token');
 
   const response = await fetch(`${API_BASE_URL}/tool-sessions?toolType=${toolType}&limit=${limit}&offset=0`, {

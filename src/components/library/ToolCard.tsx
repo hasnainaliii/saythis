@@ -81,7 +81,7 @@ const ToolCard: React.FC<ToolCardProps> = ({
           ]}
         >
           <Image
-            source={{ uri: imageSource }}
+            source={imageSource as any}
             style={styles.media}
             resizeMode="cover"
           />

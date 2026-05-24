@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { User } from "../types/auth";
 import { storage, StorageKeys } from "../utils/storage";
+import { userService } from "../services/userService";
 
 interface AuthState {
   user: User | null;
@@ -18,6 +19,7 @@ interface AuthState {
     refreshToken: string,
   ) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (user: User) => Promise<void>;
   hydrate: () => Promise<void>;
 }
 
@@ -61,11 +63,24 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
+  /**
+   * Update user data in both store and persistent storage
+   * Used after profile edits, avatar uploads, etc.
+   */
+  updateUser: async (user: User) => {
+    try {
+      await storage.setItem(StorageKeys.USER_PROFILE, JSON.stringify(user));
+      set({ user });
+    } catch (error) {
+      console.error("Failed to update user data:", error);
+    }
+  },
+
   hydrate: async () => {
     try {
       set({ isLoading: true });
 
-      const hasText = await storage.getItem(StorageKeys.USER_PROFILE);
+      const profileStr = await storage.getItem(StorageKeys.USER_PROFILE);
       const token = await storage.getItem(StorageKeys.USER_TOKEN);
       const onboardingCompletedStr = await storage.getItem(
         StorageKeys.HAS_COMPLETED_ONBOARDING,
@@ -73,13 +88,27 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       const onboardingCompleted = onboardingCompletedStr === "true";
 
-      if (hasText && token) {
-        const user = JSON.parse(hasText) as User;
+      if (profileStr && token) {
+        // We have cached data — use it immediately for fast startup
+        const cachedUser = JSON.parse(profileStr) as User;
         set({
-          user,
+          user: cachedUser,
           isAuthenticated: true,
           hasCompletedOnboarding: onboardingCompleted,
         });
+
+        // Then try to fetch fresh profile from backend in background
+        try {
+          const freshUser = await userService.getProfile();
+          await storage.setItem(
+            StorageKeys.USER_PROFILE,
+            JSON.stringify(freshUser),
+          );
+          set({ user: freshUser });
+        } catch {
+          // If fetch fails (offline, token expired), keep cached data
+          // The token refresh interceptor will handle expired tokens
+        }
       } else {
         set({
           user: null,

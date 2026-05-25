@@ -32,6 +32,12 @@ export default function LoginScreen() {
     mutationFn: authService.login,
     onSuccess: async (data) => {
       await login(data.user, data.access_token, data.refresh_token);
+
+      if (!data.user.email_verified_at) {
+        router.replace("/(auth)/verify-email");
+        return;
+      }
+
       showSuccess("Welcome Back!", `Logged in as ${data.user.full_name}`);
       router.replace("/");
     },

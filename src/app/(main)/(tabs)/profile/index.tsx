@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { Download, FileText, Settings, User, Zap } from "lucide-react-native";
+import { Download, FileText, User, Zap } from "lucide-react-native";
 import React from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -120,21 +120,15 @@ export default function ProfileScreen() {
               title="Reports"
               onPress={() => handlePress("Reports")}
             />
-            <ProfileMenuItem
-              icon={Settings}
-              title="App Settings"
-              onPress={() => handlePress("App Settings")}
-            />
+
           </View>
 
-          <View style={styles.logoutContainer}>
-            <Button
-              title="Logout"
-              onPress={handleLogout}
-              variant="outline"
-              style={styles.logoutButton}
-            />
-          </View>
+          <Button
+            title="Logout"
+            onPress={handleLogout}
+            variant="outline"
+            style={styles.logoutButton}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -211,9 +205,8 @@ const styles = StyleSheet.create({
   menuContainer: {
     marginBottom: spacingY.sm,
   },
-  logoutContainer: {},
   logoutButton: {
-    color: colors.white,
-    backgroundColor: colors.white,
+    backgroundColor: colors.primary,
+    borderColor: colors.border,
   },
 });

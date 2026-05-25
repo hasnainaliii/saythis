@@ -50,17 +50,24 @@ export default function RootLayout() {
     }
   }, [fontsError, fontsLoaded, isHydrated]);
 
+  const user = useAuthStore((state) => state.user);
+
+  const hasCompletedOnboarding = useAuthStore((state) => state.hasCompletedOnboarding);
+
   useEffect(() => {
     if (!isHydrated || !rootNavigationState?.key) return;
 
     const inAuthGroup = segments[0] === "(auth)";
+    const isVerified = !!user?.email_verified_at;
 
     if (!isAuthenticated && !inAuthGroup) {
-      router.replace("/(auth)/onboarding");
-    } else if (isAuthenticated && inAuthGroup) {
+      router.replace(hasCompletedOnboarding ? "/(auth)/login" : "/(auth)/onboarding");
+    } else if (isAuthenticated && !isVerified && !inAuthGroup) {
+      router.replace("/(auth)/verify-email");
+    } else if (isAuthenticated && isVerified && inAuthGroup) {
       router.replace("/(main)");
     }
-  }, [isAuthenticated, isHydrated, segments, rootNavigationState]);
+  }, [isAuthenticated, isHydrated, segments, rootNavigationState, user, hasCompletedOnboarding]);
 
   if (!fontsLoaded && !fontsError) {
     return null;

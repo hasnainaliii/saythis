@@ -76,6 +76,14 @@ export const authService = {
     });
     return response.data;
   },
+
+  /**
+   * Resend the email verification link to the authenticated user
+   */
+  resendVerificationEmail: async (): Promise<MessageResponse> => {
+    const response = await api.post<MessageResponse>("/auth/resend-verification");
+    return response.data;
+  },
 };
 
 export default authService;

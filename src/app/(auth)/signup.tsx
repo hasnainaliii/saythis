@@ -31,10 +31,9 @@ export default function SignupScreen() {
   const registerMutation = useMutation({
     mutationFn: authService.register,
     onSuccess: async (data) => {
-      // Auto-login: backend returns tokens on register
       await login(data.user, data.access_token, data.refresh_token);
       showSuccess("Welcome!", `Account created for ${data.user.full_name}`);
-      router.replace("/");
+      router.replace("/(auth)/verify-email");
     },
     onError: (err: any) => {
       const message = parseApiError(err, "Registration failed. Please try again.");

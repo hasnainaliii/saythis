@@ -32,16 +32,14 @@ export default function ExerciseDetailScreen() {
     : undefined;
 
   const handleComplete = (rating: number, notes: string) => {
-    if (!chapter) {
-      return;
-    }
+    if (!chapter) return;
 
-    void recordExerciseCompletion({
+    recordExerciseCompletion({
       exerciseId: exercise.id,
       chapterId: chapter.id,
       rating,
       notes,
-    });
+    }).catch((err) => console.error("Failed to record completion", err));
   };
 
   const handleBack = () => {

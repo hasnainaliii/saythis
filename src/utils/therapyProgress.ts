@@ -1,8 +1,9 @@
 import { CHAPTER_1_DATA } from "../data/chapter1Data";
 import { CHAPTER_2_DATA } from "../data/chapter2Data";
+import { therapyService, CompletedExerciseDTO } from "../services/therapyService";
 import { storage } from "./storage";
 
-const THERAPY_PROGRESS_KEY = "therapy.progress.v1";
+const INTRO_DISMISSED_KEY = "therapy.intro_dismissed.v1";
 
 const CHAPTER_TOTALS: Record<string, number> = {
   "1": CHAPTER_1_DATA.exercises.length,
@@ -11,7 +12,7 @@ const CHAPTER_TOTALS: Record<string, number> = {
 
 export interface ExerciseCompletionEntry {
   exerciseId: string;
-  chapterId: number;
+  chapterId: string;
   rating: number;
   notes?: string;
   completedAt: string;
@@ -49,31 +50,19 @@ export const DEFAULT_THERAPY_PROGRESS: TherapyProgress = {
   },
 };
 
-const parseProgress = (raw: string | null): TherapyProgress => {
-  if (!raw) {
-    return { ...DEFAULT_THERAPY_PROGRESS };
-  }
-
-  try {
-    const parsed = JSON.parse(raw) as Partial<TherapyProgress> | null;
-    if (!parsed || typeof parsed !== "object") {
-      return { ...DEFAULT_THERAPY_PROGRESS };
-    }
-
-    return {
-      introDismissed: parsed.introDismissed ?? {},
-      completedExercises: parsed.completedExercises ?? {},
-      chapterSummary: parsed.chapterSummary ?? {},
-      stats: {
-        ...DEFAULT_THERAPY_PROGRESS.stats,
-        ...(parsed.stats ?? {}),
-      },
-    };
-  } catch (error) {
-    console.error("Failed to parse therapy progress", error);
-    return { ...DEFAULT_THERAPY_PROGRESS };
-  }
+// map chapter_id strings like "chapter_1" to our local key "1"
+const normalizeChapterId = (raw: string): string => {
+  const match = raw.match(/(\d+)/);
+  return match ? match[1] : raw;
 };
+
+const dtoToEntry = (dto: CompletedExerciseDTO): ExerciseCompletionEntry => ({
+  exerciseId: dto.exercise_id,
+  chapterId: normalizeChapterId(dto.chapter_id),
+  rating: dto.rating,
+  notes: dto.remarks || undefined,
+  completedAt: dto.completed_at,
+});
 
 const computeSummary = (
   completedExercises: Record<string, ExerciseCompletionEntry>,
@@ -111,7 +100,7 @@ const computeSummary = (
 
   const totalExercisesCompleted = Object.keys(completedExercises).length;
   const totalChaptersCompleted = Object.values(chapterSummary).filter(
-    (summary) => summary.isComplete,
+    (s) => s.isComplete,
   ).length;
 
   return {
@@ -125,38 +114,49 @@ const computeSummary = (
   };
 };
 
+const loadIntroDismissed = async (): Promise<Record<string, boolean>> => {
+  const raw = await storage.getItem(INTRO_DISMISSED_KEY);
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw) as Record<string, boolean>;
+  } catch {
+    return {};
+  }
+};
+
 export const getTherapyProgress = async (): Promise<TherapyProgress> => {
-  const raw = await storage.getItem(THERAPY_PROGRESS_KEY);
-  const parsed = parseProgress(raw);
-  const summary = computeSummary(parsed.completedExercises);
+  try {
+    const [apiData, introDismissed] = await Promise.all([
+      therapyService.getProgress(),
+      loadIntroDismissed(),
+    ]);
 
-  const normalized: TherapyProgress = {
-    ...parsed,
-    chapterSummary: summary.chapterSummary,
-    stats: summary.stats,
-  };
+    const completedExercises: Record<string, ExerciseCompletionEntry> = {};
+    apiData.completed_exercises.forEach((dto) => {
+      const entry = dtoToEntry(dto);
+      completedExercises[entry.exerciseId] = entry;
+    });
 
-  if (!raw) {
-    return normalized;
+    const summary = computeSummary(completedExercises);
+
+    return {
+      introDismissed,
+      completedExercises,
+      chapterSummary: summary.chapterSummary,
+      stats: summary.stats,
+    };
+  } catch (error) {
+    console.error("Failed to fetch therapy progress", error);
+    const introDismissed = await loadIntroDismissed();
+    return { ...DEFAULT_THERAPY_PROGRESS, introDismissed };
   }
-
-  const shouldSync =
-    JSON.stringify(parsed.chapterSummary) !== JSON.stringify(summary.chapterSummary) ||
-    JSON.stringify(parsed.stats) !== JSON.stringify(summary.stats);
-
-  if (shouldSync) {
-    await storage.setItem(THERAPY_PROGRESS_KEY, normalized);
-  }
-
-  return normalized;
 };
 
 export const setIntroDismissed = async (
   chapterId: number,
   dismissed: boolean,
 ): Promise<TherapyProgress> => {
-  const prev = await getTherapyProgress();
-  const introDismissed = { ...prev.introDismissed };
+  const introDismissed = await loadIntroDismissed();
 
   if (dismissed) {
     introDismissed[String(chapterId)] = true;
@@ -164,13 +164,10 @@ export const setIntroDismissed = async (
     delete introDismissed[String(chapterId)];
   }
 
-  const next: TherapyProgress = {
-    ...prev,
-    introDismissed,
-  };
+  await storage.setItem(INTRO_DISMISSED_KEY, JSON.stringify(introDismissed));
 
-  await storage.setItem(THERAPY_PROGRESS_KEY, next);
-  return next;
+  const prev = await getTherapyProgress();
+  return { ...prev, introDismissed };
 };
 
 export const recordExerciseCompletion = async (params: {
@@ -179,41 +176,23 @@ export const recordExerciseCompletion = async (params: {
   rating: number;
   notes?: string | null;
 }): Promise<TherapyProgress> => {
-  const prev = await getTherapyProgress();
-  const cleanedNotes = params.notes?.trim() ?? "";
-  const normalizedRating = params.rating > 0 ? params.rating : 3;
-  const completedAt = new Date().toISOString();
+  const remarks = params.notes?.trim() ?? "";
+  const rating = params.rating > 0 ? params.rating : 3;
 
-  const nextCompletedExercises: Record<string, ExerciseCompletionEntry> = {
-    ...prev.completedExercises,
-    [params.exerciseId]: {
-      exerciseId: params.exerciseId,
-      chapterId: params.chapterId,
-      rating: normalizedRating,
-      notes: cleanedNotes.length > 0 ? cleanedNotes : undefined,
-      completedAt,
-    },
-  };
+  await therapyService.markComplete({
+    chapterId: `chapter_${params.chapterId}`,
+    exerciseId: params.exerciseId,
+    rating,
+    remarks,
+  });
 
-  const summary = computeSummary(nextCompletedExercises);
-  const next: TherapyProgress = {
-    ...prev,
-    completedExercises: nextCompletedExercises,
-    chapterSummary: summary.chapterSummary,
-    stats: summary.stats,
-  };
-
-  await storage.setItem(THERAPY_PROGRESS_KEY, next);
-  return next;
+  return getTherapyProgress();
 };
 
 export const getChapterProgressPercent = (
   summary: ChapterProgressSummary | undefined,
 ): number => {
-  if (!summary || summary.totalCount === 0) {
-    return 0;
-  }
-
+  if (!summary || summary.totalCount === 0) return 0;
   return Math.round((summary.completedCount / summary.totalCount) * 100);
 };
 

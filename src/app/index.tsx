@@ -6,10 +6,11 @@ import { colors } from "../theme/Theme";
 export default function Index() {
   const isHydrated = useAuthStore((state) => state.isHydrated);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
   const hasCompletedOnboarding = useAuthStore(
     (state) => state.hasCompletedOnboarding,
   );
-  console.log(isAuthenticated, isHydrated, hasCompletedOnboarding);
+
   if (!isHydrated) {
     return (
       <View
@@ -26,6 +27,9 @@ export default function Index() {
   }
 
   if (isAuthenticated) {
+    if (!user?.email_verified_at) {
+      return <Redirect href="/(auth)/verify-email" />;
+    }
     return <Redirect href="/(main)" />;
   }
 

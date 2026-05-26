@@ -33,7 +33,7 @@ export default function LoginScreen() {
     onSuccess: async (data) => {
       await login(data.user, data.access_token, data.refresh_token);
 
-      if (!data.user.email_verified_at) {
+      if (!data.user.email_verified_at && data.user.status !== "active") {
         router.replace("/(auth)/verify-email");
         return;
       }

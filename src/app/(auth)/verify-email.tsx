@@ -16,6 +16,8 @@ import {
   spacingY,
 } from "../../theme/Theme";
 import { showError, showSuccess } from "../../utils/toast";
+import { parseApiError } from "../../hooks/useApiError";
+import { storage, StorageKeys } from "../../utils/storage";
 
 export default function VerifyEmailScreen() {
   const router = useRouter();
@@ -29,17 +31,26 @@ export default function VerifyEmailScreen() {
   const handleCheckVerification = async () => {
     setChecking(true);
     try {
+      // Force token refresh to get updated claims from backend
+      const refreshToken = await storage.getItem(StorageKeys.USER_REFRESH_TOKEN);
+      if (refreshToken) {
+        const tokens = await authService.refreshTokens(refreshToken);
+        await storage.setItem(StorageKeys.USER_TOKEN, tokens.access_token);
+        await storage.setItem(StorageKeys.USER_REFRESH_TOKEN, tokens.refresh_token);
+      }
+
       const freshUser = await userService.getProfile();
       await updateUser(freshUser);
 
-      if (freshUser.email_verified_at) {
+      if (freshUser.status === "active" || freshUser.email_verified_at || (freshUser as any).emailVerifiedAt) {
         showSuccess("Verified!", "Your email has been verified.");
         router.replace("/");
       } else {
-        showError("Not Verified", "Please check your inbox and verify your email first.");
+        const debugInfo = `keys: ${Object.keys(freshUser).join(',')}, status: ${freshUser.status}, val: ${freshUser.email_verified_at}`;
+        showError("Not Verified", debugInfo);
       }
-    } catch {
-      showError("Error", "Could not check verification status. Try again.");
+    } catch (err: any) {
+      showError("Error", err?.message || "Could not check verification status. Try again.");
     } finally {
       setChecking(false);
     }
@@ -50,8 +61,18 @@ export default function VerifyEmailScreen() {
     try {
       await authService.resendVerificationEmail();
       showSuccess("Email Sent", "A new verification link has been sent to your inbox.");
-    } catch {
-      showError("Error", "Failed to resend email. Please try again later.");
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        showSuccess("Already Verified", "Your email is already verified.");
+        handleCheckVerification();
+      } else if (err.response?.status === 429) {
+        showError(
+          "Rate Limit", 
+          "You can only request a new verification link once every 24 hours. Please check your inbox or spam folder."
+        );
+      } else {
+        showError("Error", parseApiError(err, "Failed to resend email. Please try again later."));
+      }
     } finally {
       setResending(false);
     }

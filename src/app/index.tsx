@@ -27,7 +27,7 @@ export default function Index() {
   }
 
   if (isAuthenticated) {
-    if (!user?.email_verified_at) {
+    if (!user?.email_verified_at && user?.status !== "active") {
       return <Redirect href="/(auth)/verify-email" />;
     }
     return <Redirect href="/(main)" />;

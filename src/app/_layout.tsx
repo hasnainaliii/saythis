@@ -58,7 +58,7 @@ export default function RootLayout() {
     if (!isHydrated || !rootNavigationState?.key) return;
 
     const inAuthGroup = segments[0] === "(auth)";
-    const isVerified = !!user?.email_verified_at;
+    const isVerified = !!user?.email_verified_at || user?.status === "active";
 
     if (!isAuthenticated && !inAuthGroup) {
       router.replace(hasCompletedOnboarding ? "/(auth)/login" : "/(auth)/onboarding");

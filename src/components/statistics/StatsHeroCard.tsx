@@ -24,14 +24,12 @@ export const StatsHeroCard: React.FC<StatsHeroCardProps> = ({
 
   return (
     <View style={styles.card}>
-      <View style={[styles.orb, styles.orbOne]} />
+      <View style={[styles.orb, styles.orbOne]}>
+        <Text style={styles.streakTextCircle}>{currentStreak} day streak</Text>
+      </View>
       <View style={[styles.orb, styles.orbTwo]} />
       <View style={styles.topRow}>
         <Text style={styles.kicker}>Total practice time</Text>
-        <View style={styles.streakPill}>
-          <Ionicons name="flame-outline" size={14} color={colors.warning} />
-          <Text style={styles.streakText}>{currentStreak} day streak</Text>
-        </View>
       </View>
       <Text style={styles.bigValue}>{totalMinutes} min</Text>
       <Text style={styles.caption}>
@@ -74,6 +72,8 @@ const styles = StyleSheet.create({
     top: -40,
     right: -20,
     backgroundColor: colors.secondary + "18",
+    justifyContent: "center",
+    alignItems: "center",
   },
   orbTwo: {
     width: 160,
@@ -93,19 +93,12 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.small,
     color: colors.textMuted,
   },
-  streakPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacingX.xs,
-    backgroundColor: colors.warning + "1A",
-    borderRadius: radii.pill,
-    paddingHorizontal: spacingX.sm,
-    paddingVertical: spacingY.xxs,
-  },
-  streakText: {
+  streakTextCircle: {
     fontFamily: FONTS.primaryBold,
     fontSize: fontSizes.tiny,
-    color: colors.textDark,
+    color: colors.secondary, // Give it a nice color to stand out in the orb
+    marginTop: 20, // push it down slightly so it's fully visible inside the card
+    marginRight: 10, // push it left slightly so it's fully visible
   },
   bigValue: {
     fontFamily: FONTS.primaryBlack,

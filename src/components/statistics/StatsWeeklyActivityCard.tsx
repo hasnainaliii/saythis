@@ -27,7 +27,8 @@ export const StatsWeeklyActivityCard: React.FC<StatsWeeklyActivityCardProps> = (
   totalMinutes,
   accentColor = colors.secondary,
 }) => {
-  const maxValue = Math.max(4, ...data.map((item) => item.value));
+  const dataMax = Math.max(0, ...data.map((item) => item.value));
+  const maxValue = Math.max(4, Math.ceil(dataMax / 4) * 4);
 
   return (
     <View style={styles.card}>
@@ -42,16 +43,18 @@ export const StatsWeeklyActivityCard: React.FC<StatsWeeklyActivityCardProps> = (
       </View>
       <BarChart
         data={data.map((item) => ({ value: item.value, label: item.label }))}
-        barWidth={spacingX.sm}
-        spacing={spacingX.xs}
+        barWidth={spacingX.lg}
+        spacing={spacingX.lg}
         barBorderRadius={radii.sm}
         height={dynamicSpacingY(16)}
         frontColor={accentColor}
         maxValue={maxValue}
+        noOfSections={4}
         yAxisThickness={0}
         xAxisThickness={0}
         hideRules
         xAxisLabelTextStyle={styles.axisText}
+        yAxisTextStyle={styles.axisText}
       />
     </View>
   );

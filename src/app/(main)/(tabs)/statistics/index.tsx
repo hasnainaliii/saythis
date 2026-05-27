@@ -11,7 +11,7 @@ import { BreathingTab, DrillsTab } from "../../../../components/statistics/Thera
 import { BiofeedbackTab, SimulationTab } from "../../../../components/statistics/AdvancedToolTabs";
 
 export default function StatisticsScreen() {
-  const { activeTab, setActiveTab, stats, recentSessions, loading, weeklyChartData, weeklyTotal } = useStatsData();
+  const { activeTab, setActiveTab, stats, recentSessions, allSessions, loading, weeklyChartData, weeklyTotal, weeklyTrend } = useStatsData();
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -25,14 +25,14 @@ export default function StatisticsScreen() {
       ) : (
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {activeTab === 'Overview' && (
-            <OverviewTab stats={stats} recentSessions={recentSessions} weeklyChartData={weeklyChartData} weeklyTotal={weeklyTotal} />
+            <OverviewTab stats={stats} recentSessions={recentSessions} weeklyChartData={weeklyChartData} weeklyTotal={weeklyTotal} weeklyTrend={weeklyTrend} />
           )}
-          {activeTab === 'DAF' && <DAFTab stats={stats} />}
-          {activeTab === 'FAF' && <FAFTab stats={stats} />}
-          {activeTab === 'Breathing' && <BreathingTab stats={stats} />}
-          {activeTab === 'Drills' && <DrillsTab stats={stats} />}
-          {activeTab === 'Biofeedback' && <BiofeedbackTab stats={stats} />}
-          {activeTab === 'Simulation' && <SimulationTab stats={stats} />}
+          {activeTab === 'DAF' && <DAFTab stats={stats} allSessions={allSessions} />}
+          {activeTab === 'FAF' && <FAFTab stats={stats} allSessions={allSessions} />}
+          {activeTab === 'Breathing' && <BreathingTab stats={stats} allSessions={allSessions} />}
+          {activeTab === 'Drills' && <DrillsTab stats={stats} allSessions={allSessions} />}
+          {activeTab === 'Biofeedback' && <BiofeedbackTab stats={stats} allSessions={allSessions} />}
+          {activeTab === 'Simulation' && <SimulationTab stats={stats} allSessions={allSessions} />}
         </ScrollView>
       )}
     </SafeAreaView>
@@ -43,5 +43,5 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.primary },
   loader: { flex: 1, justifyContent: "center", alignItems: "center" },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: spacingY.xxl },
+  scrollContent: { paddingBottom: 120 },
 });

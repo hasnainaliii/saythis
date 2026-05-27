@@ -5,6 +5,7 @@ export const StorageKeys = {
   USER_REFRESH_TOKEN: "user.refresh_token",
   USER_PROFILE: "user.profile",
   HAS_COMPLETED_ONBOARDING: "app.onboarding_completed",
+  APP_SESSIONS: "app.sessions",
 } as const;
 
 export const storage = {

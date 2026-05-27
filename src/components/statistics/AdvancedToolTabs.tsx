@@ -8,15 +8,67 @@ import { StreakCard } from "./StreakCard";
 import { ToolDistributionChart } from "./ToolDistributionChart";
 import { ProgressLineChart } from "./ProgressLineChart";
 
-interface BiofeedbackTabProps { stats: any; }
+interface BiofeedbackTabProps { stats: any; allSessions?: any[]; }
+interface SimulationTabProps { stats: any; allSessions?: any[]; }
 
-export const BiofeedbackTab: React.FC<BiofeedbackTabProps> = ({ stats }) => {
+const computeStutterTrend = (sessions: any[] = []) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const weekTrend = [];
+  for (let w = 5; w >= 0; w--) {
+    const weekStart = new Date(today);
+    weekStart.setDate(weekStart.getDate() - (w * 7) - today.getDay());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    
+    let totalTaps = 0;
+    let totalMinutes = 0;
+    for (const s of sessions) {
+      if (s.toolType !== 'STUTTER_TAP_COUNTER') continue;
+      const sDate = new Date(s.startedAt);
+      if (sDate >= weekStart && sDate <= weekEnd && s.totalTaps !== undefined) {
+        totalTaps += s.totalTaps;
+        totalMinutes += s.durationSeconds / 60;
+      }
+    }
+    const rate = totalMinutes > 0 ? totalTaps / totalMinutes : 0;
+    weekTrend.push({ value: parseFloat(rate.toFixed(1)), label: `W${6 - w}` });
+  }
+  return weekTrend;
+};
+
+const computeSuccessTrend = (sessions: any[] = []) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const weekTrend = [];
+  for (let w = 5; w >= 0; w--) {
+    const weekStart = new Date(today);
+    weekStart.setDate(weekStart.getDate() - (w * 7) - today.getDay());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    
+    let successCount = 0;
+    let totalSims = 0;
+    for (const s of sessions) {
+      if (!['VIRTUAL_COFFEE_ORDER', 'PHONE_CALL_SIMULATOR'].includes(s.toolType)) continue;
+      const sDate = new Date(s.startedAt);
+      if (sDate >= weekStart && sDate <= weekEnd) {
+        totalSims++;
+        if (s.completed) successCount++;
+      }
+    }
+    const rate = totalSims > 0 ? (successCount / totalSims) * 100 : 0;
+    weekTrend.push({ value: parseFloat(rate.toFixed(1)), label: `W${6 - w}` });
+  }
+  return weekTrend;
+};
+
+export const BiofeedbackTab: React.FC<BiofeedbackTabProps> = ({ stats, allSessions = [] }) => {
   const b = stats?.biofeedback || {};
 
-  const stutterTrend = [
-    { value: 18, label: "W1" }, { value: 15, label: "W2" }, { value: 14, label: "W3" },
-    { value: 12, label: "W4" }, { value: 10, label: "W5" }, { value: 9, label: "W6" },
-  ];
+  const stutterTrend = computeStutterTrend(allSessions);
 
   const bioPie = [
     { label: "Stutter Tap", value: b.stutterTapSessions || 0, color: colors.secondary },
@@ -63,15 +115,10 @@ export const BiofeedbackTab: React.FC<BiofeedbackTabProps> = ({ stats }) => {
   );
 };
 
-interface SimulationTabProps { stats: any; }
-
-export const SimulationTab: React.FC<SimulationTabProps> = ({ stats }) => {
+export const SimulationTab: React.FC<SimulationTabProps> = ({ stats, allSessions = [] }) => {
   const s = stats?.simulation || {};
 
-  const successTrend = [
-    { value: 70, label: "W1" }, { value: 78, label: "W2" }, { value: 82, label: "W3" },
-    { value: 85, label: "W4" }, { value: 88, label: "W5" }, { value: 90, label: "W6" },
-  ];
+  const successTrend = computeSuccessTrend(allSessions);
 
   const simPie = [
     { label: "Coffee orders", value: s.coffeeSessions || 0, color: colors.warning },

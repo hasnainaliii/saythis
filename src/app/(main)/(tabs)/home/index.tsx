@@ -5,10 +5,16 @@ import { HomeHero } from "../../../../components/home/HomeHero";
 import { MetricsSection } from "../../../../components/home/MetricsSection";
 import { MindfulTracker } from "../../../../components/home/MindfulTracker";
 import { useAuthStore } from "../../../../store/authStore";
+import { useMoodStore } from "../../../../store/moodStore";
 import { colors } from "../../../../theme/Theme";
 
 export default function HomeScreen() {
   const user = useAuthStore((state) => state.user);
+  const { currentMood, loadMood } = useMoodStore();
+
+  React.useEffect(() => {
+    loadMood();
+  }, []);
 
   const today = new Date();
   const dateStr = today.toLocaleDateString("en-US", {
@@ -32,10 +38,10 @@ export default function HomeScreen() {
           dateString={dateStr}
           level="Pro"
           fluencyPercent={80}
-          mood="Happy"
+          mood={currentMood}
         />
 
-        <MetricsSection score={80} scoreStatus="Healthy" mood="Sad" />
+        <MetricsSection score={80} scoreStatus="Healthy" mood={currentMood} />
 
         <MindfulTracker />
       </ScrollView>

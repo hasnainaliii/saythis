@@ -19,7 +19,8 @@ interface ProgressLineChartProps {
 export const ProgressLineChart: React.FC<ProgressLineChartProps> = ({
   title, subtitle, data, accentColor = colors.secondary, yAxisSuffix = "",
 }) => {
-  const maxVal = Math.max(4, ...data.map((d) => d.value));
+  const dataMax = Math.max(0, ...data.map((d) => d.value));
+  const maxValue = Math.max(4, Math.ceil((dataMax + 2) / 4) * 4);
 
   return (
     <View style={styles.card}>
@@ -28,7 +29,7 @@ export const ProgressLineChart: React.FC<ProgressLineChartProps> = ({
       <LineChart
         data={data}
         height={dynamicSpacingY(16)}
-        maxValue={maxVal + 2}
+        maxValue={maxValue}
         noOfSections={4}
         color={accentColor}
         thickness={2}

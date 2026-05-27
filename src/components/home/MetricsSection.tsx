@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import { MoreHorizontal } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -22,7 +23,11 @@ export function MetricsSection({ score, scoreStatus, mood }: Props) {
       </View>
       <View style={styles.cardsRow}>
         <ScoreCard score={score} statusLabel={scoreStatus} />
-        <MoodCard mood={mood} />
+        <Link href="/mood-tracker" asChild>
+          <TouchableOpacity activeOpacity={0.8} style={{ flex: 1 }}>
+            <MoodCard mood={mood} />
+          </TouchableOpacity>
+        </Link>
       </View>
       {/* pagination dots */}
       <View style={styles.dots}>

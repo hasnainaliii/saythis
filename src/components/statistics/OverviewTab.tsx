@@ -13,9 +13,10 @@ interface OverviewTabProps {
   recentSessions: any[];
   weeklyChartData: WeeklyActivityDatum[];
   weeklyTotal: number;
+  weeklyTrend?: any[];
 }
 
-export const OverviewTab: React.FC<OverviewTabProps> = ({ stats, recentSessions, weeklyChartData, weeklyTotal }) => {
+export const OverviewTab: React.FC<OverviewTabProps> = ({ stats, recentSessions, weeklyChartData, weeklyTotal, weeklyTrend = [] }) => {
   const c = stats?.combined || {};
   const daf = stats?.daf || {};
   const faf = stats?.faf || {};
@@ -36,11 +37,6 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ stats, recentSessions,
     { label: "Simulation", value: sim.totalSessions || 0, color: colors.warning },
   ].filter((s) => s.value > 0);
 
-  // dummy weekly trend for now
-  const weeklyTrend = [
-    { value: 10, label: "W1" }, { value: 18, label: "W2" }, { value: 14, label: "W3" },
-    { value: 22, label: "W4" }, { value: 28, label: "W5" }, { value: 24, label: "W6" },
-  ];
 
   return (
     <View>

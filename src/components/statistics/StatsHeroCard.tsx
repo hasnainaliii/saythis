@@ -27,7 +27,7 @@ export const StatsHeroCard: React.FC<StatsHeroCardProps> = ({
       <View style={[styles.orb, styles.orbOne]}>
         <Text style={styles.streakTextCircle}>{currentStreak} day streak</Text>
       </View>
-      <View style={[styles.orb, styles.orbTwo]} />
+
       <View style={styles.topRow}>
         <Text style={styles.kicker}>Total practice time</Text>
       </View>
@@ -75,13 +75,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  orbTwo: {
-    width: 160,
-    height: 160,
-    bottom: -80,
-    left: -50,
-    backgroundColor: colors.primary_20,
-  },
+
   topRow: {
     flexDirection: "row",
     alignItems: "center",

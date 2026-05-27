@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { Download, FileText, User, Zap } from "lucide-react-native";
+import { FileText, Settings, User } from "lucide-react-native";
 import React from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -33,8 +33,12 @@ export default function ProfileScreen() {
       router.push("/(main)/(tabs)/profile/edit-profile");
       return;
     }
-    if (item === "Subscription") {
-      router.push("/(main)/(tabs)/profile/subscription");
+    if (item === "Reports") {
+      router.push("/(main)/(tabs)/profile/reports");
+      return;
+    }
+    if (item === "App Settings") {
+      router.push("/(main)/(tabs)/profile/settings");
       return;
     }
     console.log(`Pressed ${item}`);
@@ -106,19 +110,14 @@ export default function ProfileScreen() {
               onPress={() => handlePress("Edit Profile")}
             />
             <ProfileMenuItem
-              icon={Zap}
-              title="Subscription"
-              onPress={() => handlePress("Subscription")}
-            />
-            <ProfileMenuItem
-              icon={Download}
-              title="Downloads"
-              onPress={() => handlePress("Downloads")}
-            />
-            <ProfileMenuItem
               icon={FileText}
               title="Reports"
               onPress={() => handlePress("Reports")}
+            />
+            <ProfileMenuItem
+              icon={Settings}
+              title="App Settings"
+              onPress={() => handlePress("App Settings")}
             />
 
           </View>

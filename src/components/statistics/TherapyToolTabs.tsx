@@ -9,9 +9,60 @@ import { StreakCard } from "./StreakCard";
 import { ToolDistributionChart } from "./ToolDistributionChart";
 import { ProgressLineChart } from "./ProgressLineChart";
 
-interface BreathingTabProps { stats: any; }
+interface BreathingTabProps { stats: any; allSessions?: any[]; }
 
-export const BreathingTab: React.FC<BreathingTabProps> = ({ stats }) => {
+const computeSessionFrequencyTrend = (sessions: any[] = [], toolTypes: string[]) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const weekTrend = [];
+  for (let w = 5; w >= 0; w--) {
+    const weekStart = new Date(today);
+    weekStart.setDate(weekStart.getDate() - (w * 7) - today.getDay());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    
+    let count = 0;
+    for (const s of sessions) {
+      if (!toolTypes.includes(s.toolType)) continue;
+      const sDate = new Date(s.startedAt);
+      if (sDate >= weekStart && sDate <= weekEnd) {
+        count++;
+      }
+    }
+    weekTrend.push({ value: count, label: `W${6 - w}` });
+  }
+  return weekTrend;
+};
+
+const computeDrillScoreTrend = (sessions: any[] = []) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const weekTrend = [];
+  for (let w = 5; w >= 0; w--) {
+    const weekStart = new Date(today);
+    weekStart.setDate(weekStart.getDate() - (w * 7) - today.getDay());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    
+    let scoreSum = 0;
+    let scoreCount = 0;
+    for (const s of sessions) {
+      if (s.toolType !== 'GENTLE_ONSET') continue;
+      const sDate = new Date(s.startedAt);
+      if (sDate >= weekStart && sDate <= weekEnd && s.averageScore !== undefined) {
+        scoreSum += s.averageScore;
+        scoreCount++;
+      }
+    }
+    const avg = scoreCount > 0 ? scoreSum / scoreCount : 0;
+    weekTrend.push({ value: parseFloat(avg.toFixed(1)), label: `W${6 - w}` });
+  }
+  return weekTrend;
+};
+
+export const BreathingTab: React.FC<BreathingTabProps> = ({ stats, allSessions = [] }) => {
   const b = stats?.breathing || {};
   const situations = b.situationBreakdown || {};
 
@@ -21,10 +72,7 @@ export const BreathingTab: React.FC<BreathingTabProps> = ({ stats }) => {
     { label: "Pre-Speech", value: b.preSpeechSessions || 0, color: colors.categorySelfAdvocacy },
   ].filter((s) => s.value > 0);
 
-  const breathingTrend = [
-    { value: 2, label: "W1" }, { value: 3, label: "W2" }, { value: 2, label: "W3" },
-    { value: 4, label: "W4" }, { value: 5, label: "W5" }, { value: 4, label: "W6" },
-  ];
+  const breathingTrend = computeSessionFrequencyTrend(allSessions, ['BOX_BREATHING', 'DIAPHRAGMATIC', 'PRE_SPEECH']);
 
   return (
     <View>
@@ -71,15 +119,12 @@ export const BreathingTab: React.FC<BreathingTabProps> = ({ stats }) => {
   );
 };
 
-interface DrillsTabProps { stats: any; }
+interface DrillsTabProps { stats: any; allSessions?: any[]; }
 
-export const DrillsTab: React.FC<DrillsTabProps> = ({ stats }) => {
+export const DrillsTab: React.FC<DrillsTabProps> = ({ stats, allSessions = [] }) => {
   const d = stats?.drills || {};
 
-  const scoreTrend = [
-    { value: 70, label: "W1" }, { value: 75, label: "W2" }, { value: 80, label: "W3" },
-    { value: 78, label: "W4" }, { value: 85, label: "W5" }, { value: 88, label: "W6" },
-  ];
+  const scoreTrend = computeDrillScoreTrend(allSessions);
 
   return (
     <View>

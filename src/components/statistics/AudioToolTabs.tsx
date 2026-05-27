@@ -7,31 +7,66 @@ import { ToolDetailCard } from "./ToolDetailCard";
 import { StreakCard } from "./StreakCard";
 import { ProgressLineChart } from "./ProgressLineChart";
 
-interface DAFTabProps { stats: any; }
-interface FAFTabProps { stats: any; }
+interface DAFTabProps { stats: any; allSessions?: any[]; }
+interface FAFTabProps { stats: any; allSessions?: any[]; }
 
-const WEEKLY_DAF = [
-  { label: 'M', value: 2 }, { label: 'T', value: 3 }, { label: 'W', value: 1 },
-  { label: 'T', value: 0 }, { label: 'F', value: 4 }, { label: 'S', value: 2 }, { label: 'S', value: 1 },
-];
+const computeWeeklyActivity = (sessions: any[] = [], toolType: string) => {
+  const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const chartData = [];
+  
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dayLabel = days[d.getDay()];
+    
+    let count = 0;
+    for (const s of sessions) {
+      if (s.toolType !== toolType) continue;
+      const sDate = new Date(s.startedAt);
+      if (sDate.getFullYear() === d.getFullYear() && sDate.getMonth() === d.getMonth() && sDate.getDate() === d.getDate()) {
+        count++;
+      }
+    }
+    
+    chartData.push({ label: dayLabel, value: count });
+  }
+  return chartData;
+};
 
-const WEEKLY_FAF = [
-  { label: 'M', value: 1 }, { label: 'T', value: 0 }, { label: 'W', value: 2 },
-  { label: 'T', value: 3 }, { label: 'F', value: 1 }, { label: 'S', value: 0 }, { label: 'S', value: 1 },
-];
+const computeRatingTrend = (sessions: any[] = [], toolType: string) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const weekTrend = [];
+  for (let w = 5; w >= 0; w--) {
+    const weekStart = new Date(today);
+    weekStart.setDate(weekStart.getDate() - (w * 7) - today.getDay());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    
+    let ratingSum = 0;
+    let ratingCount = 0;
+    for (const s of sessions) {
+      if (s.toolType !== toolType) continue;
+      const sDate = new Date(s.startedAt);
+      if (sDate >= weekStart && sDate <= weekEnd && s.selfRating) {
+        ratingSum += s.selfRating;
+        ratingCount++;
+      }
+    }
+    const avg = ratingCount > 0 ? ratingSum / ratingCount : 0;
+    weekTrend.push({ value: parseFloat(avg.toFixed(1)), label: `W${6 - w}` });
+  }
+  return weekTrend;
+};
 
-const DAF_RATING_TREND = [
-  { value: 3.5, label: "W1" }, { value: 3.8, label: "W2" }, { value: 4.0, label: "W3" },
-  { value: 3.9, label: "W4" }, { value: 4.2, label: "W5" }, { value: 4.4, label: "W6" },
-];
-
-const FAF_RATING_TREND = [
-  { value: 3.0, label: "W1" }, { value: 3.5, label: "W2" }, { value: 4.0, label: "W3" },
-  { value: 4.2, label: "W4" }, { value: 4.5, label: "W5" }, { value: 4.3, label: "W6" },
-];
-
-export const DAFTab: React.FC<DAFTabProps> = ({ stats }) => {
+export const DAFTab: React.FC<DAFTabProps> = ({ stats, allSessions = [] }) => {
   const s = stats?.daf || {};
+  const weeklyData = computeWeeklyActivity(allSessions, 'DAF');
+  const ratingTrend = computeRatingTrend(allSessions, 'DAF');
   return (
     <View>
       <StatsMetricRow items={[
@@ -49,11 +84,11 @@ export const DAFTab: React.FC<DAFTabProps> = ({ stats }) => {
           { label: "Best streak", value: `${s.bestStreak || 0} days` },
         ]}
       />
-      <StatsWeeklyActivityCard data={WEEKLY_DAF} totalMinutes={s.totalMinutes || 0} accentColor={colors.secondary} />
+      <StatsWeeklyActivityCard data={weeklyData} totalMinutes={s.totalMinutes || 0} accentColor={colors.secondary} />
       <ProgressLineChart
         title="Rating trend"
         subtitle="Average session rating over time"
-        data={DAF_RATING_TREND}
+        data={ratingTrend}
         accentColor={colors.secondary}
       />
       <StreakCard
@@ -65,8 +100,10 @@ export const DAFTab: React.FC<DAFTabProps> = ({ stats }) => {
   );
 };
 
-export const FAFTab: React.FC<FAFTabProps> = ({ stats }) => {
+export const FAFTab: React.FC<FAFTabProps> = ({ stats, allSessions = [] }) => {
   const s = stats?.faf || {};
+  const weeklyData = computeWeeklyActivity(allSessions, 'FAF');
+  const ratingTrend = computeRatingTrend(allSessions, 'FAF');
   const direction = s.preferredDirection === 'down' ? '↓' : '↑';
   return (
     <View>
@@ -85,11 +122,11 @@ export const FAFTab: React.FC<FAFTabProps> = ({ stats }) => {
           { label: "Best streak", value: `${s.bestStreak || 0} days` },
         ]}
       />
-      <StatsWeeklyActivityCard data={WEEKLY_FAF} totalMinutes={s.totalMinutes || 0} accentColor={colors.categorySelfAwareness} />
+      <StatsWeeklyActivityCard data={weeklyData} totalMinutes={s.totalMinutes || 0} accentColor={colors.categorySelfAwareness} />
       <ProgressLineChart
         title="Rating trend"
         subtitle="Average session rating over time"
-        data={FAF_RATING_TREND}
+        data={ratingTrend}
         accentColor={colors.categorySelfAwareness}
       />
       <StreakCard

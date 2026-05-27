@@ -1,6 +1,6 @@
 import React from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, spacingX, spacingY } from "../../../../theme/Theme";
 import { useStatsData } from "../../../../hooks/useStatsData";
 import { StatsHeader } from "../../../../components/statistics/StatsHeader";
@@ -12,9 +12,10 @@ import { BiofeedbackTab, SimulationTab } from "../../../../components/statistics
 
 export default function StatisticsScreen() {
   const { activeTab, setActiveTab, stats, recentSessions, allSessions, loading, weeklyChartData, weeklyTotal, weeklyTrend } = useStatsData();
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatsHeader title="Your Progress" subtitle="Track your therapy journey" timeframeLabel="All time" />
       <StatsTabBar active={activeTab} onChange={setActiveTab} />
 
@@ -35,7 +36,7 @@ export default function StatisticsScreen() {
           {activeTab === 'Simulation' && <SimulationTab stats={stats} allSessions={allSessions} />}
         </ScrollView>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 

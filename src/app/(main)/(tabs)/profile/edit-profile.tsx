@@ -2,19 +2,19 @@ import { Image } from "expo-image";
 import { useMutation } from "@tanstack/react-query";
 import { Pencil } from "lucide-react-native";
 import React, { useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Input, ScreenHeader } from "../../../../components";
 import { useAuthStore } from "../../../../store/authStore";
 import { userService } from "../../../../services/userService";
 import { parseApiError } from "../../../../hooks/useApiError";
 import {
-    colors,
-    dynamicSpacingY,
-    FONTS,
-    fontSizes,
-    spacingX,
-    spacingY
+  colors,
+  dynamicSpacingY,
+  FONTS,
+  fontSizes,
+  spacingX,
+  spacingY,
 } from "../../../../theme/Theme";
 import { showError, showSuccess } from "../../../../utils/toast";
 
@@ -56,7 +56,10 @@ export default function EditProfileScreen() {
       }
     } catch (error: any) {
       if (error.message === "Permission to access photos was denied") {
-        showError("Permission Denied", "Please allow access to your photos in Settings.");
+        showError(
+          "Permission Denied",
+          "Please allow access to your photos in Settings.",
+        );
       } else {
         showError("Upload Failed", error.message || "Failed to upload avatar.");
       }
@@ -84,7 +87,7 @@ export default function EditProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
+      
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}

@@ -1,13 +1,10 @@
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
-import {
-  Dimensions,
+import { Dimensions,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  StatusBar,
   StyleSheet,
-  View,
-} from "react-native";
+  View, } from "react-native";
 import Animated, {
   useAnimatedScrollHandler,
   useSharedValue,
@@ -58,7 +55,7 @@ export default function OnboardingScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
+      
 
       <Animated.ScrollView
         ref={scrollViewRef}

@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../components";
 import authService from "../../services/authService";
@@ -32,25 +32,37 @@ export default function VerifyEmailScreen() {
     setChecking(true);
     try {
       // Force token refresh to get updated claims from backend
-      const refreshToken = await storage.getItem(StorageKeys.USER_REFRESH_TOKEN);
+      const refreshToken = await storage.getItem(
+        StorageKeys.USER_REFRESH_TOKEN,
+      );
       if (refreshToken) {
         const tokens = await authService.refreshTokens(refreshToken);
         await storage.setItem(StorageKeys.USER_TOKEN, tokens.access_token);
-        await storage.setItem(StorageKeys.USER_REFRESH_TOKEN, tokens.refresh_token);
+        await storage.setItem(
+          StorageKeys.USER_REFRESH_TOKEN,
+          tokens.refresh_token,
+        );
       }
 
       const freshUser = await userService.getProfile();
       await updateUser(freshUser);
 
-      if (freshUser.status === "active" || freshUser.email_verified_at || (freshUser as any).emailVerifiedAt) {
+      if (
+        freshUser.status === "active" ||
+        freshUser.email_verified_at ||
+        (freshUser as any).emailVerifiedAt
+      ) {
         showSuccess("Verified!", "Your email has been verified.");
         router.replace("/");
       } else {
-        const debugInfo = `keys: ${Object.keys(freshUser).join(',')}, status: ${freshUser.status}, val: ${freshUser.email_verified_at}`;
+        const debugInfo = `keys: ${Object.keys(freshUser).join(",")}, status: ${freshUser.status}, val: ${freshUser.email_verified_at}`;
         showError("Not Verified", debugInfo);
       }
     } catch (err: any) {
-      showError("Error", err?.message || "Could not check verification status. Try again.");
+      showError(
+        "Error",
+        err?.message || "Could not check verification status. Try again.",
+      );
     } finally {
       setChecking(false);
     }
@@ -60,18 +72,24 @@ export default function VerifyEmailScreen() {
     setResending(true);
     try {
       await authService.resendVerificationEmail();
-      showSuccess("Email Sent", "A new verification link has been sent to your inbox.");
+      showSuccess(
+        "Email Sent",
+        "A new verification link has been sent to your inbox.",
+      );
     } catch (err: any) {
       if (err.response?.status === 409) {
         showSuccess("Already Verified", "Your email is already verified.");
         handleCheckVerification();
       } else if (err.response?.status === 429) {
         showError(
-          "Rate Limit", 
-          "You can only request a new verification link once every 24 hours. Please check your inbox or spam folder."
+          "Rate Limit",
+          "You can only request a new verification link once every 24 hours. Please check your inbox or spam folder.",
         );
       } else {
-        showError("Error", parseApiError(err, "Failed to resend email. Please try again later."));
+        showError(
+          "Error",
+          parseApiError(err, "Failed to resend email. Please try again later."),
+        );
       }
     } finally {
       setResending(false);
@@ -84,12 +102,15 @@ export default function VerifyEmailScreen() {
   };
 
   const maskedEmail = user?.email
-    ? user.email.replace(/^(.{2})(.*)(@.*)$/, (_, a, b, c) => a + b.replace(/./g, "•") + c)
+    ? user.email.replace(
+        /^(.{2})(.*)(@.*)$/,
+        (_, a, b, c) => a + b.replace(/./g, "•") + c,
+      )
     : "";
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
+      
 
       {/* top-right logout */}
       <View style={styles.topBar}>

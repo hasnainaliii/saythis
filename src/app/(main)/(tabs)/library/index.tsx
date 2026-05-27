@@ -1,11 +1,11 @@
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
-import { StatusBar, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
     useAnimatedScrollHandler,
     useSharedValue,
 } from "react-native-reanimated";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LibraryHeader from "../../../../components/library/LibraryHeader";
 import QuickStartFab from "../../../../components/library/QuickStartFab";
 import ToolCard from "../../../../components/library/ToolCard";
@@ -61,8 +61,7 @@ export default function LibraryScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.libraryBg} />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <Animated.FlatList
         data={toolsToShow}
         keyExtractor={(item) => item.id}
@@ -106,7 +105,7 @@ export default function LibraryScreen() {
       {lastUsedTool ? (
         <QuickStartFab onPress={() => handlePressTool(lastUsedTool)} />
       ) : null}
-    </SafeAreaView>
+    </View>
   );
 }
 

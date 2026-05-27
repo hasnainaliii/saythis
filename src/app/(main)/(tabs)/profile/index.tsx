@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { FileText, Settings, User } from "lucide-react-native";
 import React from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, ProfileMenuItem } from "../../../../components";
 import { useAuthStore } from "../../../../store/authStore";
 import { userService } from "../../../../services/userService";
@@ -24,6 +24,7 @@ const headerTopPadding = dynamicSpacingY(7);
 const DEFAULT_AVATAR = require("../../../../../assets/images/icon.png");
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
@@ -76,12 +77,12 @@ export default function ProfileScreen() {
     : DEFAULT_AVATAR;
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <View style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.headerContainer}>
+        <View style={[styles.headerContainer, { paddingTop: insets.top + headerTopPadding }]}>
           <View style={styles.headerContent}>
             <View style={styles.avatarContainer}>
               <Image
@@ -130,7 +131,7 @@ export default function ProfileScreen() {
           />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -140,13 +141,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   scrollContent: {
+    backgroundColor: colors.primary,
     paddingBottom: spacingY.xxl,
   },
   headerContainer: {
     backgroundColor: colors.secondary_20,
     borderBottomLeftRadius: headerRadius,
     borderBottomRightRadius: headerRadius,
-    paddingTop: headerTopPadding,
     paddingBottom: spacingY.xl,
     alignItems: "center",
     marginBottom: spacingY.md,

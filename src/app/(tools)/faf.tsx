@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, ScrollView, Image, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert, ScrollView, Image,  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -526,7 +526,7 @@ export default function FAFScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      
       <View style={{ height: 0, width: 0, overflow: 'hidden' }}>
         <WebView
           ref={webViewRef}

@@ -11,11 +11,12 @@ interface Props {
   level: string;
   fluencyPercent: number;
   mood: string;
+  topInset?: number;
 }
 
-export function HomeHero({ userName, dateString, level, fluencyPercent, mood }: Props) {
+export function HomeHero({ userName, dateString, level, fluencyPercent, mood, topInset = 0 }: Props) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: topInset + spacingY.sm }]}>
       {/* top row */}
       <View style={styles.topRow}>
         <View style={styles.dateRow}>

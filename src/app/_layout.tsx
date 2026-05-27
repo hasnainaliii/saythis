@@ -10,11 +10,14 @@ import {
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import * as SystemUI from "expo-system-ui";
 import Toast from "react-native-toast-message";
 import { useAuthStore } from "../store/authStore";
 import { colors } from "../theme/Theme";
 
 SplashScreen.preventAutoHideAsync();
+SystemUI.setBackgroundColorAsync(colors.primary);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,7 +55,9 @@ export default function RootLayout() {
 
   const user = useAuthStore((state) => state.user);
 
-  const hasCompletedOnboarding = useAuthStore((state) => state.hasCompletedOnboarding);
+  const hasCompletedOnboarding = useAuthStore(
+    (state) => state.hasCompletedOnboarding,
+  );
 
   useEffect(() => {
     if (!isHydrated || !rootNavigationState?.key) return;
@@ -61,13 +66,22 @@ export default function RootLayout() {
     const isVerified = !!user?.email_verified_at || user?.status === "active";
 
     if (!isAuthenticated && !inAuthGroup) {
-      router.replace(hasCompletedOnboarding ? "/(auth)/login" : "/(auth)/onboarding");
+      router.replace(
+        hasCompletedOnboarding ? "/(auth)/login" : "/(auth)/onboarding",
+      );
     } else if (isAuthenticated && !isVerified && !inAuthGroup) {
       router.replace("/(auth)/verify-email");
     } else if (isAuthenticated && isVerified && inAuthGroup) {
       router.replace("/(main)");
     }
-  }, [isAuthenticated, isHydrated, segments, rootNavigationState, user, hasCompletedOnboarding]);
+  }, [
+    isAuthenticated,
+    isHydrated,
+    segments,
+    rootNavigationState,
+    user,
+    hasCompletedOnboarding,
+  ]);
 
   if (!fontsLoaded && !fontsError) {
     return null;
@@ -75,8 +89,8 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.primary }}>
+        <SafeAreaProvider style={{ backgroundColor: colors.primary }}>
           <Stack
             screenOptions={{
               headerShown: false,
@@ -86,6 +100,7 @@ export default function RootLayout() {
             }}
           />
           <Toast />
+          <StatusBar style="dark" />
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>

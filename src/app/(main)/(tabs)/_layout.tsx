@@ -1,5 +1,11 @@
 import { Tabs } from "expo-router";
-import { BarChart2, BookOpen, Home, Stethoscope, User } from "lucide-react-native";
+import {
+  BarChart2,
+  BookOpen,
+  Home,
+  Stethoscope,
+  User,
+} from "lucide-react-native";
 import { colors, FONTS } from "../../../theme/Theme";
 
 export default function TabLayout() {
@@ -7,6 +13,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        sceneStyle: { backgroundColor: colors.primary },
         tabBarStyle: {
           backgroundColor: colors.white,
           borderTopWidth: 0,
@@ -63,13 +70,13 @@ export default function TabLayout() {
           ),
         }}
       />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: "Profile",
-            tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
-          }}
-        />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+        }}
+      />
     </Tabs>
   );
 }

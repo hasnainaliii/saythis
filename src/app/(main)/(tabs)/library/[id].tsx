@@ -1,11 +1,14 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo } from "react";
-import { StatusBar, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
-    useAnimatedScrollHandler,
-    useSharedValue,
+  useAnimatedScrollHandler,
+  useSharedValue,
 } from "react-native-reanimated";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { BackButton } from "../../../../components/BackButton";
 import Button from "../../../../components/Button";
 import DifficultyBadge from "../../../../components/library/DifficultyBadge";
@@ -15,13 +18,13 @@ import ToolHero from "../../../../components/library/ToolHero";
 import ToolTag from "../../../../components/library/ToolTag";
 import { getToolById, LIBRARY_TOOLS } from "../../../../data/libraryTools";
 import {
-    colors,
-    dynamicSpacingY,
-    FONTS,
-    fontSizes,
-    radii,
-    spacingX,
-    spacingY,
+  colors,
+  dynamicSpacingY,
+  FONTS,
+  fontSizes,
+  radii,
+  spacingX,
+  spacingY,
 } from "../../../../theme/Theme";
 import { LibraryTool } from "../../../../types/library";
 
@@ -37,17 +40,17 @@ export default function LibraryDetailScreen() {
 
   const getToolColor = (t: LibraryTool) => {
     const colorMap: Record<string, string> = {
-      'daf': colors.secondary,
-      'faf': colors.secondary,
-      'box-breathing': colors.secondary,
-      'diaphragmatic-breathing': colors.secondary,
-      'pre-speech-routine': colors.secondary,
-      'gentle-onset': colors.secondary,
-      'prolonged-speech': colors.secondary,
-      'stutter-tap-counter': colors.secondary,
-      'timed-reading-wpm': colors.secondary,
-      'virtual-coffee-order': colors.secondary,
-      'phone-call-simulator': colors.secondary,
+      daf: colors.secondary,
+      faf: colors.secondary,
+      "box-breathing": colors.secondary,
+      "diaphragmatic-breathing": colors.secondary,
+      "pre-speech-routine": colors.secondary,
+      "gentle-onset": colors.secondary,
+      "prolonged-speech": colors.secondary,
+      "stutter-tap-counter": colors.secondary,
+      "timed-reading-wpm": colors.secondary,
+      "virtual-coffee-order": colors.secondary,
+      "phone-call-simulator": colors.secondary,
     };
     return colorMap[t.id] || colors.libraryAccent;
   };
@@ -56,7 +59,9 @@ export default function LibraryDetailScreen() {
     if (!tool) {
       return [] as LibraryTool[];
     }
-    return LIBRARY_TOOLS.filter((item) => tool.relatedToolIds.includes(item.id));
+    return LIBRARY_TOOLS.filter((item) =>
+      tool.relatedToolIds.includes(item.id),
+    );
   }, [tool]);
 
   const scrollHandler = useAnimatedScrollHandler({
@@ -68,7 +73,7 @@ export default function LibraryDetailScreen() {
   if (!tool) {
     return (
       <SafeAreaView style={styles.container} edges={["top"]}>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.libraryBg} />
+        
         <View style={styles.emptyState}>
           <Text style={styles.emptyTitle}>Tool not found</Text>
           <Text style={styles.emptySubtitle}>
@@ -82,7 +87,7 @@ export default function LibraryDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.libraryBg} />
+      
       <Animated.ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -102,11 +107,16 @@ export default function LibraryDetailScreen() {
           <View style={styles.metaRow}>
             <DifficultyBadge difficulty={tool.difficulty} />
             <View style={styles.durationPill}>
-              <Text style={styles.durationText}>{tool.durationMinutes} min</Text>
+              <Text style={styles.durationText}>
+                {tool.durationMinutes} min
+              </Text>
             </View>
           </View>
 
-          <SectionHeader title="How to use" containerStyle={styles.sectionGap} />
+          <SectionHeader
+            title="How to use"
+            containerStyle={styles.sectionGap}
+          />
           <View style={styles.stepsList}>
             {tool.steps.map((step, index) => (
               <View key={`${tool.id}-step-${index}`} style={styles.stepItem}>
@@ -170,7 +180,10 @@ export default function LibraryDetailScreen() {
           size="large"
           fullWidth
           disabled={tool.isLocked}
-          style={[styles.primaryButton, { backgroundColor: getToolColor(tool) }]}
+          style={[
+            styles.primaryButton,
+            { backgroundColor: getToolColor(tool) },
+          ]}
           textStyle={styles.primaryButtonText}
         />
       </View>

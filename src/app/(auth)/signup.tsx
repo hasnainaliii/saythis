@@ -1,28 +1,33 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import {
-  KeyboardAvoidingView,
+import { KeyboardAvoidingView,
   Pressable,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+  View, } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AuthHeader from "../../components/auth/AuthHeader";
 import SocialLoginButtons from "../../components/auth/SocialLoginButtons";
 import { Button, Input } from "../../components";
 import { parseApiError } from "../../hooks/useApiError";
 import authService from "../../services/authService";
 import { useAuthStore } from "../../store/authStore";
-import { colors, dynamicSpacingY, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
+import {
+  colors,
+  dynamicSpacingY,
+  FONTS,
+  fontSizes,
+  spacingX,
+  spacingY,
+} from "../../theme/Theme";
 import { showError, showSuccess } from "../../utils/toast";
 
 export default function SignupScreen() {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
+  const insets = useSafeAreaInsets();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,7 +41,10 @@ export default function SignupScreen() {
       router.replace("/(auth)/verify-email");
     },
     onError: (err: any) => {
-      const message = parseApiError(err, "Registration failed. Please try again.");
+      const message = parseApiError(
+        err,
+        "Registration failed. Please try again.",
+      );
       showError("Registration Failed", message);
     },
   });
@@ -70,15 +78,15 @@ export default function SignupScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
+    <View style={styles.container}>
+      
       <KeyboardAvoidingView behavior="height" style={styles.keyboardView}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="always"
         >
-          <AuthHeader logoSize={80} />
+          <AuthHeader logoSize={80} topInset={insets.top} />
 
           <View style={styles.content}>
             <View style={styles.titleContainer}>
@@ -146,7 +154,7 @@ export default function SignupScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 

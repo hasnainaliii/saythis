@@ -1,26 +1,31 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import {
-  KeyboardAvoidingView,
+import { KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+  View, } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AuthHeader from "../../components/auth/AuthHeader";
 import { Button, Input } from "../../components";
 import { parseApiError } from "../../hooks/useApiError";
 import authService from "../../services/authService";
-import { colors, dynamicSpacingY, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
+import {
+  colors,
+  dynamicSpacingY,
+  FONTS,
+  fontSizes,
+  spacingX,
+  spacingY,
+} from "../../theme/Theme";
 import { showError, showSuccess } from "../../utils/toast";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
 
   const forgotPasswordMutation = useMutation({
@@ -32,7 +37,10 @@ export default function ForgotPasswordScreen() {
       );
     },
     onError: (err: any) => {
-      const message = parseApiError(err, "Something went wrong. Please try again.");
+      const message = parseApiError(
+        err,
+        "Something went wrong. Please try again.",
+      );
       showError("Error", message);
     },
   });
@@ -46,8 +54,8 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.primary} />
+    <View style={styles.container}>
+      
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.keyboardView}
@@ -57,7 +65,7 @@ export default function ForgotPasswordScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="always"
         >
-          <AuthHeader />
+          <AuthHeader topInset={insets.top} />
 
           <View style={styles.content}>
             <View style={styles.titleContainer}>
@@ -88,7 +96,9 @@ export default function ForgotPasswordScreen() {
                   fullWidth
                 />
                 <View style={styles.signInRow}>
-                  <Text style={styles.footerText}>Remember your password? </Text>
+                  <Text style={styles.footerText}>
+                    Remember your password?{" "}
+                  </Text>
                   <Pressable onPress={() => router.back()}>
                     <Text style={styles.linkText}>Log In</Text>
                   </Pressable>
@@ -98,7 +108,7 @@ export default function ForgotPasswordScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 

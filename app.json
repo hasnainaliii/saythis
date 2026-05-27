@@ -6,7 +6,8 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "saythis",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FAF3EB",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
@@ -22,12 +23,22 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "package": "com.hasnainali.saythis",
-      "edgeToEdgeEnabled": true,
+      "edgeToEdgeEnabled": false,
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "RECORD_AUDIO",
         "MODIFY_AUDIO_SETTINGS"
       ]
+    },
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#FAF3EB",
+      "translucent": false
+    },
+    "androidNavigationBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#FAF3EB",
+      "enforceContrast": false
     },
     "web": {
       "output": "static",
@@ -41,9 +52,9 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#FAF3EB",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#FAF3EB"
           }
         }
       ],

@@ -6,7 +6,7 @@ export default function TherapyLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: colors.primary },
+        contentStyle: { backgroundColor: "transparent" },
       }}
     />
   );

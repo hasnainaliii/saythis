@@ -6,7 +6,7 @@ export default function LibraryLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: colors.libraryBg },
+        contentStyle: { backgroundColor: "transparent" },
       }}
     />
   );

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, Alert, StatusBar } from 'react-native';
+import { View, Alert,  } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -16,31 +16,52 @@ const ACCENT = colors.secondary;
 
 const INTRO_CARDS = [
   {
-    icon: 'square-outline', iconColor: ACCENT,
-    title: 'Breathe in a square',
-    body: 'Four equal sides: inhale, hold, exhale, hold — each for the same number of seconds. The rhythm signals safety to your nervous system, slowing your heart rate and reducing pre-speech anxiety.',
-    highlight: 'Used by Navy SEALs and Olympic athletes to perform under pressure',
+    icon: "square-outline",
+    iconColor: ACCENT,
+    title: "Breathe in a square",
+    body: "Four equal sides: inhale, hold, exhale, hold — each for the same number of seconds. The rhythm signals safety to your nervous system, slowing your heart rate and reducing pre-speech anxiety.",
+    highlight:
+      "Used by Navy SEALs and Olympic athletes to perform under pressure",
   },
   {
-    step: 2, icon: 'timer-outline', iconColor: ACCENT,
-    title: 'How to breathe',
-    body: 'Breathe in through your nose, expanding your belly first then your chest. Hold without tension — don\'t grip. Exhale slowly through slightly parted lips. Hold at the bottom with your lungs empty. Let the on-screen box guide your timing.',
-    highlight: 'Do not force the breath — gentle and steady wins every time',
+    step: 2,
+    icon: "timer-outline",
+    iconColor: ACCENT,
+    title: "How to breathe",
+    body: "Breathe in through your nose, expanding your belly first then your chest. Hold without tension — don't grip. Exhale slowly through slightly parted lips. Hold at the bottom with your lungs empty. Let the on-screen box guide your timing.",
+    highlight: "Do not force the breath — gentle and steady wins every time",
   },
   {
-    step: 3, icon: 'trending-up-outline', iconColor: ACCENT,
-    title: 'Building the habit',
-    body: 'Start with 4 seconds per side. If that feels easy after a few sessions, increase to 5 or 6. Practice 3–5 minutes daily — even without a stutter trigger — to build a reliable calm-down response you can call on anywhere.',
+    step: 3,
+    icon: "trending-up-outline",
+    iconColor: ACCENT,
+    title: "Building the habit",
+    body: "Start with 4 seconds per side. If that feels easy after a few sessions, increase to 5 or 6. Practice 3–5 minutes daily — even without a stutter trigger — to build a reliable calm-down response you can call on anywhere.",
   },
 ];
 
-type BoxPhase = 'inhale' | 'hold_top' | 'exhale' | 'hold_bottom';
+type BoxPhase = "inhale" | "hold_top" | "exhale" | "hold_bottom";
 
 const buildPhases = (sec: number): BreathingPhase[] => [
-  { id: 'inhale', label: 'INHALE', durationMs: sec * 1000, color: ACCENT },
-  { id: 'hold_top', label: 'HOLD', durationMs: sec * 1000, color: colors.warning },
-  { id: 'exhale', label: 'EXHALE', durationMs: sec * 1000, color: colors.secondary },
-  { id: 'hold_bottom', label: 'HOLD', durationMs: sec * 1000, color: colors.warning },
+  { id: "inhale", label: "INHALE", durationMs: sec * 1000, color: ACCENT },
+  {
+    id: "hold_top",
+    label: "HOLD",
+    durationMs: sec * 1000,
+    color: colors.warning,
+  },
+  {
+    id: "exhale",
+    label: "EXHALE",
+    durationMs: sec * 1000,
+    color: colors.secondary,
+  },
+  {
+    id: "hold_bottom",
+    label: "HOLD",
+    durationMs: sec * 1000,
+    color: colors.warning,
+  },
 ];
 
 export default function BoxBreathingScreen() {
@@ -52,7 +73,7 @@ export default function BoxBreathingScreen() {
   const [audioCues, setAudioCues] = useState(true);
 
   const phases = useMemo(() => buildPhases(secondsPerSide), [secondsPerSide]);
-  const session = useSessionStatsTracker('BOX_BREATHING');
+  const session = useSessionStatsTracker("BOX_BREATHING");
 
   const handlePhaseChange = useCallback(() => {
     if (audioCues) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -81,10 +102,12 @@ export default function BoxBreathingScreen() {
   };
 
   const handleStop = () => {
-    Alert.alert('End session?', 'Progress will be saved.', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert("End session?", "Progress will be saved.", [
+      { text: "Cancel", style: "cancel" },
       {
-        text: 'End Session', style: 'destructive', onPress: () => {
+        text: "End Session",
+        style: "destructive",
+        onPress: () => {
           timer.stop();
           session.endSession();
           setStage(3);
@@ -96,7 +119,7 @@ export default function BoxBreathingScreen() {
   const handleSave = async (rating: number | null) => {
     try {
       await saveSessionToBackend({
-        toolType: 'BOX_BREATHING' as any,
+        toolType: "BOX_BREATHING" as any,
         startedAt: session.startedAt || new Date().toISOString(),
         endedAt: session.endedAt || new Date().toISOString(),
         durationSeconds: session.durationSeconds,
@@ -108,15 +131,15 @@ export default function BoxBreathingScreen() {
         audioCuesEnabled: audioCues,
       } as any);
     } catch (_) {}
-    router.replace('/(main)/(tabs)/library');
+    router.replace("/(main)/(tabs)/library");
   };
 
-  const currentPhase = (timer.currentPhase?.id || 'inhale') as BoxPhase;
+  const currentPhase = (timer.currentPhase?.id || "inhale") as BoxPhase;
 
   if (stage === 0) {
     return (
       <>
-        <StatusBar barStyle="dark-content" />
+        
         <ToolIntroScreen
           toolName="Box Breathing"
           tagline="Calm your mind before you speak"
@@ -132,8 +155,14 @@ export default function BoxBreathingScreen() {
   if (stage === 1) {
     return (
       <>
-        <StatusBar barStyle="dark-content" />
-        <View style={{ flex: 1, backgroundColor: colors.primary, paddingTop: insets.top }}>
+        
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: colors.primary,
+            paddingTop: insets.top,
+          }}
+        >
           <BoxBreathingSettings onBegin={handleBegin} />
         </View>
       </>
@@ -143,8 +172,14 @@ export default function BoxBreathingScreen() {
   if (stage === 2) {
     return (
       <>
-        <StatusBar barStyle="dark-content" />
-        <View style={{ flex: 1, backgroundColor: colors.primary, paddingTop: insets.top }}>
+        
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: colors.primary,
+            paddingTop: insets.top,
+          }}
+        >
           <BoxBreathingSession
             currentPhase={currentPhase}
             progress={timer.progress}
@@ -164,21 +199,26 @@ export default function BoxBreathingScreen() {
 
   return (
     <>
-      <StatusBar barStyle="dark-content" />
+      
       <ToolResultScreen
         toolName="Box Breathing"
         subtitle="Your nervous system thanks you."
         accentColor={ACCENT}
         stats={[
-          { label: 'Duration', value: session.elapsedDisplay },
-          { label: 'Cycles', value: timer.cyclesCompleted, unit: 'cycles' },
-          { label: 'Breath rate', value: secondsPerSide, unit: 'sec/phase' },
-          { label: 'Total breaths', value: timer.cyclesCompleted, unit: 'breaths' },
+          { label: "Duration", value: session.elapsedDisplay },
+          { label: "Cycles", value: timer.cyclesCompleted, unit: "cycles" },
+          { label: "Breath rate", value: secondsPerSide, unit: "sec/phase" },
+          {
+            label: "Total breaths",
+            value: timer.cyclesCompleted,
+            unit: "breaths",
+          },
         ]}
         tipCard={{
-          icon: 'megaphone-outline', iconColor: ACCENT,
-          title: 'Use it before speaking',
-          body: 'Next time you face a feared situation — a phone call, a presentation, a conversation — do 3 box breaths first. This is your on-ramp to fluent speech. Make it a non-negotiable ritual.',
+          icon: "megaphone-outline",
+          iconColor: ACCENT,
+          title: "Use it before speaking",
+          body: "Next time you face a feared situation — a phone call, a presentation, a conversation — do 3 box breaths first. This is your on-ramp to fluent speech. Make it a non-negotiable ritual.",
         }}
         onSave={handleSave}
         onRepeat={() => setStage(1)}

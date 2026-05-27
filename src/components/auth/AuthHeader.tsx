@@ -6,11 +6,12 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 interface AuthHeaderProps {
   logoSize?: number;
+  topInset?: number;
 }
 
-const AuthHeader: React.FC<AuthHeaderProps> = ({ logoSize = 100 }) => {
+const AuthHeader: React.FC<AuthHeaderProps> = ({ logoSize = 100, topInset = 0 }) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: topInset, height: dynamicSpacingY(22) + topInset }]}>
       <View style={styles.curve} />
       <View style={styles.logoContainer}>
         <Image
@@ -25,7 +26,6 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({ logoSize = 100 }) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: dynamicSpacingY(22),
     position: "relative",
     overflow: "hidden",
   },

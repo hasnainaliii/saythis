@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChapterCard from "../../../../components/ChapterCard";
 import { CHAPTER_1_DATA } from "../../../../data/chapter1Data";
 import { CHAPTER_2_DATA } from "../../../../data/chapter2Data";
@@ -74,6 +74,7 @@ const THERAPY_CHAPTERS = [
 
 export default function TherapyScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { progress } = useTherapyProgress();
 
   const chapter1Complete = isChapterComplete(progress.chapterSummary["1"]);
@@ -121,7 +122,7 @@ export default function TherapyScreen() {
   const completedChapters = progress.stats.totalChaptersCompleted;
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -192,7 +193,7 @@ export default function TherapyScreen() {
           })}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

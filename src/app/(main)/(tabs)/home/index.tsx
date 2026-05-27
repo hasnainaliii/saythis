@@ -1,6 +1,6 @@
 import React from "react";
-import { ScrollView, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HomeHero } from "../../../../components/home/HomeHero";
 import { MetricsSection } from "../../../../components/home/MetricsSection";
 import { MindfulTracker } from "../../../../components/home/MindfulTracker";
@@ -9,6 +9,7 @@ import { useMoodStore } from "../../../../store/moodStore";
 import { colors } from "../../../../theme/Theme";
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const user = useAuthStore((state) => state.user);
   const { currentMood, loadMood } = useMoodStore();
 
@@ -28,7 +29,7 @@ export default function HomeScreen() {
   const firstName = user?.full_name?.split(" ")[0] || "User";
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <View style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -39,20 +40,21 @@ export default function HomeScreen() {
           level="Pro"
           fluencyPercent={80}
           mood={currentMood}
+          topInset={insets.top}
         />
 
         <MetricsSection score={80} scoreStatus="Healthy" mood={currentMood} />
 
         <MindfulTracker />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
   },
   scroll: {
     backgroundColor: colors.primary,

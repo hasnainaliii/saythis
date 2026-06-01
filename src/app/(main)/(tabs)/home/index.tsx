@@ -2,6 +2,7 @@ import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HomeHero } from "../../../../components/home/HomeHero";
+import { HomeTipsCard } from "../../../../components/home/HomeTipsCard";
 import { MetricsSection } from "../../../../components/home/MetricsSection";
 import { MindfulTracker } from "../../../../components/home/MindfulTracker";
 import { useAuthStore } from "../../../../store/authStore";
@@ -41,9 +42,13 @@ export default function HomeScreen() {
           fluencyPercent={80}
           mood={currentMood}
           topInset={insets.top}
+          avatarUrl={user?.avatar_url}
+          email={user?.email}
         />
 
         <MetricsSection score={80} scoreStatus="Healthy" mood={currentMood} />
+
+        <HomeTipsCard />
 
         <MindfulTracker />
       </ScrollView>

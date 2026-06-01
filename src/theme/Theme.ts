@@ -37,6 +37,7 @@ export const colors = {
   successText: "#4CAF50",
   warning: "#FFB347",
   star: "#FFB800",
+  recording: "#FF3B30",
 
   // Category colors (exercise types)
   categoryEducation: "#4A90D9",

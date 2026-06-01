@@ -16,12 +16,11 @@ import {
     spacingY,
 } from "../../../../theme/Theme";
 import { showError, showSuccess } from "../../../../utils/toast";
+import { getDefaultAvatar } from "../../../../utils/avatar";
 
 const avatarSize = dynamicSpacingY(14);
 const headerRadius = dynamicSpacingY(5);
 const headerTopPadding = dynamicSpacingY(7);
-
-const DEFAULT_AVATAR = require("../../../../../assets/images/icon.png");
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -74,7 +73,7 @@ export default function ProfileScreen() {
 
   const avatarSource = user?.avatar_url
     ? { uri: user.avatar_url }
-    : DEFAULT_AVATAR;
+    : getDefaultAvatar(user?.email || user?.id);
 
   return (
     <View style={styles.container}>

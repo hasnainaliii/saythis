@@ -1,4 +1,4 @@
-import { Heart, MoreHorizontal } from "lucide-react-native";
+import { Activity, MoreHorizontal } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
@@ -22,8 +22,8 @@ export function ScoreCard({ score, maxScore = 100, statusLabel }: Props) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Heart size={14} color={colors.white} fill={colors.white} />
-        <Text style={styles.headerText}>Freud Score</Text>
+        <Activity size={14} color={colors.white} />
+        <Text style={styles.headerText}>AI Stutter Score</Text>
       </View>
       <View style={styles.gaugeWrap}>
         <Svg width={SIZE} height={SIZE}>
@@ -32,7 +32,7 @@ export function ScoreCard({ score, maxScore = 100, statusLabel }: Props) {
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={RADIUS}
-            stroke={colors.metricGreenLight + "55"}
+            stroke={colors.white + "55"}
             strokeWidth={STROKE}
             fill="none"
           />
@@ -62,7 +62,7 @@ export function ScoreCard({ score, maxScore = 100, statusLabel }: Props) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: colors.metricGreen,
+    backgroundColor: colors.categoryEducation,
     borderRadius: radii.xl,
     padding: spacingX.md,
     alignItems: "center",

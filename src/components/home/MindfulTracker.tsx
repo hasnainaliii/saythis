@@ -1,8 +1,9 @@
 import {
-  Brain, Moon, BookOpen, Activity, SmilePlus, MoreHorizontal,
+  Brain, Moon, BookOpen, Activity, SmilePlus,
 } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Link } from "expo-router";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { TrackerCard } from "./TrackerCard";
 import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
@@ -79,15 +80,18 @@ export function MindfulTracker() {
     <View style={styles.section}>
       <View style={styles.titleRow}>
         <Text style={styles.title}>Mindful Tracker</Text>
-        <MoreHorizontal size={20} color={colors.textMuted} />
       </View>
 
-      <TrackerCard
-        icon={<Brain size={22} color={colors.metricGreen} />}
-        title="Mindful Hours"
-        subtitle="2.5h/8h Today"
-        right={<SquiggleLine />}
-      />
+      <Link href="/mood-tracker" asChild>
+        <TouchableOpacity activeOpacity={0.8}>
+          <TrackerCard
+            icon={<SmilePlus size={22} color={colors.metricOrange} />}
+            title="Mood Tracker"
+            subtitle=""
+            right={<MoodFlow />}
+          />
+        </TouchableOpacity>
+      </Link>
       <TrackerCard
         icon={<Moon size={22} color={colors.categorySelfAwareness} />}
         title="Sleep Quality"
@@ -107,10 +111,10 @@ export function MindfulTracker() {
         right={<StressBars />}
       />
       <TrackerCard
-        icon={<SmilePlus size={22} color={colors.metricOrange} />}
-        title="Mood Tracker"
-        subtitle=""
-        right={<MoodFlow />}
+        icon={<Brain size={22} color={colors.metricGreen} />}
+        title="Mindful Hours"
+        subtitle="2.5h/8h Today"
+        right={<SquiggleLine />}
       />
     </View>
   );
@@ -119,7 +123,7 @@ export function MindfulTracker() {
 const styles = StyleSheet.create({
   section: {
     paddingHorizontal: spacingX.lg,
-    marginTop: spacingY.lg,
+    marginTop: 0,
   },
   titleRow: {
     flexDirection: "row",

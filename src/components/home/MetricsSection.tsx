@@ -1,5 +1,4 @@
 import { Link } from "expo-router";
-import { MoreHorizontal } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MoodCard } from "./MoodCard";
@@ -15,25 +14,15 @@ interface Props {
 export function MetricsSection({ score, scoreStatus, mood }: Props) {
   return (
     <View style={styles.section}>
-      <View style={styles.titleRow}>
-        <Text style={styles.title}>Mental Health Metrics</Text>
-        <TouchableOpacity activeOpacity={0.7}>
-          <MoreHorizontal size={20} color={colors.textMuted} />
-        </TouchableOpacity>
-      </View>
       <View style={styles.cardsRow}>
-        <ScoreCard score={score} statusLabel={scoreStatus} />
-        <Link href="/mood-tracker" asChild>
+        <Link href="/stutter-analysis" asChild>
           <TouchableOpacity activeOpacity={0.8} style={{ flex: 1 }}>
-            <MoodCard mood={mood} />
+            <ScoreCard score={score} statusLabel={scoreStatus} />
           </TouchableOpacity>
         </Link>
-      </View>
-      {/* pagination dots */}
-      <View style={styles.dots}>
-        {[0, 1, 2, 3, 4].map((i) => (
-          <View key={i} style={[styles.dot, i === 0 && styles.dotActive]} />
-        ))}
+        <View style={{ flex: 1 }}>
+          <MoodCard mood={mood} />
+        </View>
       </View>
     </View>
   );
@@ -42,38 +31,10 @@ export function MetricsSection({ score, scoreStatus, mood }: Props) {
 const styles = StyleSheet.create({
   section: {
     paddingHorizontal: spacingX.lg,
-    marginTop: spacingY.md,
-  },
-  titleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: spacingY.md,
-  },
-  title: {
-    fontFamily: FONTS.primaryBold,
-    fontSize: fontSizes.large,
-    color: colors.textDark,
+    marginTop: spacingY.xl,
   },
   cardsRow: {
     flexDirection: "row",
     gap: spacingX.md,
-  },
-  dots: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 6,
-    marginTop: spacingY.md,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.primary10,
-  },
-  dotActive: {
-    width: 18,
-    borderRadius: 3,
-    backgroundColor: colors.secondary,
   },
 });

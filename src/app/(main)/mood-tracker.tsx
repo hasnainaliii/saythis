@@ -54,12 +54,15 @@ export default function MoodTrackerScreen() {
 
   const handleSelect = (moodName: string) => {
     setSelectedMood(moodName);
-    setMood(moodName);
   };
 
   const handleMoodChange = (moodName: string) => {
     setSelectedMood(moodName);
-    setMood(moodName);
+  };
+
+  const handleConfirm = () => {
+    setMood(selectedMood);
+    router.back();
   };
 
   const pan = Gesture.Pan()
@@ -122,10 +125,10 @@ export default function MoodTrackerScreen() {
           <Text style={styles.title}>How would you{'\n'}describe your mood?</Text>
           <Text style={styles.subtitle}>I Feel {selectedMood}.</Text>
 
-          <View style={styles.emojiContainer}>
+          <Pressable style={styles.emojiContainer} onPress={handleConfirm}>
             <Image source={currentMoodObj.emoji} style={styles.mainEmoji} resizeMode="contain" />
             <View style={styles.indicator} />
-          </View>
+          </Pressable>
 
           <View style={styles.dialWrapper}>
             <GestureDetector gesture={pan}>

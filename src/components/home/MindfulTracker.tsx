@@ -7,6 +7,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { TrackerCard } from "./TrackerCard";
 import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
+import { useTrackerStore } from "../../store/trackerStore";
 
 // squiggly line decoration
 function SquiggleLine() {
@@ -51,12 +52,12 @@ function DotGrid() {
 }
 
 // stress level bars
-function StressBars() {
-  const barColors = [colors.metricGreen, colors.star, colors.secondary, colors.metricOrange];
+function StressBars({ level = 3 }: { level?: number }) {
+  const barColors = [colors.metricGreen, colors.star, colors.secondary, colors.metricOrange, colors.error];
   return (
     <View style={styles.barsRow}>
-      {barColors.map((c, i) => (
-        <View key={i} style={[styles.stressBar, { backgroundColor: c }]} />
+      {barColors.slice(0, 4).map((c, i) => (
+        <View key={i} style={[styles.stressBar, { backgroundColor: i < level ? c : colors.primary10 }]} />
       ))}
     </View>
   );
@@ -76,6 +77,15 @@ function MoodFlow() {
 }
 
 export function MindfulTracker() {
+  const { sleepHours, journalStreak, stressLevel, mindfulHours, loadAll } = useTrackerStore();
+
+  React.useEffect(() => {
+    loadAll();
+  }, []);
+
+  const sleepScore = sleepHours !== null ? Math.min(100, Math.round((sleepHours / 8) * 100)) : 0;
+  const stressDesc = stressLevel > 0 ? ["Very Low", "Low", "Normal", "High", "Very High"][stressLevel - 1] : "Not set";
+
   return (
     <View style={styles.section}>
       <View style={styles.titleRow}>
@@ -92,30 +102,50 @@ export function MindfulTracker() {
           />
         </TouchableOpacity>
       </Link>
-      <TrackerCard
-        icon={<Moon size={22} color={colors.categorySelfAwareness} />}
-        title="Sleep Quality"
-        subtitle="Insomniac (~2h Avg)"
-        right={<ScoreBadge value={20} />}
-      />
-      <TrackerCard
-        icon={<BookOpen size={22} color={colors.metricOrange} />}
-        title="Mindful Journal"
-        subtitle="64 Day Streak"
-        right={<DotGrid />}
-      />
-      <TrackerCard
-        icon={<Activity size={22} color={colors.secondary} />}
-        title="Stress Level"
-        subtitle="Level 3 (Normal)"
-        right={<StressBars />}
-      />
-      <TrackerCard
-        icon={<Brain size={22} color={colors.metricGreen} />}
-        title="Mindful Hours"
-        subtitle="2.5h/8h Today"
-        right={<SquiggleLine />}
-      />
+
+      <Link href="/sleep-tracker" asChild>
+        <TouchableOpacity activeOpacity={0.8}>
+          <TrackerCard
+            icon={<Moon size={22} color={colors.headerDark} />}
+            title="Sleep Quality"
+            subtitle={sleepHours !== null ? `${sleepHours}h Avg` : "Not logged"}
+            right={<ScoreBadge value={sleepScore} />}
+          />
+        </TouchableOpacity>
+      </Link>
+
+      <Link href="/journal" asChild>
+        <TouchableOpacity activeOpacity={0.8}>
+          <TrackerCard
+            icon={<BookOpen size={22} color={colors.metricOrange} />}
+            title="Mindful Journal"
+            subtitle={journalStreak > 0 ? `${journalStreak} Day Streak` : "No streak yet"}
+            right={<DotGrid />}
+          />
+        </TouchableOpacity>
+      </Link>
+
+      <Link href="/stress-level" asChild>
+        <TouchableOpacity activeOpacity={0.8}>
+          <TrackerCard
+            icon={<Activity size={22} color={colors.secondary} />}
+            title="Stress Level"
+            subtitle={stressLevel > 0 ? `Level ${stressLevel} (${stressDesc})` : "Not logged"}
+            right={<StressBars level={stressLevel} />}
+          />
+        </TouchableOpacity>
+      </Link>
+
+      <Link href="/mindful-hours" asChild>
+        <TouchableOpacity activeOpacity={0.8}>
+          <TrackerCard
+            icon={<Brain size={22} color={colors.metricGreen} />}
+            title="Mindful Hours"
+            subtitle={mindfulHours > 0 ? `${mindfulHours}h/8h Today` : "Not logged"}
+            right={<SquiggleLine />}
+          />
+        </TouchableOpacity>
+      </Link>
     </View>
   );
 }
@@ -143,7 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: colors.primary,
     borderWidth: 2.5,
-    borderColor: colors.categorySelfAwareness + "44",
+    borderColor: colors.headerDark + "44",
     justifyContent: "center",
     alignItems: "center",
   },

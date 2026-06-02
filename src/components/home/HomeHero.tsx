@@ -83,7 +83,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacingX.md,
-    marginBottom: spacingY.xl,
   },
   avatar: {
     width: 58,

@@ -124,6 +124,7 @@ export const colors = {
 
 export const FONTS = {
   primary: "MyFont-Regular",
+  primaryMedium: "MyFont-Medium",
   primaryBold: "MyFont-Bold",
   primaryBlack: "MyFont-Black",
   primaryThin: "MyFont-Thin",

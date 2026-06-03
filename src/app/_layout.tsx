@@ -38,6 +38,7 @@ export default function RootLayout() {
 
   const [fontsLoaded, fontsError] = useFonts({
     "MyFont-Regular": require("@/src/assets/fonts/Cause-Regular.ttf"),
+    "MyFont-Medium": require("@/src/assets/fonts/Cause-Medium.ttf"),
     "MyFont-Bold": require("@/src/assets/fonts/Cause-Bold.ttf"),
     "MyFont-Black": require("@/src/assets/fonts/Cause-Black.ttf"),
     "MyFont-Thin": require("@/src/assets/fonts/Cause-Thin.ttf"),

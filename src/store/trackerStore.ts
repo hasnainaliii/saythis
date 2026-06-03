@@ -12,6 +12,7 @@ interface TrackerState {
   setStress: (level: number) => Promise<void>;
   setMindfulHours: (hours: number) => Promise<void>;
   loadAll: () => Promise<void>;
+  getJournalByDate: (dateStr: string) => Promise<string | null>;
 }
 
 export const useTrackerStore = create<TrackerState>((set, get) => ({
@@ -100,5 +101,10 @@ export const useTrackerStore = create<TrackerState>((set, get) => ({
       mindfulHours: mindful ? Number(mindful) : 0,
       journalStreak: currentStreak,
     });
+  },
+
+  getJournalByDate: async (dateStr: string) => {
+    const entry = await storage.getItem(`journal_${dateStr}`);
+    return (entry as string) || null;
   },
 }));

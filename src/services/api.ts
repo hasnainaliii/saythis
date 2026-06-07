@@ -1,6 +1,7 @@
 import axios from "axios";
-import { API_BASE_URL } from "../config/api";
 import { storage, StorageKeys } from "../utils/storage";
+
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

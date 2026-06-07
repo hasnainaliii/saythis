@@ -1,7 +1,7 @@
 import { storage, StorageKeys } from './storage';
-import { API_BASE_URL } from '../config/api';
 import { addToQueue, getPendingSessions, removePendingSession, incrementAttempt } from './offlineQueue';
 
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 export interface BaseSessionStats {
   startedAt: string;
   endedAt: string;

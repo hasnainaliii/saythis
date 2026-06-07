@@ -1,9 +1,9 @@
 import * as ImagePicker from "expo-image-picker";
 import type { User } from "../types/auth";
 import api from "./api";
-import { API_BASE_URL } from "../config/api";
 import { storage, StorageKeys } from "../utils/storage";
 
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 export const userService = {
   /**
    * Get the currently authenticated user's profile

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { colors } from '../../theme/Theme';
-import { ToolIntroScreen } from '../../components/tools/ToolIntroScreen';
-import { ToolResultScreen } from '../../components/tools/ToolResultScreen';
-import { GentleOnsetSession } from '../../components/tools/GentleOnsetSession';
-import { useSessionStatsTracker } from '../../hooks/useSessionStatsTracker';
-import { saveSessionToBackend, GentleOnsetSessionStats } from '../../utils/toolSessionApi';
+import { colors } from '@/src/theme/Theme';
+import { ToolIntroScreen } from '@/src/components/tools/ToolIntroScreen';
+import { ToolResultScreen } from '@/src/components/tools/ToolResultScreen';
+import { GentleOnsetSession } from '@/src/components/tools/GentleOnsetSession';
+import { useSessionStatsTracker } from '@/src/hooks/useSessionStatsTracker';
+import { saveSessionToBackend, GentleOnsetSessionStats } from '@/src/utils/toolSessionApi';
 
 const INTRO_CARDS = [
   {

@@ -4,16 +4,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Animated, { SlideInRight, SlideOutLeft } from 'react-native-reanimated';
-import { colors } from '../../theme/Theme';
-import { ToolIntroScreen } from '../../components/tools/ToolIntroScreen';
-import { ToolResultScreen } from '../../components/tools/ToolResultScreen';
-import { SituationSelector } from '../../components/tools/SituationSelector';
-import { StepIndicatorBar } from '../../components/tools/StepIndicatorBar';
-import { SettleStep, ReleaseStep, WarmUpStep, EasyOnsetStep, AffirmStep } from '../../components/tools/PreSpeechSteps';
-import { useSessionStatsTracker } from '../../hooks/useSessionStatsTracker';
-import { saveSessionToBackend } from '../../utils/toolSessionApi';
-import { prespeechPhrases } from '../../constants/prespeechPhrases';
-import { affirmations } from '../../constants/affirmations';
+import { colors } from '@/src/theme/Theme';
+import { ToolIntroScreen } from '@/src/components/tools/ToolIntroScreen';
+import { ToolResultScreen } from '@/src/components/tools/ToolResultScreen';
+import { SituationSelector } from '@/src/components/tools/SituationSelector';
+import { StepIndicatorBar } from '@/src/components/tools/StepIndicatorBar';
+import { SettleStep, ReleaseStep, WarmUpStep, EasyOnsetStep, AffirmStep } from '@/src/components/tools/PreSpeechSteps';
+import { useSessionStatsTracker } from '@/src/hooks/useSessionStatsTracker';
+import { saveSessionToBackend } from '@/src/utils/toolSessionApi';
+import { prespeechPhrases } from '@/src/constants/prespeechPhrases';
+import { affirmations } from '@/src/constants/affirmations';
 
 const ACCENT = colors.secondary;
 

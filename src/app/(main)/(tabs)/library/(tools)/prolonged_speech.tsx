@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors } from '../../theme/Theme';
-import { ToolIntroScreen } from '../../components/tools/ToolIntroScreen';
-import { ToolResultScreen } from '../../components/tools/ToolResultScreen';
-import { ProlongedSpeechSession } from '../../components/tools/ProlongedSpeechSession';
-import { ProlongedSpeechSettings } from '../../components/tools/ProlongedSpeechSettings';
-import { useSessionStatsTracker } from '../../hooks/useSessionStatsTracker';
-import { saveSessionToBackend, ProlongedSpeechSessionStats } from '../../utils/toolSessionApi';
+import { colors } from '@/src/theme/Theme';
+import { ToolIntroScreen } from '@/src/components/tools/ToolIntroScreen';
+import { ToolResultScreen } from '@/src/components/tools/ToolResultScreen';
+import { ProlongedSpeechSession } from '@/src/components/tools/ProlongedSpeechSession';
+import { ProlongedSpeechSettings } from '@/src/components/tools/ProlongedSpeechSettings';
+import { useSessionStatsTracker } from '@/src/hooks/useSessionStatsTracker';
+import { saveSessionToBackend, ProlongedSpeechSessionStats } from '@/src/utils/toolSessionApi';
 
 const INTRO_CARDS = [
   {

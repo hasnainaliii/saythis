@@ -3,11 +3,11 @@ import { View, StyleSheet, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, FONTS, fontSizes, spacingX, spacingY, radii } from '../../theme/Theme';
-import { ToolIntroScreen } from '../../components/tools/ToolIntroScreen';
-import { ToolResultScreen } from '../../components/tools/ToolResultScreen';
-import { useSessionStatsTracker } from '../../hooks/useSessionStatsTracker';
-import { saveSessionToBackend, StutterTapCounterSessionStats } from '../../utils/toolSessionApi';
+import { colors, FONTS, fontSizes, spacingX, spacingY, radii } from '@/src/theme/Theme';
+import { ToolIntroScreen } from '@/src/components/tools/ToolIntroScreen';
+import { ToolResultScreen } from '@/src/components/tools/ToolResultScreen';
+import { useSessionStatsTracker } from '@/src/hooks/useSessionStatsTracker';
+import { saveSessionToBackend, StutterTapCounterSessionStats } from '@/src/utils/toolSessionApi';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSequence } from 'react-native-reanimated';
 
 const INTRO_CARDS = [

@@ -37,7 +37,7 @@ export default function SignupScreen() {
     onSuccess: async (data) => {
       await login(data.user, data.access_token, data.refresh_token);
       showSuccess("Welcome!", `Account created for ${data.user.full_name}`);
-      router.replace("/(auth)/verify-email");
+      router.replace("/(auth)/verify_email");
     },
     onError: (err: any) => {
       const message = parseApiError(

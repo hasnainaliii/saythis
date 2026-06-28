@@ -71,7 +71,7 @@ export default function RootLayout() {
         hasCompletedOnboarding ? "/(auth)/login" : "/(auth)/onboarding",
       );
     } else if (isAuthenticated && !isVerified && !inAuthGroup) {
-      router.replace("/(auth)/verify-email");
+      router.replace("/(auth)/verify_email");
     } else if (isAuthenticated && isVerified && inAuthGroup) {
       router.replace("/(main)");
     }

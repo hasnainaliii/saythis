@@ -3,11 +3,11 @@ import { View, StyleSheet, Text, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, FONTS, fontSizes, spacingX, spacingY, radii } from '../../theme/Theme';
-import { ToolIntroScreen } from '../../components/tools/ToolIntroScreen';
-import { ToolResultScreen } from '../../components/tools/ToolResultScreen';
-import { useSessionStatsTracker } from '../../hooks/useSessionStatsTracker';
-import { saveSessionToBackend, TimedReadingWpmSessionStats } from '../../utils/toolSessionApi';
+import { colors, FONTS, fontSizes, spacingX, spacingY, radii } from '@/src/theme/Theme';
+import { ToolIntroScreen } from '@/src/components/tools/ToolIntroScreen';
+import { ToolResultScreen } from '@/src/components/tools/ToolResultScreen';
+import { useSessionStatsTracker } from '@/src/hooks/useSessionStatsTracker';
+import { saveSessionToBackend, TimedReadingWpmSessionStats } from '@/src/utils/toolSessionApi';
 
 const PASSAGE = "Reading aloud is an excellent way to practice fluency. When we read without pressure, we can focus entirely on our breath and our pacing. This exercise helps you measure your baseline speaking rate. Most conversational speech is between one hundred and forty to one hundred and sixty words per minute. If you find yourself rushing, you can use this tool to practice slowing down. Smooth, steady speech gives your brain more time to plan sounds and navigate difficult words.";
 const WORD_COUNT = PASSAGE.split(' ').length;

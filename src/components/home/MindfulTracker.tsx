@@ -92,7 +92,7 @@ export function MindfulTracker() {
         <Text style={styles.title}>Mindful Tracker</Text>
       </View>
 
-      <Link href="/mood-tracker" asChild>
+      <Link href="/mood_tracker" asChild>
         <TouchableOpacity activeOpacity={0.8}>
           <TrackerCard
             icon={<SmilePlus size={22} color={colors.metricOrange} />}
@@ -103,7 +103,7 @@ export function MindfulTracker() {
         </TouchableOpacity>
       </Link>
 
-      <Link href="/sleep-tracker" asChild>
+      <Link href="/sleep_tracker" asChild>
         <TouchableOpacity activeOpacity={0.8}>
           <TrackerCard
             icon={<Moon size={22} color={colors.headerDark} />}
@@ -125,7 +125,7 @@ export function MindfulTracker() {
         </TouchableOpacity>
       </Link>
 
-      <Link href="/stress-level" asChild>
+      <Link href="/stress_level" asChild>
         <TouchableOpacity activeOpacity={0.8}>
           <TrackerCard
             icon={<Activity size={22} color={colors.secondary} />}
@@ -136,7 +136,7 @@ export function MindfulTracker() {
         </TouchableOpacity>
       </Link>
 
-      <Link href="/mindful-hours" asChild>
+      <Link href="/mindful_hours" asChild>
         <TouchableOpacity activeOpacity={0.8}>
           <TrackerCard
             icon={<Brain size={22} color={colors.metricGreen} />}

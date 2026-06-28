@@ -14,12 +14,12 @@ export function MetricsSection({ score, scoreStatus }: Props) {
   return (
     <View style={styles.section}>
       <View style={styles.cardsRow}>
-        <Link href="/stutter-analysis" asChild>
+        <Link href="/stutter_analysis" asChild>
           <TouchableOpacity activeOpacity={0.8} style={{ flex: 1 }}>
             <ScoreCard score={score} statusLabel={scoreStatus} />
           </TouchableOpacity>
         </Link>
-        <Link href="/ai-feedback" asChild>
+        <Link href="/ai_feedback" asChild>
           <TouchableOpacity activeOpacity={0.8} style={{ flex: 1 }}>
             <AiFeedbackCard />
           </TouchableOpacity>

@@ -30,7 +30,7 @@ export default function ProfileScreen() {
 
   const handlePress = (item: string) => {
     if (item === "Edit Profile") {
-      router.push("/(main)/(tabs)/profile/edit-profile");
+      router.push("/(main)/(tabs)/profile/edit_profile");
       return;
     }
     if (item === "Reports") {

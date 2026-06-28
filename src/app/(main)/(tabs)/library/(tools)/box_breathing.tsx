@@ -3,14 +3,14 @@ import { View, Alert,  } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors } from '../../theme/Theme';
-import { ToolIntroScreen } from '../../components/tools/ToolIntroScreen';
-import { ToolResultScreen } from '../../components/tools/ToolResultScreen';
-import { BoxBreathingSettings } from '../../components/tools/BoxBreathingSettings';
-import { BoxBreathingSession } from '../../components/tools/BoxBreathingSession';
-import { useBreathingPhaseTimer, BreathingPhase } from '../../hooks/useBreathingPhaseTimer';
-import { useSessionStatsTracker } from '../../hooks/useSessionStatsTracker';
-import { saveSessionToBackend } from '../../utils/toolSessionApi';
+import { colors } from '@/src/theme/Theme';
+import { ToolIntroScreen } from '@/src/components/tools/ToolIntroScreen';
+import { ToolResultScreen } from '@/src/components/tools/ToolResultScreen';
+import { BoxBreathingSettings } from '@/src/components/tools/BoxBreathingSettings';
+import { BoxBreathingSession } from '@/src/components/tools/BoxBreathingSession';
+import { useBreathingPhaseTimer, BreathingPhase } from '@/src/hooks/useBreathingPhaseTimer';
+import { useSessionStatsTracker } from '@/src/hooks/useSessionStatsTracker';
+import { saveSessionToBackend } from '@/src/utils/toolSessionApi';
 
 const ACCENT = colors.secondary;
 

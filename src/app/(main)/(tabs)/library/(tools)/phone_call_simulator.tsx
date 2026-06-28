@@ -3,48 +3,48 @@ import { View, StyleSheet, Text, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, FONTS, fontSizes, spacingX, spacingY, radii } from '../../theme/Theme';
-import { ToolIntroScreen } from '../../components/tools/ToolIntroScreen';
-import { ToolResultScreen } from '../../components/tools/ToolResultScreen';
-import { useSessionStatsTracker } from '../../hooks/useSessionStatsTracker';
-import { saveSessionToBackend, VirtualCoffeeOrderSessionStats } from '../../utils/toolSessionApi';
+import { colors, FONTS, fontSizes, spacingX, spacingY, radii } from '@/src/theme/Theme';
+import { ToolIntroScreen } from '@/src/components/tools/ToolIntroScreen';
+import { ToolResultScreen } from '@/src/components/tools/ToolResultScreen';
+import { useSessionStatsTracker } from '@/src/hooks/useSessionStatsTracker';
+import { saveSessionToBackend, PhoneCallSimulatorSessionStats } from '@/src/utils/toolSessionApi';
 
-const ORDER_SCRIPT = [
-  { speaker: 'Barista', text: 'Hi there! What can I get for you today?' },
-  { speaker: 'You', text: 'Hi, I would like a medium iced latte with oat milk, please.' },
-  { speaker: 'Barista', text: 'Sure thing. Any flavor in that?' },
-  { speaker: 'You', text: 'No, just the latte is fine.' },
-  { speaker: 'Barista', text: 'Great. Can I get a name for the order?' },
-  { speaker: 'You', text: '[Your Name], please.' },
-  { speaker: 'Barista', text: 'Awesome, it will be right out at the end of the bar.' },
+const CALL_SCRIPT = [
+  { speaker: 'Receptionist', text: 'Dr. Smith’s office, how can I help you?' },
+  { speaker: 'You', text: 'Hi, I need to schedule an appointment with Dr. Smith, please.' },
+  { speaker: 'Receptionist', text: 'Okay. Have you been seen by him before?' },
+  { speaker: 'You', text: 'Yes, I am an existing patient.' },
+  { speaker: 'Receptionist', text: 'Great. Let me check the schedule. We have an opening next Tuesday at 2 PM. Does that work?' },
+  { speaker: 'You', text: 'Yes, next Tuesday at 2 PM works perfectly for me.' },
+  { speaker: 'Receptionist', text: 'Alright, you’re all set. We’ll see you then!' },
 ];
 
 const INTRO_CARDS = [
   {
-    icon: 'cafe-outline',
+    icon: 'call-outline',
     iconColor: colors.secondary,
-    title: 'Simulate Daily Tasks',
-    body: 'Ordering coffee is a common trigger situation. Practice it here without the pressure.',
+    title: 'Phone Call Anxiety',
+    body: 'Phone calls lack visual cues, which can increase tension. Practicing scripts helps reduce that anxiety.',
     step: 1,
   },
   {
     icon: 'volume-high-outline',
     iconColor: colors.secondary,
-    title: 'Speak Aloud',
-    body: 'Read your lines out loud. Focus on a gentle onset and smooth airflow.',
+    title: 'Take Your Time',
+    body: 'Read the lines aloud. Remember that silences on the phone are okay. Do not rush to fill the void.',
     step: 2,
   },
 ];
 
-const SimulationSession = ({ onComplete }: { onComplete: () => void }) => {
+const CallSession = ({ onComplete }: { onComplete: () => void }) => {
   const insets = useSafeAreaInsets();
   
   return (
     <View style={[styles.sessionContainer, { paddingTop: insets.top }]}>
-      <Text style={styles.sessionTitle}>Coffee Shop</Text>
+      <Text style={styles.sessionTitle}>Doctor's Office Call</Text>
       
       <ScrollView style={styles.chatScroll} contentContainerStyle={{ padding: spacingX.lg }}>
-        {ORDER_SCRIPT.map((line, i) => {
+        {CALL_SCRIPT.map((line, i) => {
           const isYou = line.speaker === 'You';
           return (
             <View key={i} style={[styles.chatBubbleWrap, isYou ? styles.chatBubbleRight : styles.chatBubbleLeft]}>
@@ -59,14 +59,14 @@ const SimulationSession = ({ onComplete }: { onComplete: () => void }) => {
 
       <View style={styles.btnRow}>
         <Pressable style={styles.primaryBtn} onPress={onComplete}>
-          <Text style={styles.primaryBtnText}>Finish Order</Text>
+          <Text style={styles.primaryBtnText}>End Call</Text>
         </Pressable>
       </View>
     </View>
   );
 };
 
-export default function VirtualCoffeeOrderScreen() {
+export default function PhoneCallSimulatorScreen() {
   const router = useRouter();
   const [stage, setStage] = useState<'intro' | 'session' | 'result'>('intro');
 
@@ -75,7 +75,7 @@ export default function VirtualCoffeeOrderScreen() {
     durationSeconds,
     startSession,
     endSession,
-  } = useSessionStatsTracker('VIRTUAL_COFFEE_ORDER');
+  } = useSessionStatsTracker('PHONE_CALL_SIMULATOR');
 
   const handleStart = () => {
     startSession();
@@ -93,14 +93,14 @@ export default function VirtualCoffeeOrderScreen() {
       return;
     }
 
-    const payload: VirtualCoffeeOrderSessionStats = {
-      toolType: 'VIRTUAL_COFFEE_ORDER',
+    const payload: PhoneCallSimulatorSessionStats = {
+      toolType: 'PHONE_CALL_SIMULATOR',
       startedAt: startedAt,
       endedAt: new Date().toISOString(),
       durationSeconds,
       selfRating: rating,
-      estimatedWords: 40,
-      orderType: 'Iced Latte',
+      estimatedWords: 50,
+      scenario: 'Doctor Appointment',
       completed: true,
     };
 
@@ -117,8 +117,8 @@ export default function VirtualCoffeeOrderScreen() {
     <View style={styles.container}>
       {stage === 'intro' && (
         <ToolIntroScreen
-          toolName="Virtual Coffee Order"
-          tagline="Practice a short scripted order."
+          toolName="Phone Call Simulator"
+          tagline="Rehearse calls without pressure."
           accentColor={colors.secondary}
           cards={INTRO_CARDS}
           onComplete={handleStart}
@@ -126,12 +126,12 @@ export default function VirtualCoffeeOrderScreen() {
       )}
 
       {stage === 'session' && (
-        <SimulationSession onComplete={handleComplete} />
+        <CallSession onComplete={handleComplete} />
       )}
 
       {stage === 'result' && (
         <ToolResultScreen
-          toolName="Coffee Order"
+          toolName="Phone Call Simulator"
           subtitle="Simulation Complete"
           accentColor={colors.secondary}
           stats={[
@@ -141,10 +141,10 @@ export default function VirtualCoffeeOrderScreen() {
           onSave={handleSaveAndExit}
           onRepeat={() => setStage('intro')}
           tipCard={{
-            icon: 'checkmark-circle-outline',
+            icon: 'call-outline',
             iconColor: colors.warning,
-            title: 'Repetition is Key',
-            body: 'Practicing these scripts builds muscle memory, making the real situation feel familiar and less anxiety-inducing.'
+            title: 'Own the Silence',
+            body: 'A pause on the phone feels like forever to you, but normal to the listener. Let yourself pause.'
           }}
         />
       )}

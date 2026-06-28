@@ -7,20 +7,20 @@ import Animated, { FadeIn, SlideInRight, ZoomIn } from 'react-native-reanimated'
 import { WebView } from 'react-native-webview';
 import Slider from '@react-native-community/slider';
 import { requestRecordingPermissionsAsync } from 'expo-audio';
-import { colors, FONTS, fontSizes, spacingX, spacingY, radii } from '../../theme/Theme';
+import { colors, FONTS, fontSizes, spacingX, spacingY, radii } from '@/src/theme/Theme';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
-import { InstructionCard } from '../../components/tools/InstructionCard';
-import { WaveformVisualizer } from '../../components/tools/WaveformVisualizer';
-import { BreathingGuide } from '../../components/tools/BreathingGuide';
-import { StatChip } from '../../components/tools/StatChip';
-import { SessionRating } from '../../components/tools/SessionRating';
-import { HoldToContinueButton } from '../../components/tools/HoldToContinueButton';
+import { InstructionCard } from '@/src/components/tools/InstructionCard';
+import { WaveformVisualizer } from '@/src/components/tools/WaveformVisualizer';
+import { BreathingGuide } from '@/src/components/tools/BreathingGuide';
+import { StatChip } from '@/src/components/tools/StatChip';
+import { SessionRating } from '@/src/components/tools/SessionRating';
+import { HoldToContinueButton } from '@/src/components/tools/HoldToContinueButton';
 
-import { useDAFEngine } from '../../hooks/useDAFEngine';
-import { useSessionTimer } from '../../hooks/useSessionTimer';
-import { saveSessionToBackend } from '../../utils/toolSessionApi';
-import { practicePassages } from '../../constants/practicePassages';
+import { useDAFEngine } from '@/src/hooks/useDAFEngine';
+import { useSessionTimer } from '@/src/hooks/useSessionTimer';
+import { saveSessionToBackend } from '@/src/utils/toolSessionApi';
+import { practicePassages } from '@/src/constants/practicePassages';
 
 const dafHtml = `
   <!DOCTYPE html>

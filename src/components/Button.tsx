@@ -19,8 +19,8 @@ interface ButtonProps extends Omit<PressableProps, "style"> {
   disabled?: boolean;
   icon?: React.ReactNode;
   iconPosition?: "left" | "right";
-  style?: ViewStyle;
-  textStyle?: TextStyle;
+  style?: import("react-native").StyleProp<ViewStyle>;
+  textStyle?: import("react-native").StyleProp<TextStyle>;
   fullWidth?: boolean;
 }
 

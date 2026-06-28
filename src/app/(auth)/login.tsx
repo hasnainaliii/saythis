@@ -38,7 +38,7 @@ export default function LoginScreen() {
       await login(data.user, data.access_token, data.refresh_token);
 
       if (!data.user.email_verified_at) {
-        router.replace("/(auth)/verify-email");
+        router.replace("/(auth)/verify_email");
         return;
       }
 
@@ -118,7 +118,7 @@ export default function LoginScreen() {
                   <Text style={styles.linkText}>Sign Up.</Text>
                 </Pressable>
               </View>
-              <Pressable onPress={() => router.push("/(auth)/forgot-password")}>
+              <Pressable onPress={() => router.push("/(auth)/forgot_password")}>
                 <Text style={styles.forgotText}>Forgot Password</Text>
               </Pressable>
             </View>

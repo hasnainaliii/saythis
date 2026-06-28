@@ -1,17 +1,16 @@
 import { Link } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { MoodCard } from "./MoodCard";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { AiFeedbackCard } from "./AiFeedbackCard";
 import { ScoreCard } from "./ScoreCard";
-import { colors, FONTS, fontSizes, spacingX, spacingY } from "../../theme/Theme";
+import { spacingX, spacingY } from "../../theme/Theme";
 
 interface Props {
   score: number;
   scoreStatus: string;
-  mood: string;
 }
 
-export function MetricsSection({ score, scoreStatus, mood }: Props) {
+export function MetricsSection({ score, scoreStatus }: Props) {
   return (
     <View style={styles.section}>
       <View style={styles.cardsRow}>
@@ -20,9 +19,11 @@ export function MetricsSection({ score, scoreStatus, mood }: Props) {
             <ScoreCard score={score} statusLabel={scoreStatus} />
           </TouchableOpacity>
         </Link>
-        <View style={{ flex: 1 }}>
-          <MoodCard mood={mood} />
-        </View>
+        <Link href="/ai-feedback" asChild>
+          <TouchableOpacity activeOpacity={0.8} style={{ flex: 1 }}>
+            <AiFeedbackCard />
+          </TouchableOpacity>
+        </Link>
       </View>
     </View>
   );

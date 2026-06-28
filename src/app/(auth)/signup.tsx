@@ -9,7 +9,6 @@ import { KeyboardAvoidingView,
   View, } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AuthHeader from "../../components/auth/AuthHeader";
-import SocialLoginButtons from "../../components/auth/SocialLoginButtons";
 import { Button, Input } from "../../components";
 import { parseApiError } from "../../hooks/useApiError";
 import authService from "../../services/authService";
@@ -137,11 +136,6 @@ export default function SignupScreen() {
                 style={styles.signUpButton}
               />
             </View>
-
-            <SocialLoginButtons
-              onPress={(p) => console.log("Social login:", p)}
-              containerStyle={{ marginTop: dynamicSpacingY(3) }}
-            />
 
             <View style={styles.footerContainer}>
               <View style={styles.signInRow}>

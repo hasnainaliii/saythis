@@ -11,7 +11,6 @@ import { KeyboardAvoidingView,
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Input } from "../../components";
 import AuthHeader from "../../components/auth/AuthHeader";
-import SocialLoginButtons from "../../components/auth/SocialLoginButtons";
 import { parseApiError } from "../../hooks/useApiError";
 import authService from "../../services/authService";
 import { useAuthStore } from "../../store/authStore";
@@ -38,7 +37,7 @@ export default function LoginScreen() {
     onSuccess: async (data) => {
       await login(data.user, data.access_token, data.refresh_token);
 
-      if (!data.user.email_verified_at && data.user.status !== "active") {
+      if (!data.user.email_verified_at) {
         router.replace("/(auth)/verify-email");
         return;
       }
@@ -112,11 +111,6 @@ export default function LoginScreen() {
               />
             </View>
 
-            <SocialLoginButtons
-              onPress={(p) => console.log("Social login:", p)}
-              containerStyle={{ marginTop: dynamicSpacingY(4) }}
-            />
-
             <View style={styles.footerContainer}>
               <View style={styles.signUpRow}>
                 <Text style={styles.footerText}>Don't have an account? </Text>
@@ -168,11 +162,8 @@ const styles = StyleSheet.create({
     marginTop: spacingY.md,
   },
   footerContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
     alignItems: "center",
-    paddingTop: spacingY.sm,
-    paddingBottom: dynamicSpacingY(4),
+    marginTop: dynamicSpacingY(4),
     gap: spacingY.sm,
   },
   signUpRow: {

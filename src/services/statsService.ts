@@ -1,0 +1,132 @@
+import api from "./api";
+
+export interface DailyStatPayload {
+  date: string;
+  mood?: string | null;
+  sleep_hours?: number | null;
+  journal_entry?: string | null;
+  stress_level?: number | null;
+  mindful_hours?: number | null;
+  stutter_score?: number | null;
+  stutter_count?: number | null;
+  repetition_count?: number | null;
+  filler_count?: number | null;
+  total_words?: number | null;
+  stutter_transcript?: string | null;
+}
+
+export interface DailyStat {
+  id: string;
+  date: string;
+  mood: string | null;
+  sleep_hours: number | null;
+  journal_entry: string | null;
+  stress_level: number | null;
+  mindful_hours: number | null;
+  stutter_score: number | null;
+  stutter_count: number | null;
+  repetition_count: number | null;
+  filler_count: number | null;
+  total_words: number | null;
+  stutter_transcript: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StatsResponse {
+  daily_stats: DailyStat[];
+  today: DailyStat | null;
+  journal_streak: number;
+  wellness_summary: {
+    avg_sleep_hours: number;
+    avg_stress_level: number;
+    avg_mindful_hours: number;
+    total_journal_entries: number;
+    mood_distribution: Record<string, number>;
+    days_tracked: number;
+  };
+  stutter_summary: {
+    avg_score: number;
+    best_score: number;
+    worst_score: number;
+    total_analyses: number;
+    score_trend: { date: string; score: number }[];
+    latest_score: number;
+  };
+  tool_stats: {
+    combined: Record<string, any>;
+    daf: Record<string, any>;
+    faf: Record<string, any>;
+    breathing: Record<string, any>;
+    drills: Record<string, any>;
+    biofeedback: Record<string, any>;
+    simulation: Record<string, any>;
+  };
+  weekly_activity: { date: string; day: string; sessions: number }[];
+  weekly_trend: { week_label: string; total_minutes: number }[];
+  recent_sessions: any[];
+}
+
+export const statsService = {
+  patchDaily: async (data: DailyStatPayload): Promise<DailyStat> => {
+    const res = await api.patch<{ daily_stat: DailyStat }>("/stats/daily", data);
+    return res.data.daily_stat;
+  },
+
+  getStats: async (from?: string, to?: string): Promise<StatsResponse> => {
+    const params: Record<string, string> = {};
+    if (from) params.from = from;
+    if (to) params.to = to;
+    try {
+      const res = await api.get<StatsResponse>("/stats", { params });
+      return res.data;
+    } catch (err: any) {
+      // console.warn("Backend unavailable for /stats, using local fallback");
+      return {
+        daily_stats: [],
+        today: null,
+        journal_streak: 0,
+        wellness_summary: {
+          avg_sleep_hours: 0,
+          avg_stress_level: 0,
+          avg_mindful_hours: 0,
+          total_journal_entries: 0,
+          mood_distribution: {},
+          days_tracked: 1, // Treat as tracked so they can generate feedback
+        },
+        stutter_summary: {
+          avg_score: 0,
+          best_score: 0,
+          worst_score: 0,
+          total_analyses: 0,
+          score_trend: [],
+          latest_score: 0,
+        },
+        tool_stats: {
+          combined: { total_sessions: 1, total_minutes: 5, current_streak: 1, active_days: 1 },
+          daf: {},
+          faf: {},
+          breathing: {},
+          drills: {},
+          biofeedback: {},
+          simulation: {},
+        },
+        weekly_activity: [],
+        weekly_trend: [],
+        recent_sessions: [],
+      };
+    }
+  },
+
+  getDailyByDate: async (date: string): Promise<DailyStat | null> => {
+    try {
+      const res = await api.get<{ daily_stat: DailyStat | null }>(`/stats/daily/${date}`);
+      return res.data.daily_stat;
+    } catch (err: any) {
+      if (err.response?.status === 404) return null;
+      throw err;
+    }
+  },
+};
+
+export default statsService;

@@ -48,7 +48,6 @@ export default function VerifyEmailScreen() {
       await updateUser(freshUser);
 
       if (
-        freshUser.status === "active" ||
         freshUser.email_verified_at ||
         (freshUser as any).emailVerifiedAt
       ) {

@@ -64,7 +64,7 @@ export default function RootLayout() {
     if (!isHydrated || !rootNavigationState?.key) return;
 
     const inAuthGroup = segments[0] === "(auth)";
-    const isVerified = !!user?.email_verified_at || user?.status === "active";
+    const isVerified = !!user?.email_verified_at;
 
     if (!isAuthenticated && !inAuthGroup) {
       router.replace(

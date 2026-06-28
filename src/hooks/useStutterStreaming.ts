@@ -3,8 +3,9 @@ import { Alert } from 'react-native';
 import { AudioModule } from 'expo-audio';
 import { WebView } from 'react-native-webview';
 import { calculateStutterScore, StutterResult } from '../utils/stutterScore';
+import statsService from '../services/statsService';
 
-const ASSEMBLYAI_API_KEY = process.env.ASSEMBLYAI_API_KEY ?? '';
+const ASSEMBLYAI_API_KEY = process.env.EXPO_PUBLIC_ASSEMBLYAI_API_KEY ?? '';
 const WS_BASE = 'wss://streaming.assemblyai.com/v3/ws';
 const TOKEN_URL = 'https://streaming.assemblyai.com/v3/token';
 
@@ -171,7 +172,7 @@ export function useStutterStreaming() {
 
   const startRecording = useCallback(async () => {
     if (!ASSEMBLYAI_API_KEY) {
-      Alert.alert('Missing API Key', 'ASSEMBLYAI_API_KEY is not set in .env');
+      Alert.alert('Missing API Key', 'EXPO_PUBLIC_ASSEMBLYAI_API_KEY is not set in .env');
       return;
     }
 
@@ -215,8 +216,21 @@ export function useStutterStreaming() {
 
     const fullText = fullTranscriptRef.current.trim();
     if (fullText) {
-      setResult(calculateStutterScore(fullText));
+      const scored = calculateStutterScore(fullText);
+      setResult(scored);
       setStatusText('Analysis complete');
+
+      // persist to backend
+      const today = new Date().toISOString().split('T')[0];
+      statsService.patchDaily({
+        date: today,
+        stutter_score: scored.score,
+        stutter_count: scored.stutters,
+        repetition_count: scored.repetitions,
+        filler_count: scored.fillers,
+        total_words: scored.totalWords,
+        stutter_transcript: fullText,
+      }).catch((e) => console.warn('Failed to sync stutter score:', e));
     } else {
       setResult({ score: 0, stutters: 0, repetitions: 0, fillers: 0, totalWords: 0 });
       setStatusText('No speech detected — try again');

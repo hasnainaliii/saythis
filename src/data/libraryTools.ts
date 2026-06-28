@@ -3,7 +3,7 @@ import { LibraryCategory, LibraryTool } from "../types/library";
 
 export const LIBRARY_CATEGORIES: { key: LibraryCategory; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "speech_fluency", label: "Speech Fluency" },
+  // { key: "speech_fluency", label: "Speech Fluency" },
   { key: "breathing", label: "Breathing" },
   { key: "drills", label: "Drills" },
   { key: "biofeedback", label: "Biofeedback" },
@@ -67,8 +67,8 @@ const HERO_IMAGES = {
 export const LAST_USED_TOOL_ID = "box-breathing";
 
 export const LIBRARY_TOOLS: LibraryTool[] = [
-  { id: "daf", name: "DAF", summary: "Delay your voice to steady rhythm.", description: "Delayed auditory feedback shifts your timing so words feel more paced and predictable.", steps: ["Choose a delay level that feels comfortable.", "Read a short phrase and listen to the delay.", "Move to natural speech while keeping the new rhythm."], category: "speech_fluency", difficulty: "beginner", durationMinutes: 8, iconKey: "audio", heroImage: require("../assets/images/tools/daf.png"), relatedToolIds: ["faf"], isLocked: false, completedToday: true, isRecommended: true },
-  { id: "faf", name: "FAF", summary: "Shift pitch for smoother flow.", description: "Frequency altered feedback changes your voice tone, reducing tension and easing speech flow.", steps: ["Pick a gentle pitch shift.", "Practice short phrases with feedback.", "Lower the shift as speech feels easier."], category: "speech_fluency", difficulty: "beginner", durationMinutes: 7, iconKey: "volume", heroImage: require("../assets/images/tools/faf.png"), relatedToolIds: ["daf"], isLocked: false, completedToday: false },
+  // { id: "daf", name: "DAF", summary: "Delay your voice to steady rhythm.", description: "Delayed auditory feedback shifts your timing so words feel more paced and predictable.", steps: ["Choose a delay level that feels comfortable.", "Read a short phrase and listen to the delay.", "Move to natural speech while keeping the new rhythm."], category: "speech_fluency", difficulty: "beginner", durationMinutes: 8, iconKey: "audio", heroImage: require("../assets/images/tools/daf.png"), relatedToolIds: ["faf"], isLocked: false, completedToday: true, isRecommended: true },
+  // { id: "faf", name: "FAF", summary: "Shift pitch for smoother flow.", description: "Frequency altered feedback changes your voice tone, reducing tension and easing speech flow.", steps: ["Pick a gentle pitch shift.", "Practice short phrases with feedback.", "Lower the shift as speech feels easier."], category: "speech_fluency", difficulty: "beginner", durationMinutes: 7, iconKey: "volume", heroImage: require("../assets/images/tools/faf.png"), relatedToolIds: ["daf"], isLocked: false, completedToday: false },
 
   { id: "box-breathing", name: "Box Breathing", summary: "Calm your system in four counts.", description: "Box breathing steadies the nervous system to reduce tension before speech.", steps: ["Inhale for four counts.", "Hold for four counts.", "Exhale for four counts, then hold again."], category: "breathing", difficulty: "beginner", durationMinutes: 5, iconKey: "boxBreathing", heroImage: require("../assets/images/tools/box-breathing.png"), relatedToolIds: ["diaphragmatic-breathing"], isLocked: false, completedToday: true, isRecommended: true },
   { id: "diaphragmatic-breathing", name: "Diaphragmatic Breathing", summary: "Breathe low and steady.", description: "Deep belly breathing supports smoother airflow and calmer speech starts.", steps: ["Place a hand on your belly.", "Inhale and feel the belly rise.", "Speak a short phrase on a slow exhale."], category: "breathing", difficulty: "beginner", durationMinutes: 6, iconKey: "diaphragmatic", heroImage: require("../assets/images/tools/diaphragmatic-breathing.png"), relatedToolIds: ["box-breathing", "pre-speech-routine"], isLocked: false, completedToday: false },

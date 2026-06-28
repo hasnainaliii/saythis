@@ -154,7 +154,7 @@ export default function VirtualCoffeeOrderScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.primary },
-  sessionContainer: { flex: 1, paddingBottom: spacingY.xl },
+  sessionContainer: { flex: 1, paddingBottom: 120 },
   sessionTitle: { fontFamily: FONTS.primaryBlack, fontSize: fontSizes.xl, color: colors.textDark, textAlign: 'center', marginTop: spacingY.md, marginBottom: spacingY.sm },
   chatScroll: { flex: 1 },
   chatBubbleWrap: { marginBottom: spacingY.md, maxWidth: '80%' },

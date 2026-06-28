@@ -39,6 +39,11 @@ export function HomeHero({ userName, dateString, level, fluencyPercent, mood, to
         </View>
         <View style={styles.greetCol}>
           <Text style={styles.name}>Hi, {userName}!</Text>
+          {mood ? (
+            <View style={styles.badges}>
+              <Text style={styles.badgeText}>Feeling {mood.toLowerCase()}</Text>
+            </View>
+          ) : null}
         </View>
       </View>
     </View>

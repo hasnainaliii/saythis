@@ -1,14 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
-import statsService from "../services/statsService";
-import { mapToolStats, mapWeeklyActivity, mapWeeklyTrend, mapRecentSessions } from "../utils/mapStats";
+import { useState, useCallback } from "react";
+import { useFocusEffect } from "expo-router";
 import { getToolStats, getRecentSessions } from "../utils/toolSessionApi";
 
-export type StatsTab = 'Overview' | 'DAF' | 'FAF' | 'Breathing' | 'Drills' | 'Biofeedback' | 'Simulation';
-export const STATS_TABS: StatsTab[] = ['Overview', 'DAF', 'FAF', 'Breathing', 'Drills', 'Biofeedback', 'Simulation'];
+export type StatsTab = 'Overview' | 'Breathing' | 'Drills' | 'Biofeedback' | 'Simulation';
+export const STATS_TABS: StatsTab[] = ['Overview', 'Breathing', 'Drills', 'Biofeedback', 'Simulation'];
 
 const EMPTY_STATS = {
-  daf: { totalSessions: 0, totalMinutes: 0, avgRating: 0, avgDelayMs: 0, sessionsThisWeek: 0, bestStreak: 0 },
-  faf: { totalSessions: 0, totalMinutes: 0, avgRating: 0, preferredDirection: 'down', avgSemitones: 0, sessionsThisWeek: 0, bestStreak: 0 },
   combined: { totalToolMinutes: 0, currentStreak: 0, bestStreak: 0, lastSessionAt: null, activeDays: 0, totalSessions: 0 },
   breathing: {
     totalSessions: 0, totalMinutes: 0, avgRating: 0,
@@ -53,39 +50,10 @@ export const useStatsData = () => {
   const [weeklyTrend, setWeeklyTrend] = useState<any[]>(DEFAULT_TREND);
   const [loading, setLoading] = useState(true);
 
-  const fetchFromBackend = useCallback(async (): Promise<boolean> => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
-      const data = await statsService.getStats();
-
-      const toolStats = data.tool_stats
-        ? mapToolStats(data.tool_stats)
-        : EMPTY_STATS;
-      setStats(toolStats);
-
-      const mapped = data.recent_sessions
-        ? mapRecentSessions(data.recent_sessions)
-        : [];
-      setRecentSessions(mapped);
-      setAllSessions(mapped);
-
-      if (data.weekly_activity?.length) {
-        const chartData = mapWeeklyActivity(data.weekly_activity);
-        setWeeklyChartData(chartData);
-        setWeeklyTotal(chartData.reduce((s, d) => s + d.value, 0));
-      }
-
-      if (data.weekly_trend?.length) {
-        setWeeklyTrend(mapWeeklyTrend(data.weekly_trend));
-      }
-
-      return true;
-    } catch {
-      return false;
-    }
-  }, []);
-
-  const fetchFromLocal = useCallback(async () => {
-    try {
+      // Always read from local storage — this is where saveSessionToBackend stores every session
       const data = await getToolStats();
       setStats(data || EMPTY_STATS);
 
@@ -98,6 +66,7 @@ export const useStatsData = () => {
         .slice(0, 10);
       setRecentSessions(merged);
 
+      // Build weekly activity chart (last 7 days)
       const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -120,7 +89,8 @@ export const useStatsData = () => {
       setWeeklyChartData(chartData);
       setWeeklyTotal(wTotal);
 
-      const weekTrend = [];
+      // Build 6-week trend
+      const weekTrendData = [];
       for (let w = 5; w >= 0; w--) {
         const weekStart = new Date(today);
         weekStart.setDate(weekStart.getDate() - (w * 7) - today.getDay());
@@ -133,27 +103,27 @@ export const useStatsData = () => {
             minutes += (s.durationSeconds || 0) / 60;
           }
         }
-        weekTrend.push({ value: Math.round(minutes), label: `W${6 - w}` });
+        weekTrendData.push({ value: Math.round(minutes), label: `W${6 - w}` });
       }
-      setWeeklyTrend(weekTrend);
+      setWeeklyTrend(weekTrendData);
     } catch {
       setStats(EMPTY_STATS);
       setRecentSessions([]);
       setAllSessions([]);
-    }
-  }, []);
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const ok = await fetchFromBackend();
-      if (!ok) await fetchFromLocal();
+      setWeeklyChartData(DEFAULT_WEEKLY);
+      setWeeklyTotal(0);
+      setWeeklyTrend(DEFAULT_TREND);
     } finally {
       setLoading(false);
     }
-  }, [fetchFromBackend, fetchFromLocal]);
+  }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  // Re-fetch every time the screen comes into focus (navigating back from a tool)
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData])
+  );
 
   return { activeTab, setActiveTab, stats, recentSessions, allSessions, loading, weeklyChartData, weeklyTotal, weeklyTrend, fetchData };
 };

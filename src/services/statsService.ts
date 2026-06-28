@@ -81,40 +81,7 @@ export const statsService = {
       const res = await api.get<StatsResponse>("/stats", { params });
       return res.data;
     } catch (err: any) {
-      // console.warn("Backend unavailable for /stats, using local fallback");
-      return {
-        daily_stats: [],
-        today: null,
-        journal_streak: 0,
-        wellness_summary: {
-          avg_sleep_hours: 0,
-          avg_stress_level: 0,
-          avg_mindful_hours: 0,
-          total_journal_entries: 0,
-          mood_distribution: {},
-          days_tracked: 1, // Treat as tracked so they can generate feedback
-        },
-        stutter_summary: {
-          avg_score: 0,
-          best_score: 0,
-          worst_score: 0,
-          total_analyses: 0,
-          score_trend: [],
-          latest_score: 0,
-        },
-        tool_stats: {
-          combined: { total_sessions: 1, total_minutes: 5, current_streak: 1, active_days: 1 },
-          daf: {},
-          faf: {},
-          breathing: {},
-          drills: {},
-          biofeedback: {},
-          simulation: {},
-        },
-        weekly_activity: [],
-        weekly_trend: [],
-        recent_sessions: [],
-      };
+      throw err;
     }
   },
 

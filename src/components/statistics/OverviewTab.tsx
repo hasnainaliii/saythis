@@ -18,25 +18,20 @@ interface OverviewTabProps {
 
 export const OverviewTab: React.FC<OverviewTabProps> = ({ stats, recentSessions, weeklyChartData, weeklyTotal, weeklyTrend = [] }) => {
   const c = stats?.combined || {};
-  const daf = stats?.daf || {};
-  const faf = stats?.faf || {};
   const breathing = stats?.breathing || {};
   const drills = stats?.drills || {};
   const bio = stats?.biofeedback || {};
   const sim = stats?.simulation || {};
 
   const lastSession = c.lastSessionAt ? new Date(c.lastSessionAt).toLocaleDateString() : "No sessions";
-  const totalSessions = c.totalSessions || (daf.totalSessions || 0) + (faf.totalSessions || 0) + (breathing.totalSessions || 0) + (drills.totalSessions || 0) + (bio.totalSessions || 0) + (sim.totalSessions || 0);
+  const totalSessions = c.totalSessions || (breathing.totalSessions || 0) + (drills.totalSessions || 0) + (bio.totalSessions || 0) + (sim.totalSessions || 0);
 
   const pieSlices = [
-    { label: "DAF", value: daf.totalSessions || 0, color: colors.secondary },
-    { label: "FAF", value: faf.totalSessions || 0, color: colors.categorySelfAwareness },
     { label: "Breathing", value: breathing.totalSessions || 0, color: colors.categoryCBT },
     { label: "Drills", value: drills.totalSessions || 0, color: colors.categoryEducation },
     { label: "Biofeedback", value: bio.totalSessions || 0, color: colors.categorySelfAdvocacy },
     { label: "Simulation", value: sim.totalSessions || 0, color: colors.warning },
   ].filter((s) => s.value > 0);
-
 
   return (
     <View>
@@ -49,9 +44,9 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ stats, recentSessions,
         lastSessionLabel={lastSession}
       />
       <StatsMetricRow items={[
-        { label: "DAF", value: daf.totalSessions || 0, caption: `${daf.totalMinutes || 0} min`, color: colors.secondary },
-        { label: "FAF", value: faf.totalSessions || 0, caption: `${faf.totalMinutes || 0} min`, color: colors.categorySelfAwareness },
-        { label: "Breathing", value: breathing.totalSessions || 0, caption: `${breathing.totalMinutes || 0} min`, color: colors.categoryCBT },
+        { label: "Breathing", value: breathing.totalSessions || 0, caption: `${Math.round(breathing.totalMinutes || 0)} min`, color: colors.categoryCBT },
+        { label: "Drills", value: drills.totalSessions || 0, caption: `${Math.round(drills.totalMinutes || 0)} min`, color: colors.categoryEducation },
+        { label: "Biofeedback", value: bio.totalSessions || 0, caption: `${Math.round(bio.totalMinutes || 0)} min`, color: colors.categorySelfAdvocacy },
       ]} />
       <ToolDistributionChart
         title="Session distribution"

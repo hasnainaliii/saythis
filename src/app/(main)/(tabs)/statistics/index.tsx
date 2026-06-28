@@ -5,10 +5,7 @@ import {
   BiofeedbackTab,
   SimulationTab,
 } from "../../../../components/statistics/AdvancedToolTabs";
-import {
-  DAFTab,
-  FAFTab,
-} from "../../../../components/statistics/AudioToolTabs";
+
 import { OverviewTab } from "../../../../components/statistics/OverviewTab";
 import { StatsHeader } from "../../../../components/statistics/StatsHeader";
 import { StatsTabBar } from "../../../../components/statistics/StatsTabBar";
@@ -38,7 +35,6 @@ export default function StatisticsScreen() {
       <StatsHeader
         title="Your Progress"
         subtitle="Track your therapy journey"
-        timeframeLabel="All time"
       />
       <StatsTabBar active={activeTab} onChange={setActiveTab} />
 
@@ -61,12 +57,7 @@ export default function StatisticsScreen() {
               weeklyTrend={weeklyTrend}
             />
           )}
-          {activeTab === "DAF" && (
-            <DAFTab stats={stats} allSessions={allSessions} />
-          )}
-          {activeTab === "FAF" && (
-            <FAFTab stats={stats} allSessions={allSessions} />
-          )}
+
           {activeTab === "Breathing" && (
             <BreathingTab stats={stats} allSessions={allSessions} />
           )}

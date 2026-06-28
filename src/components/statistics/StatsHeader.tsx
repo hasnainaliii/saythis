@@ -6,7 +6,7 @@ import { colors, FONTS, fontSizes, radii, spacingX, spacingY } from "../../theme
 interface StatsHeaderProps {
   title: string;
   subtitle: string;
-  timeframeLabel: string;
+  timeframeLabel?: string;
 }
 
 export const StatsHeader: React.FC<StatsHeaderProps> = ({
@@ -21,10 +21,12 @@ export const StatsHeader: React.FC<StatsHeaderProps> = ({
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.subtitle}>{subtitle}</Text>
         </View>
-        <View style={styles.pill}>
-          <Ionicons name="calendar-outline" size={16} color={colors.textDark} />
-          <Text style={styles.pillText}>{timeframeLabel}</Text>
-        </View>
+        {timeframeLabel && (
+          <View style={styles.pill}>
+            <Ionicons name="calendar-outline" size={16} color={colors.textDark} />
+            <Text style={styles.pillText}>{timeframeLabel}</Text>
+          </View>
+        )}
       </View>
     </View>
   );

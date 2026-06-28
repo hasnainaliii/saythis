@@ -44,16 +44,29 @@ export const ToolResultScreen: React.FC<ToolResultScreenProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [rated, setRated] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const handleRate = (r: number) => {
-    setRated(true);
-    onSave(r);
+    if (!saved) {
+      setSaved(true);
+      onSave(r);
+    }
   };
 
   const handleSkip = () => {
-    setRated(true);
-    onSave(null);
+    if (!saved) {
+      setSaved(true);
+      onSave(null);
+    }
+  };
+
+  const handleDone = () => {
+    // If user hasn't rated/skipped yet, save with no rating before navigating away
+    if (!saved) {
+      setSaved(true);
+      onSave(null);
+    }
+    router.replace('/(main)/(tabs)/library');
   };
 
   return (
@@ -82,7 +95,7 @@ export const ToolResultScreen: React.FC<ToolResultScreenProps> = ({
         <View style={styles.buttonsRow}>
           <Pressable
             style={[styles.primaryBtn, { backgroundColor: accentColor }]}
-            onPress={() => router.replace('/(main)/(tabs)/library')}
+            onPress={handleDone}
           >
             <Text style={styles.primaryBtnText}>Done</Text>
           </Pressable>

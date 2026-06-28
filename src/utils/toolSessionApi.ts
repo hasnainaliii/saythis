@@ -134,7 +134,7 @@ export const saveSessionToBackend = async (session: ToolSessionStats) => {
 
     return await response.json();
   } catch (error) {
-    console.error("Error saving session to backend, queuing offline:", error);
+    console.log("Backend unavailable, session queued offline");
     await addToQueue(session);
     return session;
   }
@@ -189,6 +189,22 @@ export const getToolStats = async () => {
     let fafSemiSum = 0;
     let dafRatingSum = 0;
     let fafRatingSum = 0;
+    
+    let gentleScoreSum = 0;
+    let prolongedWpmSum = 0;
+    let stuttersSum = 0;
+    let tapMinutes = 0;
+    let readingWpmSum = 0;
+    let simCompletedCount = 0;
+
+    let breathingRatingSum = 0;
+    let breathingRatingCount = 0;
+    let drillsRatingSum = 0;
+    let drillsRatingCount = 0;
+    let bioRatingSum = 0;
+    let bioRatingCount = 0;
+    let simRatingSum = 0;
+    let simRatingCount = 0;
 
     stats.combined.totalSessions = sessions.length;
     const activeDates = new Set<string>();
@@ -218,19 +234,69 @@ export const getToolStats = async () => {
         if (s.toolType === 'BOX_BREATHING') stats.breathing.boxBreathingSessions++;
         if (s.toolType === 'DIAPHRAGMATIC') stats.breathing.diaphragmaticSessions++;
         if (s.toolType === 'PRE_SPEECH') stats.breathing.preSpeechSessions++;
+        if (s.selfRating) { breathingRatingSum += s.selfRating; breathingRatingCount++; }
       } else if (['GENTLE_ONSET', 'PROLONGED_SPEECH'].includes(s.toolType)) {
         stats.drills.totalSessions++;
         stats.drills.totalMinutes += s.durationSeconds / 60;
+        if (s.toolType === 'GENTLE_ONSET') {
+          stats.drills.gentleOnsetSessions++;
+          gentleScoreSum += (s as any).averageScore || 0;
+        }
+        if (s.toolType === 'PROLONGED_SPEECH') {
+          stats.drills.prolongedSpeechSessions++;
+          prolongedWpmSum += (s as any).estimatedWpm || 0;
+        }
+        if (s.selfRating) { drillsRatingSum += s.selfRating; drillsRatingCount++; }
       } else if (['STUTTER_TAP_COUNTER', 'TIMED_READING_WPM'].includes(s.toolType)) {
         stats.biofeedback.totalSessions++;
         stats.biofeedback.totalMinutes += s.durationSeconds / 60;
+        if (s.toolType === 'STUTTER_TAP_COUNTER') {
+          stats.biofeedback.stutterTapSessions++;
+          stuttersSum += (s as any).totalTaps || 0;
+          tapMinutes += s.durationSeconds / 60;
+        }
+        if (s.toolType === 'TIMED_READING_WPM') {
+          stats.biofeedback.timedReadingSessions++;
+          readingWpmSum += (s as any).actualWpm || 0;
+        }
+        if (s.selfRating) { bioRatingSum += s.selfRating; bioRatingCount++; }
       } else if (['VIRTUAL_COFFEE_ORDER', 'PHONE_CALL_SIMULATOR'].includes(s.toolType)) {
         stats.simulation.totalSessions++;
         stats.simulation.totalMinutes += s.durationSeconds / 60;
+        if (s.toolType === 'VIRTUAL_COFFEE_ORDER') stats.simulation.coffeeSessions++;
+        if (s.toolType === 'PHONE_CALL_SIMULATOR') stats.simulation.callSessions++;
+        if ((s as any).completed) simCompletedCount++;
+        if (s.selfRating) { simRatingSum += s.selfRating; simRatingCount++; }
       }
     }
 
     stats.combined.activeDays = activeDates.size;
+
+    // Compute current streak (consecutive days ending today or yesterday)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const sortedDates = Array.from(activeDates).sort().reverse();
+    let streak = 0;
+    if (sortedDates.length > 0) {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      // Allow streak to start from today or yesterday
+      const checkDate = sortedDates[0];
+      const diffFromToday = Math.floor((d.getTime() - new Date(checkDate).getTime()) / (1000 * 60 * 60 * 24));
+      if (diffFromToday <= 1) {
+        for (let i = 0; i < sortedDates.length; i++) {
+          const expected = new Date(d);
+          expected.setDate(expected.getDate() - i - diffFromToday);
+          if (sortedDates[i] === expected.toISOString().split('T')[0]) {
+            streak++;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+    stats.combined.currentStreak = streak;
+    stats.combined.bestStreak = Math.max(streak, stats.combined.bestStreak);
+
     if (stats.daf.totalSessions > 0) {
       stats.daf.avgRating = dafRatingSum / stats.daf.totalSessions;
       stats.daf.avgDelayMs = dafDelaySum / stats.daf.totalSessions;
@@ -239,6 +305,25 @@ export const getToolStats = async () => {
       stats.faf.avgRating = fafRatingSum / stats.faf.totalSessions;
       stats.faf.avgSemitones = fafSemiSum / stats.faf.totalSessions;
     }
+    if (breathingRatingCount > 0) stats.breathing.avgRating = breathingRatingSum / breathingRatingCount;
+    if (drillsRatingCount > 0) stats.drills.avgRating = drillsRatingSum / drillsRatingCount;
+    if (bioRatingCount > 0) stats.biofeedback.avgRating = bioRatingSum / bioRatingCount;
+    if (simRatingCount > 0) stats.simulation.avgRating = simRatingSum / simRatingCount;
+    if (stats.drills.gentleOnsetSessions > 0) stats.drills.avgGentleScore = gentleScoreSum / stats.drills.gentleOnsetSessions;
+    if (stats.drills.prolongedSpeechSessions > 0) stats.drills.avgProlongedWpm = prolongedWpmSum / stats.drills.prolongedSpeechSessions;
+    if (tapMinutes > 0) stats.biofeedback.avgStuttersPerMin = stuttersSum / tapMinutes;
+    if (stats.biofeedback.timedReadingSessions > 0) stats.biofeedback.avgReadingWpm = Math.round(readingWpmSum / stats.biofeedback.timedReadingSessions);
+    if (stats.simulation.totalSessions > 0) stats.simulation.avgCompletionScore = Math.round((simCompletedCount / stats.simulation.totalSessions) * 100);
+
+    // Round all minute values to clean whole numbers (minimum 1 if there are sessions)
+    const roundMin = (val: number) => val > 0 ? Math.max(1, Math.round(val)) : 0;
+    stats.combined.totalToolMinutes = roundMin(stats.combined.totalToolMinutes);
+    stats.daf.totalMinutes = roundMin(stats.daf.totalMinutes);
+    stats.faf.totalMinutes = roundMin(stats.faf.totalMinutes);
+    stats.breathing.totalMinutes = roundMin(stats.breathing.totalMinutes);
+    stats.drills.totalMinutes = roundMin(stats.drills.totalMinutes);
+    stats.biofeedback.totalMinutes = roundMin(stats.biofeedback.totalMinutes);
+    stats.simulation.totalMinutes = roundMin(stats.simulation.totalMinutes);
 
     return stats;
   } catch (e) {

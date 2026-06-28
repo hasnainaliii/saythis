@@ -21,6 +21,7 @@ export const StatsHeroCard: React.FC<StatsHeroCardProps> = ({
   lastSessionLabel,
 }) => {
   const safeLast = lastSessionLabel || "No sessions yet";
+  const displayMinutes = totalMinutes > 0 ? Math.max(1, Math.round(totalMinutes)) : 0;
 
   return (
     <View style={styles.card}>
@@ -31,7 +32,7 @@ export const StatsHeroCard: React.FC<StatsHeroCardProps> = ({
       <View style={styles.topRow}>
         <Text style={styles.kicker}>Total practice time</Text>
       </View>
-      <Text style={styles.bigValue}>{totalMinutes} min</Text>
+      <Text style={styles.bigValue}>{displayMinutes} min</Text>
       <Text style={styles.caption}>
         {totalSessions} sessions, {activeDays} active days
       </Text>

@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingHorizontal: spacingX.lg,
-    paddingBottom: 70,
+    paddingBottom: 120,
   },
 
   // hero

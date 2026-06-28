@@ -35,7 +35,7 @@ export const StatsWeeklyActivityCard: React.FC<StatsWeeklyActivityCardProps> = (
       <View style={styles.headerRow}>
         <View>
           <Text style={styles.title}>Weekly rhythm</Text>
-          <Text style={styles.subtitle}>{totalMinutes} min this week</Text>
+          <Text style={styles.subtitle}>{totalMinutes} sessions this week</Text>
         </View>
         <View style={styles.badge}>
           <Text style={styles.badgeText}>7 days</Text>

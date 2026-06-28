@@ -170,7 +170,7 @@ export default function TimedReadingWpmScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.primary },
-  sessionContainer: { flex: 1, paddingBottom: spacingY.xl },
+  sessionContainer: { flex: 1, paddingBottom: 120 },
   sessionTitle: { fontFamily: FONTS.primaryBlack, fontSize: fontSizes.xl, color: colors.textDark, textAlign: 'center', marginTop: spacingY.md },
   timerWrap: { alignItems: 'center', marginVertical: spacingY.md },
   timerText: { fontFamily: FONTS.primaryBlack, fontSize: 40, color: colors.secondary },

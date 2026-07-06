@@ -110,7 +110,7 @@ export const ToolResultScreen: React.FC<ToolResultScreenProps> = ({
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.primary },
-  scrollContent: { padding: spacingX.md, paddingBottom: spacingY.xxl },
+  scrollContent: { padding: spacingX.md, paddingBottom: 120 },
   header: { alignItems: 'center', marginVertical: spacingY.lg },
   title: {
     fontFamily: FONTS.primaryBlack, fontSize: fontSizes.xxl,

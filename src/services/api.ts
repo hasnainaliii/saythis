@@ -55,10 +55,17 @@ api.interceptors.response.use(
 
     // If we get a 401 and haven't already retried this request
     if (error.response?.status === 401 && !originalRequest._retry) {
+      if (
+        originalRequest.url?.includes("/auth/login") ||
+        originalRequest.url?.includes("/auth/register")
+      ) {
+        return Promise.reject(error);
+      }
+
       // Don't try to refresh if the failing request IS the refresh endpoint
       if (originalRequest.url?.includes("/auth/refresh")) {
-        await storage.removeItem(StorageKeys.USER_TOKEN);
-        await storage.removeItem(StorageKeys.USER_REFRESH_TOKEN);
+        const { useAuthStore } = require("../store/authStore");
+        useAuthStore.getState().logout();
         return Promise.reject(error);
       }
 
@@ -104,9 +111,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         // Refresh failed — clear tokens (session expired)
-        await storage.removeItem(StorageKeys.USER_TOKEN);
-        await storage.removeItem(StorageKeys.USER_REFRESH_TOKEN);
-        await storage.removeItem(StorageKeys.USER_PROFILE);
+        const { useAuthStore } = require("../store/authStore");
+        useAuthStore.getState().logout();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

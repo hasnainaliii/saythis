@@ -40,21 +40,26 @@ export const useBreathingPhaseTimer = ({
   const onPhaseChangeRef = useRef(onPhaseChange);
   const onCycleCompleteRef = useRef(onCycleComplete);
   const onCompleteRef = useRef(onComplete);
+  const phasesRef = useRef(phases);
+  const totalCyclesRef = useRef(totalCycles);
+
   useEffect(() => { onPhaseChangeRef.current = onPhaseChange; }, [onPhaseChange]);
   useEffect(() => { onCycleCompleteRef.current = onCycleComplete; }, [onCycleComplete]);
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+  useEffect(() => { phasesRef.current = phases; }, [phases]);
+  useEffect(() => { totalCyclesRef.current = totalCycles; }, [totalCycles]);
 
   const tick = useCallback(() => {
     const now = Date.now();
     const dt = now - lastTickRef.current;
     lastTickRef.current = now;
 
-    if (completedRef.current || phases.length === 0) return;
+    if (completedRef.current || phasesRef.current.length === 0) return;
 
     phaseElapsedRef.current += dt;
     setTotalElapsedMs(prev => prev + dt);
 
-    const currentPhase = phases[phaseIndexRef.current];
+    const currentPhase = phasesRef.current[phaseIndexRef.current];
     const dur = currentPhase.durationMs;
     const p = Math.min(1, phaseElapsedRef.current / dur);
     setProgress(p);
@@ -63,14 +68,14 @@ export const useBreathingPhaseTimer = ({
       phaseElapsedRef.current = 0;
       let nextIdx = phaseIndexRef.current + 1;
 
-      if (nextIdx >= phases.length) {
+      if (nextIdx >= phasesRef.current.length) {
         nextIdx = 0;
         const newCycles = cyclesRef.current + 1;
         cyclesRef.current = newCycles;
         setCyclesCompleted(newCycles);
         onCycleCompleteRef.current?.(newCycles);
 
-        if (newCycles >= totalCycles) {
+        if (newCycles >= totalCyclesRef.current) {
           completedRef.current = true;
           setIsRunning(false);
           setProgress(1);
@@ -83,12 +88,12 @@ export const useBreathingPhaseTimer = ({
       phaseIndexRef.current = nextIdx;
       setPhaseIndex(nextIdx);
       setProgress(0);
-      onPhaseChangeRef.current?.(phases[nextIdx], nextIdx);
+      onPhaseChangeRef.current?.(phasesRef.current[nextIdx], nextIdx);
     }
-  }, [phases, totalCycles]);
+  }, []);
 
   const start = useCallback(() => {
-    if (phases.length === 0) return;
+    if (phasesRef.current.length === 0) return;
     phaseElapsedRef.current = 0;
     phaseIndexRef.current = 0;
     cyclesRef.current = 0;
@@ -102,11 +107,11 @@ export const useBreathingPhaseTimer = ({
     setIsRunning(true);
     setIsPaused(false);
 
-    onPhaseChangeRef.current?.(phases[0], 0);
+    onPhaseChangeRef.current?.(phasesRef.current[0], 0);
 
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(tick, 16);
-  }, [phases, tick]);
+  }, [tick]);
 
   const pause = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -136,9 +141,9 @@ export const useBreathingPhaseTimer = ({
 
   const skipToNext = useCallback(() => {
     if (!isRunning || completedRef.current) return;
-    phaseElapsedRef.current = phases[phaseIndexRef.current].durationMs;
+    phaseElapsedRef.current = phasesRef.current[phaseIndexRef.current].durationMs;
     tick();
-  }, [isRunning, phases, tick]);
+  }, [isRunning, tick]);
 
   useEffect(() => {
     return () => {

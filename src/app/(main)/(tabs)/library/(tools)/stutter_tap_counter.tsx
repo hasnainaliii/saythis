@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Pressable } from 'react-native';
+import { View, StyleSheet, Text, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -45,7 +45,7 @@ const TapSession = ({ onComplete }: { onComplete: (taps: number) => void }) => {
   }));
 
   return (
-    <View style={[styles.sessionContainer, { paddingTop: insets.top }]}>
+    <ScrollView contentContainerStyle={[styles.sessionContainer, { paddingTop: insets.top, paddingBottom: 120 }]}>
       <Text style={styles.sessionTitle}>Stutter Tap Counter</Text>
       <Text style={styles.sessionSubtitle}>Read the passage aloud. Tap the circle every time you experience a stutter or block.</Text>
       
@@ -67,7 +67,7 @@ const TapSession = ({ onComplete }: { onComplete: (taps: number) => void }) => {
       <Pressable style={styles.finishBtn} onPress={() => onComplete(taps)}>
         <Text style={styles.finishBtnText}>Finish Session</Text>
       </Pressable>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -164,15 +164,15 @@ export default function StutterTapCounterScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.primary },
-  sessionContainer: { flex: 1, padding: spacingX.lg, alignItems: 'center' },
+  sessionContainer: { flexGrow: 1, padding: spacingX.lg, alignItems: 'center' },
   sessionTitle: { fontFamily: FONTS.primaryBlack, fontSize: fontSizes.xl, color: colors.textDark, marginTop: spacingY.md },
   sessionSubtitle: { fontFamily: FONTS.primary, fontSize: fontSizes.medium, color: colors.textMuted, textAlign: 'center', marginTop: spacingY.sm, marginBottom: spacingY.md },
   passageBox: { backgroundColor: colors.libraryCard, padding: spacingX.lg, borderRadius: radii.md, borderWidth: 1, borderColor: colors.libraryBorder, width: '100%', marginBottom: spacingY.lg },
   passageText: { fontFamily: FONTS.primary, fontSize: fontSizes.medium, color: colors.textDark, lineHeight: 26 },
   counterWrap: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  tapCircle: { width: 200, height: 200, borderRadius: 100, backgroundColor: colors.secondary, justifyContent: 'center', alignItems: 'center', elevation: 4, shadowColor: colors.secondary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
-  tapNumber: { fontFamily: FONTS.primaryBlack, fontSize: 64, color: colors.white },
-  tapLabel: { fontFamily: FONTS.primaryBold, fontSize: fontSizes.large, color: colors.white, opacity: 0.8 },
-  finishBtn: { width: '100%', paddingVertical: spacingY.md, borderRadius: radii.pill, alignItems: 'center', borderWidth: 2, borderColor: colors.libraryBorder, marginBottom: spacingY.xl },
+  tapCircle: { width: 160, height: 160, borderRadius: 80, backgroundColor: colors.secondary, justifyContent: 'center', alignItems: 'center', elevation: 4, shadowColor: colors.secondary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
+  tapNumber: { fontFamily: FONTS.primaryBlack, fontSize: 48, color: colors.white },
+  tapLabel: { fontFamily: FONTS.primaryBold, fontSize: fontSizes.medium, color: colors.white, opacity: 0.8 },
+  finishBtn: { width: '100%', paddingVertical: spacingY.md, borderRadius: radii.pill, alignItems: 'center', borderWidth: 2, borderColor: colors.libraryBorder, marginTop: spacingY.xl, marginBottom: spacingY.xl },
   finishBtnText: { fontFamily: FONTS.primaryBold, fontSize: fontSizes.medium, color: colors.textDark },
 });

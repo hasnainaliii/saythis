@@ -146,7 +146,7 @@ export const getTherapyProgress = async (): Promise<TherapyProgress> => {
       stats: summary.stats,
     };
   } catch (error) {
-    console.error("Failed to fetch therapy progress", error);
+    console.warn("Failed to fetch therapy progress", error);
     const introDismissed = await loadIntroDismissed();
     return { ...DEFAULT_THERAPY_PROGRESS, introDismissed };
   }

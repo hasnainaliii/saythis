@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   },
   finishBtn: {
     marginHorizontal: spacingX.lg,
-    marginBottom: spacingY.xl,
+    marginBottom: 120,
     paddingVertical: spacingY.md,
     alignItems: 'center',
     borderRadius: radii.pill,

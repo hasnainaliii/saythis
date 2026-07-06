@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: spacingX.lg,
-    paddingBottom: spacingY.xxl,
+    paddingBottom: 120,
   },
   startBtn: {
     backgroundColor: colors.secondary,

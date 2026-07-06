@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { User } from "../types/auth";
 import { storage, StorageKeys } from "../utils/storage";
 import { userService } from "../services/userService";
+import { clearOfflineQueue } from "../utils/offlineQueue";
 
 interface AuthState {
   user: User | null;
@@ -56,6 +57,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       await storage.removeItem(StorageKeys.USER_TOKEN);
       await storage.removeItem(StorageKeys.USER_REFRESH_TOKEN);
       await storage.removeItem(StorageKeys.USER_PROFILE);
+      await storage.removeItem(StorageKeys.APP_SESSIONS);
+      await clearOfflineQueue();
 
       set({ user: null, isAuthenticated: false });
     } catch (error) {

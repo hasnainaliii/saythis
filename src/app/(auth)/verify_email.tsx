@@ -54,8 +54,7 @@ export default function VerifyEmailScreen() {
         showSuccess("Verified!", "Your email has been verified.");
         router.replace("/");
       } else {
-        const debugInfo = `keys: ${Object.keys(freshUser).join(",")}, status: ${freshUser.status}, val: ${freshUser.email_verified_at}`;
-        showError("Not Verified", debugInfo);
+        showError("Not Verified", "Your email has not been verified yet. Please check your inbox.");
       }
     } catch (err: any) {
       showError(

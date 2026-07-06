@@ -68,3 +68,12 @@ export const incrementAttempt = async (id: number, attempts: number) => {
     console.error("Failed to increment attempt:", error);
   }
 };
+
+export const clearOfflineQueue = async () => {
+  try {
+    const db = await getDb();
+    await db.runAsync('DELETE FROM pending_sessions');
+  } catch (error) {
+    console.error("Failed to clear offline queue:", error);
+  }
+};

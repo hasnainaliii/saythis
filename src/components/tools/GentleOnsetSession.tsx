@@ -109,7 +109,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
-    paddingVertical: spacingY.xl,
+    paddingTop: spacingY.xl,
+    paddingBottom: 120,
   },
   wordContainer: {
     alignItems: 'center',
